@@ -1,11 +1,11 @@
 import { Text } from "@nextui-org/react";
 
-interface SmallGreyTextProps {
+interface TextProps {
   text: string;
   styles?: any;
 }
 
-export const SmallGreyText = ({ text, styles }: SmallGreyTextProps) => {
+export const SmallGreyText = ({ text, styles }: TextProps) => {
   return (
     <Text h6 size={11} color="grey" css={styles}>
       {text}
@@ -13,7 +13,7 @@ export const SmallGreyText = ({ text, styles }: SmallGreyTextProps) => {
   );
 };
 
-export const CardTitleText = ({ text, styles }) => {
+export const CardTitleText = ({ text, styles }: TextProps) => {
   return (
     <Text h6 size={13} color="black" css={styles}>
       {text}
@@ -21,7 +21,7 @@ export const CardTitleText = ({ text, styles }) => {
   );
 };
 
-export const HashTagText = ({ text, styles }) => {
+export const HashTagText = ({ text, styles }: TextProps) => {
   return (
     <Text h6 size={14} color="blue" css={styles}>
       {text}

@@ -8,8 +8,8 @@ import RightSide from "@/components/rightSide";
 import { explores } from "@/dummyData/explore.json";
 import appPages from "@/shared/appPages";
 import { ArrowBackRounded } from "@mui/icons-material";
-import { Avatar, Head, Image, Text } from "@nextui-org/react";
-import React from "react";
+import { Avatar, Image, Text } from "@nextui-org/react";
+import Head from "next/head";
 import styles from "./styles.module.css";
 
 export default function Explore(props) {
@@ -70,7 +70,7 @@ const ExploreItem = (props) => {
         <HashTagText text={hashtag} />
         <SmallGreyText text={tweetQuantity} />
       </div>
-      <Avatar css={{ borderRadius: "2rem" }} size={50} src={mediaUrl} />
+      <Avatar css={{ borderRadius: "2rem" }} size="md" src={mediaUrl} />
     </div>
   );
 };
