@@ -1,14 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   CommentDetailResponseDto,
+  CommentInsertRequestDto,
   CommentsFetchRequestDto,
   getCommentByPostID,
+  insertComment,
 } from "./commentsAPI";
 
 export interface CommentsState {
   comments: CommentDetailState[];
   fetchingStatus: "idle" | "pending" | "success" | "fail";
   commentSessionOpen: CommentSessionOpenProps;
+  insertStatus: "idle" | "pending" | "success" | "fail";
 }
 
 export interface CommentDetailState {
@@ -33,6 +36,7 @@ const initialState: CommentsState = {
   comments: [],
   fetchingStatus: "idle",
   commentSessionOpen: { postId: null },
+  insertStatus: "idle",
 };
 
 const commentsSlice = createSlice({
@@ -57,6 +61,15 @@ const commentsSlice = createSlice({
     builder.addCase(fetchCommentsByPostID.rejected, (state, action) => {
       state.fetchingStatus = "fail";
       state.comments = [];
+    });
+    builder.addCase(addComment.pending, (state, action) => {
+      state.insertStatus = "pending";
+    });
+    builder.addCase(addComment.fulfilled, (state, action) => {
+      state.insertStatus = "success";
+    });
+    builder.addCase(addComment.rejected, (state, action) => {
+      state.insertStatus = "fail";
     });
   },
 });
@@ -89,6 +102,14 @@ export const fetchCommentsByPostID = createAsyncThunk(
   "comments/fetchCommentsByPostID",
   async (request: CommentsFetchRequestDto, thunkAPI) => {
     const data = await getCommentByPostID(request);
+    return data;
+  }
+);
+
+export const addComment = createAsyncThunk(
+  "comments/addComment",
+  async (request: CommentInsertRequestDto, thunkAPI) => {
+    const data = await insertComment(request);
     return data;
   }
 );

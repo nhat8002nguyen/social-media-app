@@ -22,6 +22,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
+  addComment,
   closeCommentSession,
   CommentDetailState,
   CommentsState,
@@ -34,6 +35,7 @@ import {
 } from "redux/slices/home/posts/postFormSlice";
 import {
   deletePresentedPost,
+  increaseCommentCountOfPost,
   PostState,
 } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -571,11 +573,31 @@ interface CommentAreaProps {
 }
 
 const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
+  const dispatch = useAppDispatch();
+  const [input, setInput] = useState<string>("");
   const {
     commentSessionOpen: { postId: currentCommentOpenPostId },
     comments,
-    fetchingStatus,
+    insertStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
+  const handleSendClick = async () => {
+    const trimInput = input.trim();
+    if (trimInput.length > 0) {
+      await dispatch(
+        addComment({
+          postId: postProps.id,
+          userId: session?.user.db_id,
+          text: trimInput,
+        })
+      );
+      dispatch(increaseCommentCountOfPost(postProps.id));
+      await dispatch(fetchCommentsByPostID({ postId: postProps.id }));
+      dispatch(openCommentSession({ postId: postProps.id }));
+    }
+    setInput("");
+  };
 
   return (
     <div className={styles.commentArea}>
@@ -584,8 +606,18 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
         <Input
           className={styles.commentInputBox}
           placeholder="Write Your comment"
+          value={input}
+          onChange={(e) => setInput(e.currentTarget.value)}
         />
-        <Send cursor="pointer" htmlColor={appColors.primary} />
+        {insertStatus == "pending" ? (
+          <AppButtonLoading />
+        ) : (
+          <Send
+            cursor="pointer"
+            htmlColor={appColors.primary}
+            onClick={handleSendClick}
+          />
+        )}
       </div>
       {currentCommentOpenPostId == postProps.id && (
         <div className={styles.commentThreads}>

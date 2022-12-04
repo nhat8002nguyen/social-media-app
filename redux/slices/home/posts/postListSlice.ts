@@ -64,6 +64,12 @@ export const postListSlice = createSlice({
         (post) => post.id != action.payload.postId
       );
     },
+    increaseCommentCountOfPost(state, action: PayloadAction<number>) {
+      const targetPost = state.posts.find((post) => post.id == action.payload);
+      if (targetPost != null) {
+        targetPost.commentCount++;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(findNewsFeedPosts.pending, (state, action) => {
@@ -86,7 +92,8 @@ export const findNewsFeedPosts = createAsyncThunk(
   }
 );
 
-export const { deletePresentedPost } = postListSlice.actions;
+export const { deletePresentedPost, increaseCommentCountOfPost } =
+  postListSlice.actions;
 
 export const selectPostListState = (state: RootState) => state.postList;
 
