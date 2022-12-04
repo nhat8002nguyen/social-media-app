@@ -69,7 +69,7 @@ export const PostModal = ({
           }
       );
     }
-  }, [bindings.open]);
+  }, [bindings.open, initialPostInfo]);
 
   const handleTitleChange = (e: ChangeEvent<FormElement>) => {
     setPostValues((prev) => ({ ...prev, title: e.target.value?.trim() }));
@@ -115,7 +115,7 @@ export const PostModal = ({
         >
           <Modal.Header>
             <Text id="modal-title" size={18}>
-              Let's give a review
+              {"Let's give a review"}
             </Text>
           </Modal.Header>
           <Modal.Body className={styles.modalBody}>

@@ -18,6 +18,7 @@ export const ImageViewModal = ({src, visible = false, setVisible}: ImageViewModa
           <Image
             showSkeleton
             src={src}
+						alt="Not found!"
           />
         </Modal.Body>
 				<Modal.Footer>

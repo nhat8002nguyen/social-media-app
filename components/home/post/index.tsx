@@ -301,12 +301,12 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
 };
 
 const PostImages = ({ images }) => {
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [imageSrc, setImageSrc] = useState<string>();
+
   if (images.first == null && images.second == null && images.third == null) {
     return;
   }
-
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [imageSrc, setImageSrc] = useState<string>();
 
   const handleImageClick = (src: string) => {
     setImageSrc(src);

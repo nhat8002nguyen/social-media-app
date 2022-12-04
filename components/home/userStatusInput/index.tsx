@@ -18,7 +18,7 @@ export default function UserStatusInput({ refreshNewsFeed }) {
       <AccountCircleRounded className={styles.avatarIcon} />
       <div className={styles.formHeader}>
         <label className={styles.formLabel} onClick={() => setVisible(true)}>
-          Let's give a review
+          {"Let's give a review"}
         </label>
       </div>
       <AddCircleRounded

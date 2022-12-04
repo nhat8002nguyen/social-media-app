@@ -86,12 +86,12 @@ export default function LeftSide(props) {
   );
 
   useEffect(() => {
-    if (sessionStatus == "authenticated" && session.user != null) {
+    if (sessionStatus == "authenticated") {
       saveSessionToState(session);
       syncGoogleAccountToDB();
       setSignInButtonText(session.user.name);
     }
-  }, [sessionStatus]);
+  }, [sessionStatus, syncGoogleAccountDB, setSignInButtonText]);
 
   const saveSessionToState = (session: Session) => {
     let authState: AuthState = {
