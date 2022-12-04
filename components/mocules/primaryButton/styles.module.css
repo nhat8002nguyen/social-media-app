@@ -1,0 +1,13 @@
+.primaryButton {
+  min-height: 2rem;
+  max-height: 3rem;
+  min-width: 10rem;
+  max-width: 15rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  background-color: var(--primary-button-color);
+  border-radius: 0.5rem;
+}

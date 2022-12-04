@@ -1,0 +1,59 @@
+.menu {
+  flex: 2;
+  color: grey;
+  padding: 1rem 0.5rem;
+}
+
+.fixedArea {
+  position: fixed;
+  width: 20vw;
+}
+
+.iconContainer {
+  flex: 2;
+  padding-left: 1rem;
+}
+
+.menuItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 1rem 0;
+  height: 30rem;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  justify-items: flex-start;
+  align-items: center;
+  padding-left: 1rem;
+  gap: 1.2rem;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+.menuItem:hover {
+  background-color: white;
+  color: black;
+}
+.menuItem:active {
+  background-color: white;
+  box-shadow: 2px 2px 2px grey;
+}
+
+.menuItemFocus {
+  display: flex;
+  justify-items: flex-start;
+  align-items: center;
+  padding-left: 1rem;
+  gap: 1.2rem;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  background-color: white;
+  color: black;
+}

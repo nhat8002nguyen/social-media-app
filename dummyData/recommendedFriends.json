@@ -1,0 +1,32 @@
+{
+  "recommendedFriends": [
+    {
+      "id": 0,
+      "image": "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg",
+      "name": "Someone",
+      "short_bio": "Designer",
+      "following_status": 1
+    },
+    {
+      "id": 1,
+      "image": "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg",
+      "name": "Someone",
+      "short_bio": "Designer",
+      "following_status": 0
+    },
+    {
+      "id": 2,
+      "image": "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg",
+      "name": "Someone",
+      "short_bio": "Designer",
+      "following_status": 0
+    },
+    {
+      "id": 3,
+      "image": "https://helpx.adobe.com/content/dam/help/en/photoshop/using/convert-color-image-black-white/jcr_content/main-pars/before_and_after/image-before/Landscape-Color.jpg",
+      "name": "Someone",
+      "short_bio": "Designer",
+      "following_status": 0
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+.recommededPeople {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cardListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recommendList {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}

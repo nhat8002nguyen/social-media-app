@@ -1,0 +1,38 @@
+.userStatusInput {	
+	min-height: 3rem;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0.5rem;
+	background-color: white;
+	padding: 0 1rem;
+	box-shadow: 1px 1px 1px #D9DFE3;
+	margin-top: 1.5rem;
+	border-radius: 1rem;
+}
+
+.formHeader {
+	flex: 10;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.formLabel {
+	border: none;
+	outline: none;
+	flex: 1;
+	font-weight: 300;
+	cursor: pointer;
+}
+
+.avatarIcon {
+	flex: 1;
+	color: var(--primary-button-color);
+}
+
+.addIcon {
+	color: var(--primary-button-color);
+	cursor: pointer;
+	flex: 1
+}

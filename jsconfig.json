@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/components/*": ["components/*"],
+			"@/dummyData/*": ["dummyData/*"],
+			"@/shared/*": ["shared/*"],
+			"@/constants/*": ["constants/*"],
+			"@/hooks/*": ["hooks/*"],
+			"@/services/*": ["services/*"]
+		}
+  }
+}

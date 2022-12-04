@@ -1,0 +1,27 @@
+.searchContainer {
+	flex: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	background-color: white;
+	border-radius: 1rem;
+	box-shadow: 1px 1px 1px #D9DFE3;
+}
+
+.searchIcon {
+	flex: 1;
+	color: var(--primary-color);
+	cursor: pointer;
+}
+.searchIcon:hover {
+	transform: scale(1.2);
+}
+
+.searchInput {
+	flex: 4;
+	min-height: var(--input-min-height);
+	border: none;
+	outline: none;
+}
+
+

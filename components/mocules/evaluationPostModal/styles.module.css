@@ -1,0 +1,39 @@
+.modalBody {
+	padding: 1rem 1.5rem;
+}
+
+.titleInput {
+}
+
+.footerButtons {
+	display: flex;
+	gap: 1rem;
+}
+
+.ratingArea {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.ratingAreaRow {
+	display: flex;
+	justify-content: flex-start;
+}
+
+.rating {
+	flex: 1;
+}
+
+.photoAddingArea {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	gap: 0.5rem;
+}
+
+.addedFileList {
+	display: flex;
+	gap: 0.3rem;
+	margin-left: 0.5rem;
+}

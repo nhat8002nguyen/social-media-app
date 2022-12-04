@@ -1,0 +1,153 @@
+.postContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.postContainer > div {
+  flex: 1;
+	display: flex;
+}
+
+.postMain {
+  padding: 0.5rem 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+	padding: 1rem 0;
+	font-weight: 700;
+	font-size: 16px;
+}
+
+.descriptions {
+	padding-bottom: 0.5rem;
+}
+
+.ratingAndHotelDetail {
+	display: flex;
+	padding-bottom: 1rem;
+}
+
+.hotelDetail {
+	flex: 1;
+}
+
+.hotelText {
+	font-style: italic;
+	font-size: small;
+}
+
+/* Rating Area */
+
+.ratingArea {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.ratingAreaRow {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+
+.rating {
+display: flex;
+}
+
+.ratingText {
+	font-size: 10px;
+}
+
+.images {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.smallImages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.bigImage {
+  flex: 2;
+}
+
+.interactionMetrics {
+  display: flex;
+  align-items: center;
+  gap: 6rem;
+  padding: 1rem 0;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* comment area */
+.commentInput {
+  display: flex;
+	align-items: center;
+  gap: 1rem;
+}
+
+.commentInputBox {
+  max-width: 10rem;
+  min-width: 24rem;
+}
+
+.commentThreads {
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.commentThread {
+  display: flex;
+  gap: 1rem;
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--app-background-color);
+  padding: 0.5rem;
+  border-radius: 1rem;
+}
+
+.commentInteraction {
+  display: flex;
+	align-items: flex-end;
+  gap: 1rem;
+  padding: 0 0.5rem;
+}
+
+.replies {
+  padding: 1rem 0;
+}

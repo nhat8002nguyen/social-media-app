@@ -1,0 +1,9 @@
+.right {
+  flex: 2;
+}
+
+.fixedArea {
+  position: fixed;
+  width: 20vw;
+  right: 0;
+}

@@ -1,0 +1,33 @@
+.headerNavigation {
+  display: flex;
+  background-color: white;
+  justify-content: space-around;
+  border-radius: var(--border-radius);
+}
+
+.activeSign {
+  width: 70%;
+}
+
+.activeSignOn {
+  height: 2px;
+  width: 90%;
+  background-color: var(--primary-color);
+}
+
+.headerNavigation > div {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  min-height: var(--input-min-height);
+  font-size: 1rem;
+  color: grey;
+}
+.headerNavigation > div:hover {
+  background-color: #f7f8f9;
+  border-radius: var(--border-radius);
+}

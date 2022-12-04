@@ -1,0 +1,32 @@
+:root {
+  --border-radius: 1rem;
+  --input-min-height: 3rem;
+  --primary-color: rgb(101, 165, 255);
+  --primary-button-color: #005ff9;
+  --app-background-color: #e9f0f4;
+
+  --font-weight-small: 300;
+  --font-weight-normal: 500;
+  --font-weight-bold: 700;
+
+  --font-size-small: 11px;
+  --font-size-normal: 14px;
+  --font-size-large: 16px;
+}
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-weight: 500;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
