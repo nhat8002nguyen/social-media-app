@@ -32,6 +32,7 @@ import { AuthState } from "redux/slices/auth/authSlice";
 import { ReplyCommentsFetchRequestDto } from "redux/slices/home/comments/commentsAPI";
 import {
   addComment,
+  addReplyComment,
   closeCommentSession,
   closeReplyInputOpen,
   CommentsState,
@@ -47,6 +48,7 @@ import {
 import {
   deletePresentedPost,
   increaseCommentCountOfPost,
+  PostListState,
   PostState,
 } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -77,7 +79,7 @@ const monthNames = [
 ];
 
 export default function EvaluationPost(props: EvaluationPostProps) {
-  const { postState, refreshNewsFeed } = props;
+  const { postState } = props;
   const postListState = useSelector((state: RootState) => state.postList);
   const [postProps, setPostProps] = useState<PostState>();
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
@@ -492,18 +494,29 @@ const PostRatingArea = ({
   );
 };
 
-const InteractionMetrics = ({
-  likedCount,
-  sharedCount,
-  commentCount,
-  id: postId,
-}: PostState) => {
+const InteractionMetrics = ({ id: postId }: PostState) => {
   const dispatch = useAppDispatch();
   const [liked, setLiked] = React.useState(false);
+  const [likedCount, setLikedCount] = useState<number>(0);
+  const [commentCount, setCommentCount] = useState<number>(0);
+  const [sharedCount, setSharedCount] = useState<number>(0);
+
   const {
     commentSessionOpen: { postId: currentCommentOpenPostId },
     fetchingStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
+  const { posts }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
+
+  useEffect(() => {
+    const currentPost = posts.find((post) => post.id == postId);
+    if (currentPost != null) {
+      setLikedCount(currentPost.likedCount);
+      setSharedCount(currentPost.sharedCount);
+      setCommentCount(currentPost.commentCount);
+    }
+  }, [posts, setLikedCount, setSharedCount, setCommentCount]);
 
   const toggleLike = () => setLiked(() => !liked);
 
@@ -645,7 +658,11 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
       {currentCommentOpenPostId == postProps.id && (
         <div className={styles.commentThreads}>
           {comments.map((thread) => (
-            <CommentThread key={thread.id} commentState={thread} />
+            <CommentThread
+              key={thread.id}
+              commentState={thread}
+              postProps={postProps}
+            />
           ))}
         </div>
       )}
@@ -676,6 +693,7 @@ const CommentInput = ({
         onKeyDown={onInputKeydown}
         onBlur={onInputBlur}
         autoFocus={autoInputFocus}
+        disabled={insertStatus == "pending"}
       />
       {insertStatus == "pending" ? (
         <AppButtonLoading />
@@ -697,10 +715,13 @@ const CommentThread = (props: CommentThreadProps) => {
 
   const {
     commentState: { id: currentCommentId, owner, text, createdAt, replies },
+    postProps: { id: postId },
   } = props;
-  const { replyInputOpenWithCommentId }: CommentsState = useSelector(
-    (state: RootState) => state.commentsState
-  );
+  const {
+    comments,
+    replyInputOpenWithCommentId,
+    replyInsertStatus,
+  }: CommentsState = useSelector((state: RootState) => state.commentsState);
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
@@ -712,18 +733,37 @@ const CommentThread = (props: CommentThreadProps) => {
   const handleReplyClick = () => {
     if (replyInputOpenWithCommentId != currentCommentId) {
       dispatch(openReplyInputOpenWithCommentId(currentCommentId));
-    } else {
+    }
+  };
+
+  const handleInputKeyDown = async (e: KeyboardEvent<FormElement>) => {
+    if (e.key == "Enter") {
+      await handleSendClick();
       dispatch(closeReplyInputOpen());
     }
   };
 
-  const handleInputKeyDown = (e: KeyboardEvent<FormElement>) => {
-    if (e.key == "Enter") {
-      handleSendClick();
-    }
-  };
+  const handleSendClick = async () => {
+    const trimInput = input.trim();
+    if (trimInput.length > 0) {
+      await dispatch(
+        addReplyComment({
+          postId: postId,
+          userId: session?.user.db_id,
+          text: trimInput,
+          threadId: currentCommentId,
+        })
+      );
+      dispatch(increaseCommentCountOfPost(postId));
 
-  const handleSendClick = () => {};
+      const repliesFetchRequest = comments.map(
+        (com) => ({ comment_id: com.id } as ReplyCommentsFetchRequestDto)
+      );
+      await dispatch(fetchReplyCommentsOfCurrentComments(repliesFetchRequest));
+      toggleShowReplies(true);
+    }
+    setInput("");
+  };
 
   const handleInputBlur = () => {
     dispatch(closeReplyInputOpen());
@@ -764,6 +804,7 @@ const CommentThread = (props: CommentThreadProps) => {
             onInputKeydown={handleInputKeyDown}
             onInputBlur={handleInputBlur}
             autoInputFocus={true}
+            insertStatus={replyInsertStatus}
           />
         )}
         {replies?.length > 0 && !isRepliesShow && (

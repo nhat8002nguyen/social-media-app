@@ -29,6 +29,7 @@ export interface CommentInsertRequestDto {
   userId: number;
   postId: number;
   text: string;
+  threadId?: number;
 }
 
 export interface CommentInsertResponseDto {
@@ -127,5 +128,35 @@ export const getReplyCommentsOfThread = async (
   } catch (error) {
     // prevent promise all fail when a request fail.
     return [];
+  }
+};
+
+export const insertReplyComment = async (
+  request: CommentInsertRequestDto
+): Promise<CommentDetailResponseDto> => {
+  try {
+    const response = await hasuraAxios.post("/posts/comments/reply", null, {
+      params: {
+        user_id: request.userId,
+        post_id: request.postId,
+        text: request.text,
+        thread_id: request.threadId,
+      },
+    });
+
+    const data = response.data as CommentInsertResponseDto;
+
+    if (response.status == 200) {
+      if (data.insert_post_comment.returning.length == 0) {
+        throw Error("Can not insert comment to DB");
+      } else if (data.insert_post_comment.returning.length > 0) {
+        return data.insert_post_comment.returning[0];
+      }
+    }
+
+    throw Error("Can not insert comments, please check api call");
+  } catch (error) {
+    console.error(error);
+    throw Error("Can not insert comments of post: " + request.postId);
   }
 };

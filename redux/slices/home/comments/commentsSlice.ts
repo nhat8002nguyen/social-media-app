@@ -6,6 +6,7 @@ import {
   getCommentByPostID,
   getReplyCommentsOfThread,
   insertComment,
+  insertReplyComment,
   ReplyCommentsFetchRequestDto,
 } from "./commentsAPI";
 
@@ -16,6 +17,7 @@ export interface CommentsState {
   insertStatus: "idle" | "pending" | "success" | "fail";
   replyInputOpenWithCommentId: number | null;
   repliesFetchStatus: "idle" | "pending" | "success" | "fail";
+  replyInsertStatus: "idle" | "pending" | "success" | "fail";
 }
 
 export interface CommentDetailState {
@@ -46,6 +48,7 @@ const initialState: CommentsState = {
   insertStatus: "idle",
   replyInputOpenWithCommentId: null,
   repliesFetchStatus: "idle",
+  replyInsertStatus: "idle",
 };
 
 const commentsSlice = createSlice({
@@ -71,6 +74,7 @@ const commentsSlice = createSlice({
     });
     builder.addCase(fetchCommentsByPostID.fulfilled, (state, action) => {
       state.fetchingStatus = "success";
+      state.repliesFetchStatus = "idle";
       state.comments = convertCommentsDtoToCommentsState(action.payload);
     });
     builder.addCase(fetchCommentsByPostID.rejected, (state, action) => {
@@ -110,6 +114,15 @@ const commentsSlice = createSlice({
       fetchReplyCommentsOfCurrentComments.rejected,
       (state, action) => {}
     );
+    builder.addCase(addReplyComment.pending, (state, action) => {
+      state.replyInsertStatus = "pending";
+    });
+    builder.addCase(addReplyComment.fulfilled, (state, action) => {
+      state.replyInsertStatus = "success";
+    });
+    builder.addCase(addReplyComment.rejected, (state, action) => {
+      state.replyInsertStatus = "fail";
+    });
   },
 });
 
@@ -134,6 +147,14 @@ export const fetchReplyCommentsOfCurrentComments = createAsyncThunk(
   async (requests: ReplyCommentsFetchRequestDto[], thunkAPI) => {
     const promises = requests.map((req) => getReplyCommentsOfThread(req));
     const data = await Promise.all(promises);
+    return data;
+  }
+);
+
+export const addReplyComment = createAsyncThunk(
+  "comments/addReplyComment",
+  async (request: CommentInsertRequestDto, thunkAPI) => {
+    const data = await insertReplyComment(request);
     return data;
   }
 );

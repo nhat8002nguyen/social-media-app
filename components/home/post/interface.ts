@@ -6,7 +6,10 @@ import {
   KeyboardEventHandler,
   MouseEventHandler,
 } from "react";
-import { CommentDetailState } from "redux/slices/home/comments/commentsSlice";
+import {
+  CommentDetailState,
+  CommentsState,
+} from "redux/slices/home/comments/commentsSlice";
 import { PostState } from "redux/slices/home/posts/postListSlice";
 
 export interface MenuListCompositionProps {
@@ -30,13 +33,14 @@ export interface CommentInputProps {
   onSendClick: MouseEventHandler<SVGSVGElement>;
   onInputFocus?: FocusEventHandler<FormElement>;
   onInputKeydown?: KeyboardEventHandler<FormElement>;
-  insertStatus?: string;
+  insertStatus?: CommentsState["insertStatus"];
   onInputBlur?: FocusEventHandler<FormElement>;
   autoInputFocus?: boolean;
 }
 
 export interface CommentThreadProps {
   commentState: CommentDetailState;
+  postProps: PostState;
 }
 
 export interface PostRatingArea {
