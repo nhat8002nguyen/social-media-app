@@ -5,6 +5,7 @@ import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { ImageViewModal } from "@/components/mocules/imageView";
 import { imageUrlAlt } from "@/constants/homeConstants";
 import { appColors } from "@/shared/theme";
+import { showFullLocaleDateTime } from "@/shared/utils/home";
 import {
   CheckCircle,
   ModeCommentOutlined,
@@ -88,11 +89,6 @@ export default function EvaluationPost(props: EvaluationPostProps) {
     setPostProps(post);
   }, []);
 
-  const getDayMonth = () => {
-    let date = postProps.createdAt;
-    return date.getDate() + " " + monthNames[date.getMonth()];
-  };
-
   return (
     <Card
       css={{ minHeight: "30rem", maxWidth: "40rem", backgroundColor: "white" }}
@@ -114,7 +110,9 @@ export default function EvaluationPost(props: EvaluationPostProps) {
                 </Text>
               </div>
               <div className={styles.headerRight}>
-                <Text css={{ fontSize: "small" }}>{getDayMonth()}</Text>
+                <Text css={{ fontSize: "small" }}>
+                  {showFullLocaleDateTime(postProps.createdAt)}
+                </Text>
                 <MenuListComposition postProps={postProps} />
               </div>
             </div>
@@ -755,9 +753,7 @@ const CommentThread = (props: CommentThreadProps) => {
           >
             Reply
           </Text>
-          <Text size={11}>
-            {createdAt.toLocaleDateString().replaceAll("/", "-")}
-          </Text>
+          <Text size={11}>{showFullLocaleDateTime(createdAt)}</Text>
         </div>
         {currentCommentId == replyInputOpenWithCommentId && (
           <CommentInput
@@ -820,7 +816,7 @@ const Comment = (props: CommentProps) => {
           <Text size={12} css={{ cursor: "pointer" }}>
             Reply
           </Text>
-          <Text size={12}>{createdAt}</Text>
+          <Text size={11}>{showFullLocaleDateTime(createdAt)}</Text>
         </div>
       </div>
     </div>

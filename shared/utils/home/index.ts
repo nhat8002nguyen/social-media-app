@@ -50,3 +50,7 @@ export const generateRandom = (min = 0, max = 100) => {
     rand = rand + min;
     return rand;
 }
+
+export const showFullLocaleDateTime = (date: Date): string => {
+		return date.toLocaleTimeString() + " " + date.toLocaleDateString().replaceAll("/", "-");
+}
