@@ -19,6 +19,7 @@ export interface CommentDetailResponseDto {
     image: string;
     user_name: string;
     email: string;
+    short_bio: string;
   };
   created_at: string;
   edited_at: string;
@@ -35,22 +36,17 @@ export interface CommentInsertResponseDto {
 }
 
 export interface CommentInsertReturningDto {
-  returning: CommentResponseDto[];
+  returning: CommentDetailResponseDto[];
 }
 
-export interface CommentResponseDto {
-  id: number;
-  post_id: number;
-  text: string;
-  thread_id: number;
-  created_at: string;
-  edited_at: string;
-  user: {
-    id: number;
-    image: string;
-    user_name: string;
-    email: string;
-  };
+export interface ReplyCommentsFetchRequestDto {
+  comment_id: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ReplyCommentsFetchResponseDto {
+  post_comment: CommentDetailResponseDto[];
 }
 
 export const getCommentByPostID = async (
@@ -84,7 +80,7 @@ export const getCommentByPostID = async (
 
 export const insertComment = async (
   request: CommentInsertRequestDto
-): Promise<CommentResponseDto> => {
+): Promise<CommentDetailResponseDto> => {
   try {
     const response = await hasuraAxios.post("/posts/comments/main", null, {
       params: {
@@ -108,5 +104,28 @@ export const insertComment = async (
   } catch (error) {
     console.error(error);
     throw Error("Can not insert comments of post: " + request.postId);
+  }
+};
+
+export const getReplyCommentsOfThread = async (
+  request: ReplyCommentsFetchRequestDto
+): Promise<CommentDetailResponseDto[]> => {
+  try {
+    const response = await hasuraAxios.get("/posts/comments/check-replieds", {
+      params: {
+        ...request,
+      },
+    });
+
+    const data = response.data as ReplyCommentsFetchResponseDto;
+
+    if (response.status == 200) {
+      return data.post_comment;
+    }
+
+    return [];
+  } catch (error) {
+    // prevent promise all fail when a request fail.
+    return [];
   }
 };

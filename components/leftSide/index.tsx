@@ -24,6 +24,7 @@ import { findNewsFeedPosts } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import appPages from "../../shared/appPages";
 import GlobalButton from "../atoms/GlobalButton";
+import ConfirmModal from "../mocules/confirmModal";
 import styles from "./styles.module.css";
 
 const createMenuItems = (currentPage) => [
@@ -84,6 +85,8 @@ export default function LeftSide(props) {
   const [signInButtonText, setSignInButtonText] = useState(
     "Sign In With Google"
   );
+  const [confirmModalVisible, setConfirmModalVisible] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (sessionStatus == "authenticated") {
@@ -134,13 +137,11 @@ export default function LeftSide(props) {
     signIn("google");
   };
 
-  const handleMenuItemClick = (id: number) => {
-    switch (id) {
-      case 0:
-        handleHomeItemClick();
-        break;
-      default:
-        return;
+  const handleMenuItemClick = (id: number, name: string) => {
+    if (id == 0 && name == "FEED") {
+      handleHomeItemClick();
+    } else if (id == 4 && name == "LOGOUT") {
+      handleLogoutItemClick();
     }
   };
 
@@ -152,6 +153,10 @@ export default function LeftSide(props) {
     }
   };
 
+  const handleLogoutItemClick = () => {
+    setConfirmModalVisible(true);
+  };
+
   return (
     <div className={styles.menu}>
       <div className={styles.fixedArea}>
@@ -159,16 +164,42 @@ export default function LeftSide(props) {
           <Twitter style={{ color: "rgb(101, 165, 255)" }} fontSize="large" />
         </div>
         <div className={styles.menuItemList}>
-          {menuItems.map((item) => (
-            <div
-              key={item.id}
-              className={!item.focus ? styles.menuItem : styles.menuItemFocus}
-              onClick={() => handleMenuItemClick(item.id)}
-            >
-              {item.icon}
-              <p>{item.name}</p>
-            </div>
-          ))}
+          {menuItems.map((item) => {
+            if (item.name == "LOGOUT") {
+              return (
+                <ConfirmModal
+                  trigger={
+                    <div
+                      key={item.id}
+                      className={
+                        !item.focus ? styles.menuItem : styles.menuItemFocus
+                      }
+                      onClick={() => handleMenuItemClick(item.id, item.name)}
+                    >
+                      {item.icon}
+                      <p>{item.name}</p>
+                    </div>
+                  }
+                  title={"Confirmation"}
+                  description={"Are you sure that you want to logout ?"}
+                  visible={confirmModalVisible}
+                  onConfirmClick={() => signOut()}
+                  onCloseClick={() => setConfirmModalVisible(false)}
+                  loading={false}
+                />
+              );
+            }
+            return (
+              <div
+                key={item.id}
+                className={!item.focus ? styles.menuItem : styles.menuItemFocus}
+                onClick={() => handleMenuItemClick(item.id, item.name)}
+              >
+                {item.icon}
+                <p>{item.name}</p>
+              </div>
+            );
+          })}
         </div>
         <GlobalButton
           icon={<GoogleIcon fontSize="small" />}

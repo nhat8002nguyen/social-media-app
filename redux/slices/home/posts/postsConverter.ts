@@ -5,7 +5,7 @@ export const updatePostsFromResponse = (
   response: PostListResponseDto
 ): Array<PostState> => {
   const totalResponsePosts: Array<EvaluationPostDto> = [];
-  response.user[0].followers.forEach((person) =>
+  response?.user[0].followers.forEach((person) =>
     totalResponsePosts.push(...person.following_user.evaluation_posts)
   );
   totalResponsePosts.push(...response.user[0].evaluation_posts);

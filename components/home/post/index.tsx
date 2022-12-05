@@ -1,9 +1,9 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
+import { SmallGreyText } from "@/components/atoms/appTexts";
 import ConfirmModal from "@/components/mocules/confirmModal";
 import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { ImageViewModal } from "@/components/mocules/imageView";
 import { imageUrlAlt } from "@/constants/homeConstants";
-import useNewsFeed from "@/hooks/useNewsFeed";
 import { appColors } from "@/shared/theme";
 import {
   CheckCircle,
@@ -16,18 +16,28 @@ import {
   ThumbUpOutlined,
 } from "@mui/icons-material";
 import { IconButton, Menu, MenuItem, Rating, Typography } from "@mui/material";
-import { Avatar, Card, Input, Text, useModal } from "@nextui-org/react";
+import {
+  Avatar,
+  Card,
+  FormElement,
+  Input,
+  Text,
+  useModal,
+} from "@nextui-org/react";
 import Image from "next/image";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { KeyboardEvent, ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
+import { ReplyCommentsFetchRequestDto } from "redux/slices/home/comments/commentsAPI";
 import {
   addComment,
   closeCommentSession,
-  CommentDetailState,
+  closeReplyInputOpen,
   CommentsState,
   fetchCommentsByPostID,
+  fetchReplyCommentsOfCurrentComments,
   openCommentSession,
+  openReplyInputOpenWithCommentId,
 } from "redux/slices/home/comments/commentsSlice";
 import {
   deleteEvaluationPost,
@@ -39,7 +49,15 @@ import {
   PostState,
 } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
-import { MenuListCompositionProps } from "./interface";
+import {
+  CommentAreaProps,
+  CommentInputProps,
+  CommentProps,
+  CommentThreadProps,
+  EvaluationPostProps,
+  MenuListCompositionProps,
+  PostRatingArea,
+} from "./interface";
 import styles from "./styles.module.css";
 
 const monthNames = [
@@ -56,11 +74,6 @@ const monthNames = [
   "Nov",
   "Dec",
 ];
-
-export interface EvaluationPostProps {
-  postState: PostState;
-  refreshNewsFeed: ReturnType<typeof useNewsFeed>["refreshNewsFeed"];
-}
 
 export default function EvaluationPost(props: EvaluationPostProps) {
   const { postState, refreshNewsFeed } = props;
@@ -567,11 +580,6 @@ const LikeIcon = ({ onClick, liked }) => {
   );
 };
 
-interface CommentAreaProps {
-  postProps: PostState;
-  avatar: string | null;
-}
-
 const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
   const dispatch = useAppDispatch();
   const [input, setInput] = useState<string>("");
@@ -579,8 +587,24 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
     commentSessionOpen: { postId: currentCommentOpenPostId },
     comments,
     insertStatus,
+    fetchingStatus,
+    repliesFetchStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (
+      currentCommentOpenPostId == postProps.id &&
+      fetchingStatus == "success" &&
+      comments.length > 0 &&
+      repliesFetchStatus != "success"
+    ) {
+      const repliesFetchRequest = comments.map(
+        (com) => ({ comment_id: com.id } as ReplyCommentsFetchRequestDto)
+      );
+      dispatch(fetchReplyCommentsOfCurrentComments(repliesFetchRequest));
+    }
+  }, [currentCommentOpenPostId, fetchingStatus, comments, repliesFetchStatus]);
 
   const handleSendClick = async () => {
     const trimInput = input.trim();
@@ -599,30 +623,31 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
     setInput("");
   };
 
+  const handleInputKeyDown = (e: KeyboardEvent<FormElement>) => {
+    if (e.key == "Enter") {
+      handleSendClick();
+    }
+  };
+
+  const handleInputFocus = () => {
+    dispatch(closeReplyInputOpen());
+  };
+
   return (
     <div className={styles.commentArea}>
-      <div className={styles.commentInput}>
-        <Avatar className={styles.commentInputAvatar} src={avatar} rounded />
-        <Input
-          className={styles.commentInputBox}
-          placeholder="Write Your comment"
-          value={input}
-          onChange={(e) => setInput(e.currentTarget.value)}
-        />
-        {insertStatus == "pending" ? (
-          <AppButtonLoading />
-        ) : (
-          <Send
-            cursor="pointer"
-            htmlColor={appColors.primary}
-            onClick={handleSendClick}
-          />
-        )}
-      </div>
+      <CommentInput
+        avatar={avatar}
+        value={input}
+        onChange={(e) => setInput(e.currentTarget.value)}
+        onSendClick={handleSendClick}
+        onInputFocus={handleInputFocus}
+        onInputKeydown={handleInputKeyDown}
+        insertStatus={insertStatus}
+      />
       {currentCommentOpenPostId == postProps.id && (
         <div className={styles.commentThreads}>
           {comments.map((thread) => (
-            <CommentThread key={thread.id} {...thread} />
+            <CommentThread key={thread.id} commentState={thread} />
           ))}
         </div>
       )}
@@ -630,35 +655,132 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
   );
 };
 
-const CommentThread = (props: CommentDetailState) => {
-  const { owner, text, createdAt } = props;
-  const replies = [];
+const CommentInput = ({
+  avatar,
+  value,
+  onChange,
+  onSendClick,
+  onInputFocus,
+  onInputKeydown,
+  insertStatus,
+  onInputBlur,
+  autoInputFocus,
+}: CommentInputProps): ReactElement => {
+  return (
+    <div className={styles.commentInput}>
+      <Avatar className={styles.commentInputAvatar} src={avatar} rounded />
+      <Input
+        className={styles.commentInputBox}
+        placeholder="Write Your comment"
+        value={value}
+        onChange={onChange}
+        onFocus={onInputFocus}
+        onKeyDown={onInputKeydown}
+        onBlur={onInputBlur}
+        autoFocus={autoInputFocus}
+      />
+      {insertStatus == "pending" ? (
+        <AppButtonLoading />
+      ) : (
+        <Send
+          cursor="pointer"
+          htmlColor={appColors.primary}
+          onClick={onSendClick}
+        />
+      )}
+    </div>
+  );
+};
+
+const CommentThread = (props: CommentThreadProps) => {
+  const dispatch = useAppDispatch();
+  const [input, setInput] = useState<string>("");
+  const [isRepliesShow, toggleShowReplies] = useState<boolean>(false);
+
+  const {
+    commentState: { id: currentCommentId, owner, text, createdAt, replies },
+  } = props;
+  const { replyInputOpenWithCommentId }: CommentsState = useSelector(
+    (state: RootState) => state.commentsState
+  );
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (replyInputOpenWithCommentId == currentCommentId) {
+      setInput("");
+    }
+  }, [replyInputOpenWithCommentId, currentCommentId, setInput]);
+
+  const handleReplyClick = () => {
+    if (replyInputOpenWithCommentId != currentCommentId) {
+      dispatch(openReplyInputOpenWithCommentId(currentCommentId));
+    } else {
+      dispatch(closeReplyInputOpen());
+    }
+  };
+
+  const handleInputKeyDown = (e: KeyboardEvent<FormElement>) => {
+    if (e.key == "Enter") {
+      handleSendClick();
+    }
+  };
+
+  const handleSendClick = () => {};
+
+  const handleInputBlur = () => {
+    dispatch(closeReplyInputOpen());
+  };
 
   return (
     <div className={styles.commentThread}>
       <Avatar src={owner.image} />
       <div className={styles.commentThreadColumn}>
         <div className={styles.comment}>
-          <Text small css={{ fontWeight: "bold" }}>
-            {owner.username}
-          </Text>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Text small css={{ fontWeight: "bold" }}>
+              {owner.username}
+            </Text>
+            <SmallGreyText text={owner.shortBio} />
+          </div>
           <Text small>{text}</Text>
         </div>
         <div className={styles.commentInteraction}>
           <Text size={11} css={{ cursor: "pointer" }}>
             Like
           </Text>
-          <Text size={11} css={{ cursor: "pointer" }}>
+          <Text
+            size={11}
+            css={{ cursor: "pointer" }}
+            onClick={handleReplyClick}
+          >
             Reply
           </Text>
           <Text size={11}>
             {createdAt.toLocaleDateString().replaceAll("/", "-")}
           </Text>
         </div>
-        {replies?.length > 0 && (
+        {currentCommentId == replyInputOpenWithCommentId && (
+          <CommentInput
+            avatar={session?.user.image}
+            value={input}
+            onChange={(e) => setInput(e.currentTarget.value)}
+            onSendClick={handleSendClick}
+            onInputKeydown={handleInputKeyDown}
+            onInputBlur={handleInputBlur}
+            autoInputFocus={true}
+          />
+        )}
+        {replies?.length > 0 && !isRepliesShow && (
+          <SmallGreyText
+            text="Show reply comments"
+            styles={{ marginLeft: "0.5rem", cursor: "pointer" }}
+            onClick={() => toggleShowReplies((prev) => !prev)}
+          />
+        )}
+        {replies?.length > 0 && isRepliesShow && (
           <div className={styles.replies}>
             {replies.map((reply) => (
-              <Comment key={reply.id} {...reply} />
+              <Comment key={reply.id} reply={reply} />
             ))}
           </div>
         )}
@@ -667,18 +789,29 @@ const CommentThread = (props: CommentDetailState) => {
   );
 };
 
-const Comment = (props) => {
-  const { name, avatar, message, createdAt } = props;
+const Comment = (props: CommentProps) => {
+  const {
+    reply: {
+      owner: { image, username, shortBio },
+      text,
+      createdAt,
+    },
+  } = props;
 
   return (
     <div className={styles.commentThread}>
-      <Avatar src={avatar} />
+      <Avatar src={image} />
       <div className={styles.commentThreadColumn}>
         <div className={styles.comment}>
-          <Text small css={{ fontWeight: "bold" }}>
-            {name}
-          </Text>
-          <Text small>{message}</Text>
+          <div
+            style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem" }}
+          >
+            <Text small css={{ fontWeight: "bold" }}>
+              {username}
+            </Text>
+            <SmallGreyText text={shortBio} />
+          </div>
+          <Text small>{text}</Text>
         </div>
         <div className={styles.commentInteraction}>
           <Text size={12} css={{ cursor: "pointer" }}>
@@ -687,16 +820,9 @@ const Comment = (props) => {
           <Text size={12} css={{ cursor: "pointer" }}>
             Reply
           </Text>
-          <Text size={12}>10min</Text>
+          <Text size={12}>{createdAt}</Text>
         </div>
       </div>
     </div>
   );
 };
-
-interface PostRatingArea {
-  locationRating: number;
-  serviceRating: number;
-  cleanlinessRating: number;
-  valueRating: number;
-}

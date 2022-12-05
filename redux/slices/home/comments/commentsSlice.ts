@@ -4,7 +4,9 @@ import {
   CommentInsertRequestDto,
   CommentsFetchRequestDto,
   getCommentByPostID,
+  getReplyCommentsOfThread,
   insertComment,
+  ReplyCommentsFetchRequestDto,
 } from "./commentsAPI";
 
 export interface CommentsState {
@@ -12,6 +14,8 @@ export interface CommentsState {
   fetchingStatus: "idle" | "pending" | "success" | "fail";
   commentSessionOpen: CommentSessionOpenProps;
   insertStatus: "idle" | "pending" | "success" | "fail";
+  replyInputOpenWithCommentId: number | null;
+  repliesFetchStatus: "idle" | "pending" | "success" | "fail";
 }
 
 export interface CommentDetailState {
@@ -23,9 +27,12 @@ export interface CommentDetailState {
     image: string;
     username: string;
     email: string;
+    shortBio: string;
   };
   editedAt: Date;
   createdAt: Date;
+  haveReplies?: boolean;
+  replies?: CommentDetailState[];
 }
 
 export interface CommentSessionOpenProps {
@@ -37,6 +44,8 @@ const initialState: CommentsState = {
   fetchingStatus: "idle",
   commentSessionOpen: { postId: null },
   insertStatus: "idle",
+  replyInputOpenWithCommentId: null,
+  repliesFetchStatus: "idle",
 };
 
 const commentsSlice = createSlice({
@@ -48,6 +57,12 @@ const commentsSlice = createSlice({
     },
     closeCommentSession(state, action: PayloadAction<void>) {
       state.commentSessionOpen.postId = null;
+    },
+    openReplyInputOpenWithCommentId(state, action: PayloadAction<number>) {
+      state.replyInputOpenWithCommentId = action.payload;
+    },
+    closeReplyInputOpen(state, action: PayloadAction<void>) {
+      state.replyInputOpenWithCommentId = null;
     },
   },
   extraReducers: (builder) => {
@@ -71,32 +86,32 @@ const commentsSlice = createSlice({
     builder.addCase(addComment.rejected, (state, action) => {
       state.insertStatus = "fail";
     });
+    builder.addCase(
+      fetchReplyCommentsOfCurrentComments.pending,
+      (state, action) => {}
+    );
+    builder.addCase(
+      fetchReplyCommentsOfCurrentComments.fulfilled,
+      (state, action) => {
+        action.payload.forEach((incomingReplies) => {
+          if (incomingReplies?.length > 0) {
+            const threadId = incomingReplies[0].thread_id;
+            const targetComment = state.comments.find(
+              (com) => com.id == threadId
+            );
+            targetComment.replies =
+              convertCommentsDtoToCommentsState(incomingReplies);
+          }
+        });
+        state.repliesFetchStatus = "success";
+      }
+    );
+    builder.addCase(
+      fetchReplyCommentsOfCurrentComments.rejected,
+      (state, action) => {}
+    );
   },
 });
-
-const convertCommentsDtoToCommentsState = (
-  dtos: CommentDetailResponseDto[]
-): CommentDetailState[] => {
-  const states = dtos.map((dto) => {
-    return {
-      id: dto.id,
-      text: dto.text,
-      threadId: dto.thread_id,
-      owner: {
-        id: dto.user.id,
-        image: dto.user.image,
-        username: dto.user.user_name,
-        email: dto.user.email,
-      },
-      editedAt: new Date(dto.edited_at),
-      createdAt: new Date(dto.created_at),
-    };
-  });
-
-  states.sort((a, b) => a.createdAt.valueOf() - b.createdAt.valueOf());
-
-  return states;
-};
 
 export const fetchCommentsByPostID = createAsyncThunk(
   "comments/fetchCommentsByPostID",
@@ -114,7 +129,45 @@ export const addComment = createAsyncThunk(
   }
 );
 
-export const { openCommentSession, closeCommentSession } =
-  commentsSlice.actions;
+export const fetchReplyCommentsOfCurrentComments = createAsyncThunk(
+  "comments/fetchReplyComments",
+  async (requests: ReplyCommentsFetchRequestDto[], thunkAPI) => {
+    const promises = requests.map((req) => getReplyCommentsOfThread(req));
+    const data = await Promise.all(promises);
+    return data;
+  }
+);
+
+const convertCommentsDtoToCommentsState = (
+  dtos: CommentDetailResponseDto[]
+): CommentDetailState[] => {
+  const states = dtos.map((dto) => {
+    return {
+      id: dto.id,
+      text: dto.text,
+      threadId: dto.thread_id,
+      owner: {
+        id: dto.user.id,
+        image: dto.user.image,
+        username: dto.user.user_name,
+        email: dto.user.email,
+        shortBio: dto.user.short_bio,
+      },
+      editedAt: new Date(dto.edited_at),
+      createdAt: new Date(dto.created_at),
+    };
+  });
+
+  states.sort((a, b) => a.createdAt.valueOf() - b.createdAt.valueOf());
+
+  return states;
+};
+
+export const {
+  openCommentSession,
+  closeCommentSession,
+  openReplyInputOpenWithCommentId,
+  closeReplyInputOpen,
+} = commentsSlice.actions;
 
 export default commentsSlice.reducer;
