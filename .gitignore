@@ -25,7 +25,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
+# local env files (uncomment this before deploying new version of this app)
 # .env.development
 # .env.production
 

@@ -24,6 +24,7 @@ export interface PostState {
   likedCount: number;
   sharedCount: number;
   commentCount: number;
+  isLiked: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +71,18 @@ export const postListSlice = createSlice({
         targetPost.commentCount++;
       }
     },
+    increaseLikeCountOfPost(state, action: PayloadAction<number>) {
+      const targetPost = state.posts.find((post) => post.id == action.payload);
+      if (targetPost != null) {
+        targetPost.likedCount++;
+      }
+    },
+    decreaseLikeCountOfPost(state, action: PayloadAction<number>) {
+      const targetPost = state.posts.find((post) => post.id == action.payload);
+      if (targetPost != null && targetPost.likedCount > 0) {
+        targetPost.likedCount--;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(findNewsFeedPosts.pending, (state, action) => {
@@ -92,8 +105,12 @@ export const findNewsFeedPosts = createAsyncThunk(
   }
 );
 
-export const { deletePresentedPost, increaseCommentCountOfPost } =
-  postListSlice.actions;
+export const {
+  deletePresentedPost,
+  increaseCommentCountOfPost,
+  increaseLikeCountOfPost,
+  decreaseLikeCountOfPost,
+} = postListSlice.actions;
 
 export const selectPostListState = (state: RootState) => state.postList;
 

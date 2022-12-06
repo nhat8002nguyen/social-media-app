@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import authSliceReducer from "redux/slices/auth/authSlice";
 import commentsReducer from "redux/slices/home/comments/commentsSlice";
 import recommendUserList from "redux/slices/home/followableUsers/recommendUserListSlice";
+import likeReducer from "redux/slices/home/likes/likeSlice";
 import postFormReducer from "redux/slices/home/posts/postFormSlice";
 import postListReducer from "redux/slices/home/posts/postListSlice";
 import snackbarsReducer from "redux/slices/statusNotifications/snackbarsSlice";
@@ -21,6 +22,7 @@ const combinedReducer = combineReducers({
   snackbar: snackbarsReducer,
   recommendUserList: recommendUserList,
   commentsState: commentsReducer,
+  likeState: likeReducer,
 });
 
 const reducer = (

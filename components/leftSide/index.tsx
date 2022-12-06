@@ -87,14 +87,29 @@ export default function LeftSide(props) {
   );
   const [confirmModalVisible, setConfirmModalVisible] =
     useState<boolean>(false);
+  const [loginRequireInterval, setLoginRequireInterval] =
+    useState<NodeJS.Timer>();
+  const [loginRequireVisible, setLoginRequireVisible] =
+    useState<boolean>(false);
 
   useEffect(() => {
-    if (sessionStatus == "authenticated") {
+    if (sessionStatus == "unauthenticated") {
+      const loginRequireInterval = setInterval(() => {
+        setLoginRequireVisible(true);
+      }, 10000);
+      setLoginRequireInterval(loginRequireInterval);
+    } else if (sessionStatus == "authenticated") {
+      clearInterval(loginRequireInterval);
       saveSessionToState(session);
       syncGoogleAccountToDB();
       setSignInButtonText(session.user.name);
     }
-  }, [sessionStatus, syncGoogleAccountDB, setSignInButtonText]);
+  }, [
+    sessionStatus,
+    syncGoogleAccountDB,
+    setSignInButtonText,
+    setLoginRequireVisible,
+  ]);
 
   const saveSessionToState = (session: Session) => {
     let authState: AuthState = {
@@ -157,6 +172,11 @@ export default function LeftSide(props) {
     setConfirmModalVisible(true);
   };
 
+  const handleLoginRequireClose = () => {
+    setLoginRequireVisible(false);
+    clearInterval(loginRequireInterval);
+  };
+
   return (
     <div className={styles.menu}>
       <div className={styles.fixedArea}>
@@ -200,6 +220,17 @@ export default function LeftSide(props) {
               </div>
             );
           })}
+          <ConfirmModal
+            trigger={undefined}
+            title={"Please login to use the application !"}
+            description={
+              "You need login by your google account, or register a new account to use full features of this application."
+            }
+            visible={loginRequireVisible}
+            onConfirmClick={() => signIn("google")}
+            onCloseClick={handleLoginRequireClose}
+            loading={false}
+          />
         </div>
         <GlobalButton
           icon={<GoogleIcon fontSize="small" />}

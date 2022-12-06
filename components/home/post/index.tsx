@@ -42,12 +42,19 @@ import {
   openReplyInputOpenWithCommentId,
 } from "redux/slices/home/comments/commentsSlice";
 import {
+  likePost,
+  LikeState,
+  undoPostLike,
+} from "redux/slices/home/likes/likeSlice";
+import {
   deleteEvaluationPost,
   PostFormDetailState,
 } from "redux/slices/home/posts/postFormSlice";
 import {
+  decreaseLikeCountOfPost,
   deletePresentedPost,
   increaseCommentCountOfPost,
+  increaseLikeCountOfPost,
   PostListState,
   PostState,
 } from "redux/slices/home/posts/postListSlice";
@@ -494,9 +501,9 @@ const PostRatingArea = ({
   );
 };
 
-const InteractionMetrics = ({ id: postId }: PostState) => {
+const InteractionMetrics = ({ id: postId, isLiked }: PostState) => {
   const dispatch = useAppDispatch();
-  const [liked, setLiked] = React.useState(false);
+  const [liked, setLiked] = React.useState(isLiked);
   const [likedCount, setLikedCount] = useState<number>(0);
   const [commentCount, setCommentCount] = useState<number>(0);
   const [sharedCount, setSharedCount] = useState<number>(0);
@@ -505,8 +512,12 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
     commentSessionOpen: { postId: currentCommentOpenPostId },
     fetchingStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
   const { posts }: PostListState = useSelector(
     (state: RootState) => state.postList
+  );
+  const { likeInsertStatus, likeDeleteStatus }: LikeState = useSelector(
+    (state: RootState) => state.likeState
   );
 
   useEffect(() => {
@@ -518,9 +529,23 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
     }
   }, [posts, setLikedCount, setSharedCount, setCommentCount]);
 
-  const toggleLike = () => setLiked(() => !liked);
+  const toggleLike = async () => {
+    if (!liked) {
+      await dispatch(
+        likePost({ post_id: postId, user_id: session?.user.db_id })
+      );
+      setLiked(() => true);
+      dispatch(increaseLikeCountOfPost(postId));
+    } else {
+      await dispatch(
+        undoPostLike({ post_id: postId, user_id: session?.user.db_id })
+      );
+      setLiked(() => false);
+      dispatch(decreaseLikeCountOfPost(postId));
+    }
+  };
 
-  const showNum = (num) => {
+  const showNum = (num: number) => {
     const numStr = String(num);
     if (num < 1000) return numStr;
 
@@ -560,18 +585,22 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
 
   return (
     <div className={styles.interactionMetrics}>
-      <div className={styles.metric}>
-        <LikeIcon onClick={toggleLike} liked={liked} />
-        <Text css={{ fontSize: "small" }}>{showNum(likedCount)}</Text>
-      </div>
-      <div className={styles.metric} onClick={handleModeCommentClick}>
-        {fetchingStatus == "pending" ? (
-          <AppButtonLoading color={"primary"} />
-        ) : (
+      {likeInsertStatus == "pending" || likeDeleteStatus == "pending" ? (
+        <AppButtonLoading color={"primary"} />
+      ) : (
+        <div className={styles.metric}>
+          <LikeIcon onClick={toggleLike} liked={liked} />
+          <Text css={{ fontSize: "small" }}>{showNum(likedCount)}</Text>
+        </div>
+      )}
+      {fetchingStatus == "pending" ? (
+        <AppButtonLoading color={"primary"} />
+      ) : (
+        <div className={styles.metric} onClick={handleModeCommentClick}>
           <ModeCommentOutlined />
-        )}
-        <Text css={{ fontSize: "small" }}>{showNum(commentCount)}</Text>
-      </div>
+          <Text css={{ fontSize: "small" }}>{showNum(commentCount)}</Text>
+        </div>
+      )}
       <div className={styles.metric}>
         <ScreenShareOutlined />
         <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>

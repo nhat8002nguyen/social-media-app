@@ -48,6 +48,7 @@ export const updatePostsFromResponse = (
         likedCount: dto.post_likes_aggregate.aggregate.count,
         sharedCount: dto.post_shares_aggregate.aggregate.count,
         commentCount: dto.post_comments_aggregate.aggregate.count,
+        isLiked: dto.post_likes.length > 0,
         createdAt: new Date(dto.created_at),
         updatedAt: new Date(dto.updated_at),
       }

@@ -10,12 +10,10 @@ export interface PostListRequestDto {
 }
 
 export interface PostListResponseDto extends ApiErrorResponse {
-  user: Array<UserDto>;
-}
-
-export interface UserDto {
-  followers: Array<FollowingUserDto>;
-  evaluation_posts: Array<EvaluationPostDto>;
+  user: {
+    followers: Array<FollowingUserDto>;
+    evaluation_posts: Array<EvaluationPostDto>;
+  }[];
 }
 
 export interface FollowingUserDto {
@@ -42,6 +40,11 @@ export interface EvaluationPostDto {
   post_likes_aggregate: PostLikesAggregateDto;
   post_comments_aggregate: PostCommentsAggregateDto;
   post_shares_aggregate: PostSharesAggregateDto;
+  post_likes: {
+    user_id: number;
+    post_id: number;
+    liked_at: string;
+  }[];
   post_hotel: PostHotelDto;
 }
 
