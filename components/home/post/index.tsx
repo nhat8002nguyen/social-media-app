@@ -183,9 +183,9 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (postProps != null && session?.user.db_id != null) {
+    if (postProps != null && session?.user.DBID != null) {
       const currentPostValues: PostFormDetailState = {
-        userId: session.user.db_id,
+        userId: session.user.DBID,
         postId: postProps.id,
         title: postProps.title,
         body: postProps.body,
@@ -514,13 +514,13 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
   const toggleLike = async () => {
     if (!post?.isLiked) {
       await dispatch(
-        likePost({ post_id: postId, user_id: session?.user.db_id })
+        likePost({ post_id: postId, user_id: session?.user.DBID })
       );
       dispatch(setPostLiked({ postId: postId, isLiked: true }));
       dispatch(increaseLikeCountOfPost(postId));
     } else {
       await dispatch(
-        undoPostLike({ post_id: postId, user_id: session?.user.db_id })
+        undoPostLike({ post_id: postId, user_id: session?.user.DBID })
       );
       dispatch(setPostLiked({ postId: postId, isLiked: false }));
       dispatch(decreaseLikeCountOfPost(postId));
@@ -634,7 +634,7 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
       await dispatch(
         addComment({
           postId: postProps.id,
-          userId: session?.user.db_id,
+          userId: session?.user.DBID,
           text: trimInput,
         })
       );
@@ -760,7 +760,7 @@ const CommentThread = (props: CommentThreadProps) => {
       await dispatch(
         addReplyComment({
           postId: postId,
-          userId: session?.user.db_id,
+          userId: session?.user.DBID,
           text: trimInput,
           threadId: currentCommentId,
         })

@@ -47,8 +47,8 @@ export const PostModal = ({
   const [postValues, setPostValues] = useState<PostFormDetailState>();
 
   useEffect(() => {
-    if (sessionStatus == "authenticated" && session?.user.db_id != null) {
-      setPostValues((prev) => ({ ...prev, userId: session.user.db_id }));
+    if (sessionStatus == "authenticated" && session?.user.DBID != null) {
+      setPostValues((prev) => ({ ...prev, userId: session.user.DBID }));
     }
   }, [sessionStatus, session]);
 

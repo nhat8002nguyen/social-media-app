@@ -19,7 +19,7 @@ export default function useNewsFeed() {
 
   useEffect(() => {
     if (sessionState == "authenticated" && session.user != null) {
-      const userId = authSession?.user?.db_id;
+      const userId = authSession?.user?.DBID;
       if (userId == null) {
         return;
       }

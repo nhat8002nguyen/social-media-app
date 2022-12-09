@@ -13,7 +13,7 @@ import {
   PersonCardState,
   showOtherUsers,
 } from "redux/slices/home/followableUsers/recommendUserListSlice";
-import { RootState, useAppDispatch } from "redux/store/store";
+import { AppDispatch, RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
 export default function RecommendFollowableUsers() {
@@ -48,17 +48,12 @@ const PersonItem = (props: PersonCardState) => {
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   const handleFollowClick = () => {
-    const sessionUserId = session?.user.db_id;
-    if (sessionUserId != null) {
-      (followingStatus == "followable" || followingStatus == "idle") &&
-        dispatch(
-          makeFollowAUser({ userId: session.user.db_id, followingId: userId })
-        );
-      followingStatus == "following" &&
-        dispatch(
-          makeUnfollowAUser({ userId: session.user.db_id, followingId: userId })
-        );
-    }
+    handleFollowButtonClick({
+      sessionUserId: session?.user.DBID,
+      followingStatus,
+      dispatch,
+      followingUserId: userId,
+    });
   };
 
   return (
@@ -96,4 +91,35 @@ const PersonItem = (props: PersonCardState) => {
       />
     </Card>
   );
+};
+
+export interface FollowClickProps {
+  sessionUserId: AuthState["session"]["user"]["DBID"];
+  followingStatus: PersonCardState["followingStatus"];
+  dispatch: AppDispatch;
+  followingUserId: number;
+}
+
+export const handleFollowButtonClick = ({
+  sessionUserId,
+  followingStatus,
+  dispatch,
+  followingUserId,
+}: FollowClickProps) => {
+  if (sessionUserId != null) {
+    (followingStatus == "followable" || followingStatus == "idle") &&
+      dispatch(
+        makeFollowAUser({
+          userId: sessionUserId,
+          followingId: followingUserId,
+        })
+      );
+    followingStatus == "following" &&
+      dispatch(
+        makeUnfollowAUser({
+          userId: sessionUserId,
+          followingId: followingUserId,
+        })
+      );
+  }
 };

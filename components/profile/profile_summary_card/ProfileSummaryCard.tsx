@@ -1,5 +1,6 @@
 import { AppNormalText, AppSmallText } from "@/components/atoms/appTexts";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
+import { handleFollowButtonClick } from "@/components/home/recommendFollowableUsers";
 import appPages from "@/shared/appPages";
 import { appColors } from "@/shared/theme";
 import {
@@ -12,14 +13,41 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ProfilePageGetStaticProps } from "pages/profile/[id]";
 import { ReactElement } from "react";
+import { useSelector } from "react-redux";
+import { AuthState } from "redux/slices/auth/authSlice";
+import {
+  FollowableUsersState,
+  PersonCardState,
+} from "redux/slices/home/followableUsers/recommendUserListSlice";
 import { SummaryState } from "redux/slices/profile/summary/summarySlice";
+import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
 export default function ProfileSummaryCard({
   summary: initialSummary,
-  posts,
-  likedPosts,
 }: ProfilePageGetStaticProps) {
+  const { totalFollowableUsers }: FollowableUsersState = useSelector(
+    (state: RootState) => state.recommendUserList
+  );
+  const dispatch = useAppDispatch();
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
+  const getFollowingStatus = (): PersonCardState["followingStatus"] => {
+    const userCardState = totalFollowableUsers.find(
+      (u) => u.userId == initialSummary.id
+    );
+    return userCardState?.followingStatus ?? "idle";
+  };
+
+  const handleFollowClick = () => {
+    handleFollowButtonClick({
+      sessionUserId: session?.user.DBID,
+      followingStatus: getFollowingStatus(),
+      dispatch,
+      followingUserId: initialSummary.id,
+    });
+  };
+
   return (
     <Card
       css={{ minHeight: "15rem", maxWidth: "50rem", backgroundColor: "white" }}
@@ -39,7 +67,10 @@ export default function ProfileSummaryCard({
             </div>
           </div>
           <div className={styles.summaryHeaderRight}>
-            <FollowButton followingStatus="idle" onFollowClick={() => {}} />
+            <FollowButton
+              followingStatus={getFollowingStatus()}
+              onFollowClick={() => handleFollowClick()}
+            />
           </div>
         </div>
         <div className={styles.summaryBody}>

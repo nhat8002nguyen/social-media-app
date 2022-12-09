@@ -54,7 +54,7 @@ export default function Profile({
 
   useEffect(() => {
     dispatch(setPostsList(postsOfUser));
-    const sessionUserId = authSession?.user.db_id;
+    const sessionUserId = authSession?.user.DBID;
     if (sessionUserId != null) {
       dispatch(
         updatePostsInteractionsStatusOfSessionUser({
@@ -87,7 +87,7 @@ export default function Profile({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <LeftSide currentPage={appPages.home} />
+        <LeftSide currentPage={appPages.profile} />
         <div className={styles.contentContainer}>
           <NavigationBar tabs={homeActiveTabs} />
           <ProfileSummaryCard

@@ -13,7 +13,7 @@ import {
   makeAnUnfollow,
 } from "apis/home/recommendUserListAPI";
 
-const NUMBER_CARD_SHOWN = 4;
+const NUMBER_SHOWN_CARD = 4;
 
 export interface FollowableUsersState {
   totalFollowableUsers: PersonCardState[];
@@ -48,7 +48,7 @@ const initialValue: FollowableUsersState = {
     shortBio: data.short_bio,
     followingStatus: data.following_status == 0 ? "followable" : "following",
   })),
-  nextIndex: NUMBER_CARD_SHOWN,
+  nextIndex: NUMBER_SHOWN_CARD,
 };
 
 const recommendUserListSlice = createSlice({
@@ -59,28 +59,28 @@ const recommendUserListSlice = createSlice({
       if (action.payload.showType == "random") {
         state.nextIndex = generateRandom(
           0,
-          state.totalFollowableUsers.length - NUMBER_CARD_SHOWN
+          state.totalFollowableUsers.length - NUMBER_SHOWN_CARD
         );
       }
       if (state.nextIndex < state.totalFollowableUsers.length) {
         state.appearedUsers = state.totalFollowableUsers.slice(
           state.nextIndex,
-          state.nextIndex + NUMBER_CARD_SHOWN
+          state.nextIndex + NUMBER_SHOWN_CARD
         );
-        state.nextIndex += NUMBER_CARD_SHOWN;
+        state.nextIndex += NUMBER_SHOWN_CARD;
       } else {
         state.appearedUsers = state.totalFollowableUsers.slice(
           0,
-          NUMBER_CARD_SHOWN
+          NUMBER_SHOWN_CARD
         );
-        state.nextIndex = NUMBER_CARD_SHOWN;
+        state.nextIndex = NUMBER_SHOWN_CARD;
       }
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchAllExistedUsers.fulfilled, (state, action) => {
       state.totalFollowableUsers = action.payload;
-      state.appearedUsers = action.payload.slice(0, NUMBER_CARD_SHOWN);
+      state.appearedUsers = action.payload.slice(0, NUMBER_SHOWN_CARD);
     });
     builder.addCase(makeFollowAUser.pending, (state, action) => {
       let targetUser = state.appearedUsers.find(

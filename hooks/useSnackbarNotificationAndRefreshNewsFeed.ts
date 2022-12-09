@@ -31,7 +31,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
           severity: "success",
         })
       );
-      dispatch(findNewsFeedPosts({ userId: session?.user.db_id }));
+      dispatch(findNewsFeedPosts({ userId: session?.user.DBID }));
     }
   }, [requestStatus]);
 
@@ -51,7 +51,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
           severity: "success",
         })
       );
-      dispatch(findNewsFeedPosts({ userId: session.user.db_id }));
+      dispatch(findNewsFeedPosts({ userId: session.user.DBID }));
     }
   }, [requestUpdationStatus]);
 

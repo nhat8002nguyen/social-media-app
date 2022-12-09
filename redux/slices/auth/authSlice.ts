@@ -18,7 +18,7 @@ export interface Session {
 }
 
 export interface SessionUser {
-  db_id: number | null;
+  DBID: number | null;
   name: string;
   email: string;
   image: string;
@@ -48,9 +48,9 @@ export const authSlice = createSlice({
     builder.addCase(syncGoogleAccountDB.fulfilled, (state, action) => {
       state.syncDBStatus = "succeeded";
       if (action.payload?.user?.length > 0) {
-        state.session.user.db_id = action.payload?.user[0]?.id;
+        state.session.user.DBID = action.payload?.user[0]?.id;
       } else if (action.payload?.insert_user_one != null) {
-        state.session.user.db_id = action.payload?.insert_user_one.id;
+        state.session.user.DBID = action.payload?.insert_user_one.id;
       }
     });
   },

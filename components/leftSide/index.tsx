@@ -10,7 +10,6 @@ import { UserRequestDto } from "apis/auth/authAPI";
 import { Session } from "next-auth";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -129,7 +128,7 @@ export default function LeftSide(props: LeftSideProps) {
     let authState: AuthState = {
       session: {
         user: {
-          db_id: null,
+          DBID: null,
           google_account_id: (session as any).user.id,
           name: session.user.name,
           email: session.user.email,
@@ -175,7 +174,7 @@ export default function LeftSide(props: LeftSideProps) {
   };
 
   const handleHomeItemClick = () => {
-    const userId = authSession?.user.db_id;
+    const userId = authSession?.user.DBID;
     if (userId != null) {
       dispatch(showOtherUsers({ showType: "random" }));
       dispatch(findNewsFeedPosts({ userId: userId }));
@@ -199,16 +198,12 @@ export default function LeftSide(props: LeftSideProps) {
         </div>
         <div className={styles.menuItemList}>
           {menuItems.map((item) => (
-            <Link href={item.path}>
-              <a>
-                <MenuItem
-                  item={item}
-                  onMenuItemClick={handleMenuItemClick}
-                  confirmModalVisible={confirmModalVisible}
-                  onLogoutModalCloseClick={() => setConfirmModalVisible(false)}
-                />
-              </a>
-            </Link>
+            <MenuItem
+              item={item}
+              onMenuItemClick={handleMenuItemClick}
+              confirmModalVisible={confirmModalVisible}
+              onLogoutModalCloseClick={() => setConfirmModalVisible(false)}
+            />
           ))}
           <ConfirmModal
             trigger={undefined}
@@ -234,26 +229,30 @@ export default function LeftSide(props: LeftSideProps) {
 }
 
 const MenuItem = (props: MenuItemProps) => {
-  const router = useRouter();
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
   const {
     item,
     confirmModalVisible,
     onMenuItemClick,
     onLogoutModalCloseClick,
   } = props;
+
+  const Item = () => {
+    return (
+      <div
+        key={item.id}
+        className={!item.focus ? styles.menuItem : styles.menuItemFocus}
+        onClick={() => onMenuItemClick(item.name)}
+      >
+        {item.icon}
+        <p>{item.name}</p>
+      </div>
+    );
+  };
   if (item.name == "LOGOUT") {
     return (
       <ConfirmModal
-        trigger={
-          <div
-            key={item.id}
-            className={!item.focus ? styles.menuItem : styles.menuItemFocus}
-            onClick={() => onMenuItemClick(item.name)}
-          >
-            {item.icon}
-            <p>{item.name}</p>
-          </div>
-        }
+        trigger={<Item />}
         title={"Confirmation"}
         description={"Are you sure that you want to logout ?"}
         visible={confirmModalVisible}
@@ -263,14 +262,22 @@ const MenuItem = (props: MenuItemProps) => {
       />
     );
   }
+  if (item.name == "PROFILE") {
+    const userId = session?.user.DBID;
+    const path = userId != null ? item.path + "/" + userId : "/home";
+    return (
+      <Link href={path}>
+        <a>
+          <Item />
+        </a>
+      </Link>
+    );
+  }
   return (
-    <div
-      key={item.id}
-      className={!item.focus ? styles.menuItem : styles.menuItemFocus}
-      onClick={() => onMenuItemClick(item.name)}
-    >
-      {item.icon}
-      <p>{item.name}</p>
-    </div>
+    <Link href={item.path}>
+      <a>
+        <Item />
+      </a>
+    </Link>
   );
 };

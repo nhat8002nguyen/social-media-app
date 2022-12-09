@@ -1,9 +1,10 @@
 import { Button } from "@nextui-org/react";
 import { MouseEventHandler } from "react";
+import { PersonCardState } from "redux/slices/home/followableUsers/recommendUserListSlice";
 import { AppButtonLoading } from "../AppLoading";
 
 export interface FollowButtonProps {
-  followingStatus: "idle" | "pending" | "followable" | "following";
+  followingStatus: PersonCardState["followingStatus"];
   onFollowClick: MouseEventHandler<HTMLButtonElement>;
 }
 
