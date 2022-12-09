@@ -199,6 +199,7 @@ export default function LeftSide(props: LeftSideProps) {
         <div className={styles.menuItemList}>
           {menuItems.map((item) => (
             <MenuItem
+              key={item.id}
               item={item}
               onMenuItemClick={handleMenuItemClick}
               confirmModalVisible={confirmModalVisible}
