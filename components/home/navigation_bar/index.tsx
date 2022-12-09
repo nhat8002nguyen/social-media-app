@@ -39,7 +39,7 @@ export default function NavigationBar({
   return (
     <div className={styles.headerNavigation}>
       {tabs.map((tab) => (
-        <div onClick={() => onChange(tab)}>
+        <div key={tab.id} onClick={() => onChange(tab)}>
           <p>{tab.name}</p>
           <div className={getActiveIndicatorStyle(tab.id)}></div>
         </div>

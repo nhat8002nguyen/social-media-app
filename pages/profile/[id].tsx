@@ -63,7 +63,7 @@ export default function Profile({
         })
       );
     }
-  }, [authSession, posts]);
+  }, [authSession, posts, dispatch, postsOfUser]);
 
   const handlePostTabChange = (tab: NavigationBarProps["tabs"][number]) => {
     switch (tab.name) {

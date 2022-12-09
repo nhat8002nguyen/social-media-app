@@ -105,6 +105,24 @@ export default function LeftSide(props: LeftSideProps) {
   const [loginRequireVisible, setLoginRequireVisible] =
     useState<boolean>(false);
 
+  const saveSessionToState = (session: Session) => {
+    let authState: AuthState = {
+      session: {
+        user: {
+          DBID: null,
+          google_account_id: (session as any).user.id,
+          name: session.user.name,
+          email: session.user.email,
+          image: session.user.image,
+        },
+        accessToken: (session as any).accessToken,
+        error: (session as any).error,
+      },
+      sessionStatus: sessionStatus,
+    };
+    dispatch(setAuthState(authState));
+  };
+
   useEffect(() => {
     if (sessionStatus == "unauthenticated") {
       const loginRequireInterval = setInterval(() => {
@@ -123,24 +141,6 @@ export default function LeftSide(props: LeftSideProps) {
     setSignInButtonText,
     setLoginRequireVisible,
   ]);
-
-  const saveSessionToState = (session: Session) => {
-    let authState: AuthState = {
-      session: {
-        user: {
-          DBID: null,
-          google_account_id: (session as any).user.id,
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image,
-        },
-        accessToken: (session as any).accessToken,
-        error: (session as any).error,
-      },
-      sessionStatus: sessionStatus,
-    };
-    dispatch(setAuthState(authState));
-  };
 
   const syncGoogleAccountToDB = () => {
     const user: UserRequestDto = {

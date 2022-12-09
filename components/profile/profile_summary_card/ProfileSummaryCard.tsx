@@ -84,7 +84,7 @@ export default function ProfileSummaryCard({
           <div className={styles.summaryLinkAndDate}>
             <div className={styles.summaryLink}>
               <LinkIcon color="disabled" />
-              <Link href={appPages.profile + "/" + initialSummary.id}>
+              <Link passHref href={appPages.profile + "/" + initialSummary.id}>
                 <AppSmallText
                   styles={{ color: appColors.primary }}
                   text={appPages.profile + "/" + initialSummary.id}
@@ -147,6 +147,7 @@ const SummaryFollowerImages = ({
     <div className={styles.summaryFollowImages}>
       {followersInfo.map((person) => (
         <Avatar
+          key={person.userId}
           size={"xs"}
           src={person.follower_info.image}
           rounded
@@ -175,6 +176,7 @@ const SummaryFollowingImages = ({
     <div className={styles.summaryFollowImages}>
       {followersInfo.map((person) => (
         <Avatar
+          key={person.followingUser.id}
           size={"xs"}
           src={person.followingUser.image}
           rounded
