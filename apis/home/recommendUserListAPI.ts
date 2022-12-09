@@ -1,57 +1,11 @@
 import { hasuraAxios } from "utils/axios/axios";
-
-export interface UserListRequestDto {
-  sessionUserId: number;
-  limit?: number;
-  offset?: number;
-}
-
-export interface UserListResponseDto {
-  user: UserResponseDto[];
-}
-
-export interface UserResponseDto {
-  id: number;
-  user_name: string;
-  image: string;
-  short_bio: string | null;
-  email: string;
-  phone: string | null;
-  about: string | null;
-  google_account_id: string;
-  updated_at: string;
-  created_at: string;
-  followersByFollowerId: FollowInfoResponseDto[];
-}
-
-export interface FollowInfoResponseDto {
-  user_id: number;
-  following_id: number;
-  created_at: string;
-}
-
-export interface FollowRequestDto {
-  userId: number;
-  followingId: number;
-}
-
-export interface FollowsResponseDto {
-  insert_follower: FollowReturningDto;
-}
-
-export interface FollowReturningDto {
-  returning: FollowResponseDto[];
-}
-
-export interface FollowResponseDto {
-  user_id: number;
-  following_id: number;
-  created_at: string;
-}
-
-export interface UnfollowResponseDto {
-  delete_follower: FollowReturningDto;
-}
+import {
+  FollowRequestDto,
+  FollowsResponseDto,
+  UnfollowResponseDto,
+  UserListRequestDto,
+  UserListResponseDto,
+} from "./interfaces";
 
 export const fetchAllExistedUsers = async (
   request: UserListRequestDto

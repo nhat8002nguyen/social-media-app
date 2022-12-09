@@ -25,11 +25,11 @@ import {
   Text,
   useModal,
 } from "@nextui-org/react";
+import { ReplyCommentsFetchRequestDto } from "apis/home/commentsAPI";
 import Image from "next/image";
 import React, { KeyboardEvent, ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { ReplyCommentsFetchRequestDto } from "redux/slices/home/comments/commentsAPI";
 import {
   addComment,
   addReplyComment,
@@ -57,6 +57,7 @@ import {
   increaseLikeCountOfPost,
   PostListState,
   PostState,
+  setPostLiked,
 } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import {
@@ -87,20 +88,12 @@ const monthNames = [
 
 export default function EvaluationPost(props: EvaluationPostProps) {
   const { postState } = props;
-  const postListState = useSelector((state: RootState) => state.postList);
-  const [postProps, setPostProps] = useState<PostState>();
+  const [postProps, setPostProps] = useState<PostState>(postState);
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
-
-  useEffect(() => {
-    const post = (postListState.posts as Array<PostState>).find(
-      (value) => value.id == postState.id
-    );
-    setPostProps(post);
-  }, []);
 
   return (
     <Card
-      css={{ minHeight: "30rem", maxWidth: "40rem", backgroundColor: "white" }}
+      css={{ minHeight: "30rem", maxWidth: "50rem", backgroundColor: "white" }}
     >
       {!postProps ? (
         <AppButtonLoading />
@@ -120,7 +113,7 @@ export default function EvaluationPost(props: EvaluationPostProps) {
               </div>
               <div className={styles.headerRight}>
                 <Text css={{ fontSize: "small" }}>
-                  {showFullLocaleDateTime(postProps.createdAt)}
+                  {showFullLocaleDateTime(new Date(postProps.createdAt))}
                 </Text>
                 <MenuListComposition postProps={postProps} />
               </div>
@@ -128,7 +121,9 @@ export default function EvaluationPost(props: EvaluationPostProps) {
             <div className={styles.content}>
               <Text className={styles.title}>{postProps.title}</Text>
               <div className={styles.descriptions}>
-                <Text>{postProps.body}</Text>
+                <Text size={14} color="grey">
+                  {postProps.body}
+                </Text>
               </div>
               <div className={styles.ratingAndHotelDetail}>
                 <PostRatingArea
@@ -501,46 +496,33 @@ const PostRatingArea = ({
   );
 };
 
-const InteractionMetrics = ({ id: postId, isLiked }: PostState) => {
+const InteractionMetrics = ({ id: postId }: PostState) => {
   const dispatch = useAppDispatch();
-  const [liked, setLiked] = React.useState(isLiked);
-  const [likedCount, setLikedCount] = useState<number>(0);
-  const [commentCount, setCommentCount] = useState<number>(0);
-  const [sharedCount, setSharedCount] = useState<number>(0);
 
   const {
     commentSessionOpen: { postId: currentCommentOpenPostId },
     fetchingStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
-  const { posts }: PostListState = useSelector(
-    (state: RootState) => state.postList
+  const post: PostState = useSelector((state: RootState) =>
+    (state.postList as PostListState).posts.find((post) => post.id == postId)
   );
   const { likeInsertStatus, likeDeleteStatus }: LikeState = useSelector(
     (state: RootState) => state.likeState
   );
 
-  useEffect(() => {
-    const currentPost = posts.find((post) => post.id == postId);
-    if (currentPost != null) {
-      setLikedCount(currentPost.likedCount);
-      setSharedCount(currentPost.sharedCount);
-      setCommentCount(currentPost.commentCount);
-    }
-  }, [posts, setLikedCount, setSharedCount, setCommentCount]);
-
   const toggleLike = async () => {
-    if (!liked) {
+    if (!post?.isLiked) {
       await dispatch(
         likePost({ post_id: postId, user_id: session?.user.db_id })
       );
-      setLiked(() => true);
+      dispatch(setPostLiked({ postId: postId, isLiked: true }));
       dispatch(increaseLikeCountOfPost(postId));
     } else {
       await dispatch(
         undoPostLike({ post_id: postId, user_id: session?.user.db_id })
       );
-      setLiked(() => false);
+      dispatch(setPostLiked({ postId: postId, isLiked: false }));
       dispatch(decreaseLikeCountOfPost(postId));
     }
   };
@@ -589,8 +571,8 @@ const InteractionMetrics = ({ id: postId, isLiked }: PostState) => {
         <AppButtonLoading color={"primary"} />
       ) : (
         <div className={styles.metric}>
-          <LikeIcon onClick={toggleLike} liked={liked} />
-          <Text css={{ fontSize: "small" }}>{showNum(likedCount)}</Text>
+          <LikeIcon onClick={toggleLike} liked={post?.isLiked} />
+          <Text css={{ fontSize: "small" }}>{showNum(post?.likedCount)}</Text>
         </div>
       )}
       {fetchingStatus == "pending" ? (
@@ -598,12 +580,12 @@ const InteractionMetrics = ({ id: postId, isLiked }: PostState) => {
       ) : (
         <div className={styles.metric} onClick={handleModeCommentClick}>
           <ModeCommentOutlined />
-          <Text css={{ fontSize: "small" }}>{showNum(commentCount)}</Text>
+          <Text css={{ fontSize: "small" }}>{showNum(post?.commentCount)}</Text>
         </div>
       )}
       <div className={styles.metric}>
         <ScreenShareOutlined />
-        <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>
+        <Text css={{ fontSize: "small" }}>{showNum(post?.sharedCount)}</Text>
       </div>
       <div className={styles.metric}>
         <ShareOutlined />

@@ -1,19 +1,18 @@
 import {
   AccountCircleRounded,
   ExitToAppRounded,
-  ExploreRounded,
   HomeRounded,
-  TranslateRounded,
   Twitter,
-  WebRounded,
   WhatshotRounded,
 } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
+import { UserRequestDto } from "apis/auth/authAPI";
 import { Session } from "next-auth";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { UserRequestDto } from "redux/slices/auth/authAPI";
 import {
   AuthState,
   setAuthState,
@@ -33,46 +32,61 @@ const createMenuItems = (currentPage) => [
     icon: <HomeRounded />,
     name: "FEED",
     focus: currentPage == appPages.home,
-  },
+    path: appPages.home,
+  } as MenuItemProps["item"],
   {
     id: 1,
     icon: <AccountCircleRounded />,
     name: "PROFILE",
     focus: currentPage == appPages.profile,
-  },
-  {
-    id: 2,
-    icon: <ExploreRounded />,
-    name: "EXPLORE",
-    focus: currentPage == appPages.explore,
-  },
-  {
-    id: 3,
-    icon: <TranslateRounded />,
-    name: "LANGUAGE",
-    focus: currentPage == appPages.language,
-  },
-  {
-    id: 4,
-    icon: <ExitToAppRounded />,
-    name: "LOGOUT",
-    focus: currentPage == appPages.logout,
-  },
+    path: appPages.profile,
+  } as MenuItemProps["item"],
+  // {
+  //   id: 3,
+  //   icon: <TranslateRounded />,
+  //   name: "LANGUAGE",
+  //   focus: currentPage == appPages.language,
+  // },
+  // {
+  //   id: 4,
+  //   icon: <WebRounded />,
+  //   name: "HOTELS",
+  //   focus: currentPage == appPages.pages,
+  // },
   {
     id: 5,
-    icon: <WebRounded />,
-    name: "PAGES",
-    focus: currentPage == appPages.pages,
-  },
-  {
-    id: 6,
     icon: <WhatshotRounded />,
     name: "TRENDING",
     focus: currentPage == appPages.trending,
-  },
+    path: appPages.trending,
+  } as MenuItemProps["item"],
+  {
+    id: 6,
+    icon: <ExitToAppRounded />,
+    name: "LOGOUT",
+    focus: currentPage == appPages.logout,
+    path: appPages.logout,
+  } as MenuItemProps["item"],
 ];
 
-export default function LeftSide(props) {
+interface MenuItemProps {
+  item: {
+    id: number;
+    icon: JSX.Element;
+    name: "FEED" | "PROFILE" | "TRENDING" | "LOGOUT";
+    focus: boolean;
+    path: string;
+  };
+  onMenuItemClick: (name: string) => void;
+  confirmModalVisible: boolean;
+  onLogoutModalCloseClick: () => void;
+}
+
+export interface LeftSideProps {
+  currentPage: string;
+}
+
+export default function LeftSide(props: LeftSideProps) {
   const { currentPage } = props;
   const dispatch = useAppDispatch();
   const { data: session, status: sessionStatus } = useSession();
@@ -96,7 +110,7 @@ export default function LeftSide(props) {
     if (sessionStatus == "unauthenticated") {
       const loginRequireInterval = setInterval(() => {
         setLoginRequireVisible(true);
-      }, 10000);
+      }, 5000);
       setLoginRequireInterval(loginRequireInterval);
     } else if (sessionStatus == "authenticated") {
       clearInterval(loginRequireInterval);
@@ -152,10 +166,10 @@ export default function LeftSide(props) {
     signIn("google");
   };
 
-  const handleMenuItemClick = (id: number, name: string) => {
-    if (id == 0 && name == "FEED") {
+  const handleMenuItemClick = (name: string) => {
+    if (name == "FEED") {
       handleHomeItemClick();
-    } else if (id == 4 && name == "LOGOUT") {
+    } else if (name == "LOGOUT") {
       handleLogoutItemClick();
     }
   };
@@ -184,42 +198,18 @@ export default function LeftSide(props) {
           <Twitter style={{ color: "rgb(101, 165, 255)" }} fontSize="large" />
         </div>
         <div className={styles.menuItemList}>
-          {menuItems.map((item) => {
-            if (item.name == "LOGOUT") {
-              return (
-                <ConfirmModal
-                  trigger={
-                    <div
-                      key={item.id}
-                      className={
-                        !item.focus ? styles.menuItem : styles.menuItemFocus
-                      }
-                      onClick={() => handleMenuItemClick(item.id, item.name)}
-                    >
-                      {item.icon}
-                      <p>{item.name}</p>
-                    </div>
-                  }
-                  title={"Confirmation"}
-                  description={"Are you sure that you want to logout ?"}
-                  visible={confirmModalVisible}
-                  onConfirmClick={() => signOut()}
-                  onCloseClick={() => setConfirmModalVisible(false)}
-                  loading={false}
+          {menuItems.map((item) => (
+            <Link href={item.path}>
+              <a>
+                <MenuItem
+                  item={item}
+                  onMenuItemClick={handleMenuItemClick}
+                  confirmModalVisible={confirmModalVisible}
+                  onLogoutModalCloseClick={() => setConfirmModalVisible(false)}
                 />
-              );
-            }
-            return (
-              <div
-                key={item.id}
-                className={!item.focus ? styles.menuItem : styles.menuItemFocus}
-                onClick={() => handleMenuItemClick(item.id, item.name)}
-              >
-                {item.icon}
-                <p>{item.name}</p>
-              </div>
-            );
-          })}
+              </a>
+            </Link>
+          ))}
           <ConfirmModal
             trigger={undefined}
             title={"Please login to use the application !"}
@@ -242,3 +232,45 @@ export default function LeftSide(props) {
     </div>
   );
 }
+
+const MenuItem = (props: MenuItemProps) => {
+  const router = useRouter();
+  const {
+    item,
+    confirmModalVisible,
+    onMenuItemClick,
+    onLogoutModalCloseClick,
+  } = props;
+  if (item.name == "LOGOUT") {
+    return (
+      <ConfirmModal
+        trigger={
+          <div
+            key={item.id}
+            className={!item.focus ? styles.menuItem : styles.menuItemFocus}
+            onClick={() => onMenuItemClick(item.name)}
+          >
+            {item.icon}
+            <p>{item.name}</p>
+          </div>
+        }
+        title={"Confirmation"}
+        description={"Are you sure that you want to logout ?"}
+        visible={confirmModalVisible}
+        onConfirmClick={() => signOut()}
+        onCloseClick={onLogoutModalCloseClick}
+        loading={false}
+      />
+    );
+  }
+  return (
+    <div
+      key={item.id}
+      className={!item.focus ? styles.menuItem : styles.menuItemFocus}
+      onClick={() => onMenuItemClick(item.name)}
+    >
+      {item.icon}
+      <p>{item.name}</p>
+    </div>
+  );
+};

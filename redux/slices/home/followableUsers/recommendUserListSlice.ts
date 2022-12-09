@@ -2,13 +2,16 @@ import { recommendedFriends } from "@/dummyData/recommendedFriends.json";
 import { generateRandom } from "@/shared/utils/home";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  fetchAllExistedUsers as fetchAllUsers,
   FollowRequestDto,
-  makeAFollow,
-  makeAnUnfollow,
   UserListRequestDto,
   UserListResponseDto,
-} from "./recommendUserListAPI";
+} from "apis/home/interfaces";
+
+import {
+  fetchAllExistedUsers as fetchAllUsers,
+  makeAFollow,
+  makeAnUnfollow,
+} from "apis/home/recommendUserListAPI";
 
 const NUMBER_CARD_SHOWN = 4;
 

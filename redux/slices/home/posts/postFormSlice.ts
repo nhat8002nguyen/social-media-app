@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import * as postFormAPI from "../../../../apis/home/postFormAPI";
 import { RootState } from "../../../store/store";
-import * as postFormAPI from "./postFormAPI";
 
 export interface PostFormState {
   requestStatus: "idle" | "pending" | "succeeded" | "failed";

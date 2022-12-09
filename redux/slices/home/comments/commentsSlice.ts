@@ -8,7 +8,7 @@ import {
   insertComment,
   insertReplyComment,
   ReplyCommentsFetchRequestDto,
-} from "./commentsAPI";
+} from "../../../../apis/home/commentsAPI";
 
 export interface CommentsState {
   comments: CommentDetailState[];

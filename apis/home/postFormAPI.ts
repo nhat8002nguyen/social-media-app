@@ -1,7 +1,10 @@
 import { randomUUID } from "crypto";
 import { cloudinaryAxios, hasuraAxios } from "utils/axios/axios";
-import { PostDeletionState, PostFormDetailState } from "./postFormSlice";
-import { EvaluationPostDto, PostImageDto } from "./postListAPI";
+import {
+  PostDeletionState,
+  PostFormDetailState,
+} from "../../redux/slices/home/posts/postFormSlice";
+import { EvaluationPostDto, PostImageDto } from "./interfaces";
 
 export interface PostInsertionResponseDto {
   insert_evaluation_post: PostMutationDto;

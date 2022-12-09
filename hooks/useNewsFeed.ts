@@ -1,8 +1,8 @@
+import { PostListRequestDto } from "apis/home/interfaces";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { PostListRequestDto } from "redux/slices/home/posts/postListAPI";
 import { findNewsFeedPosts } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 

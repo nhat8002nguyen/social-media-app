@@ -1,5 +1,7 @@
 import { AppPageLoading } from "@/components/atoms/AppLoading";
-import HomeNavigation from "@/components/home/homeNavigation";
+import NavigationBar, {
+  homeActiveTabs,
+} from "@/components/home/navigation_bar";
 import EvaluationPost from "@/components/home/post";
 import RecommendFollowableUsers from "@/components/home/recommendFollowableUsers";
 import UserStatusInput from "@/components/home/userStatusInput";
@@ -46,20 +48,15 @@ export default function Home() {
       <main className={styles.main}>
         <LeftSide currentPage={appPages.home} />
         <div className={styles.contentContainer}>
-          <HomeNavigation />
+          <NavigationBar tabs={homeActiveTabs} />
           <UserStatusInput refreshNewsFeed={refreshNewsFeed} />
           <RecommendFollowableUsers />
-
           <div className={styles.listPost}>
             {postsLoading == "loading" || syncDBStatus == "pending" ? (
               <AppPageLoading />
             ) : (
               posts.map((post: PostState) => (
-                <EvaluationPost
-                  key={post.id}
-                  postState={post}
-                  refreshNewsFeed={refreshNewsFeed}
-                />
+                <EvaluationPost key={post.id} postState={post} />
               ))
             )}
           </div>

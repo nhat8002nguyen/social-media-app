@@ -1,4 +1,3 @@
-import useNewsFeed from "@/hooks/useNewsFeed";
 import { FormElement } from "@nextui-org/react";
 import {
   ChangeEvent,
@@ -18,7 +17,6 @@ export interface MenuListCompositionProps {
 
 export interface EvaluationPostProps {
   postState: PostState;
-  refreshNewsFeed: ReturnType<typeof useNewsFeed>["refreshNewsFeed"];
 }
 
 export interface CommentAreaProps {

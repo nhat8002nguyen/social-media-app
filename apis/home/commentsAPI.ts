@@ -1,55 +1,5 @@
 import { hasuraAxios } from "utils/axios/axios";
 
-export interface CommentsFetchRequestDto {
-  postId: number;
-  limit?: number;
-  offset?: number;
-}
-
-export interface CommentsFetchResponseDto {
-  post_comment: CommentDetailResponseDto[];
-}
-
-export interface CommentDetailResponseDto {
-  id: number;
-  text: string;
-  thread_id: number;
-  user: {
-    id: number;
-    image: string;
-    user_name: string;
-    email: string;
-    short_bio: string;
-  };
-  created_at: string;
-  edited_at: string;
-}
-
-export interface CommentInsertRequestDto {
-  userId: number;
-  postId: number;
-  text: string;
-  threadId?: number;
-}
-
-export interface CommentInsertResponseDto {
-  insert_post_comment: CommentInsertReturningDto;
-}
-
-export interface CommentInsertReturningDto {
-  returning: CommentDetailResponseDto[];
-}
-
-export interface ReplyCommentsFetchRequestDto {
-  comment_id: number;
-  limit?: number;
-  offset?: number;
-}
-
-export interface ReplyCommentsFetchResponseDto {
-  post_comment: CommentDetailResponseDto[];
-}
-
 export const getCommentByPostID = async (
   request: CommentsFetchRequestDto
 ): Promise<CommentDetailResponseDto[]> => {
@@ -160,3 +110,53 @@ export const insertReplyComment = async (
     throw Error("Can not insert comments of post: " + request.postId);
   }
 };
+
+export interface CommentsFetchRequestDto {
+  postId: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CommentsFetchResponseDto {
+  post_comment: CommentDetailResponseDto[];
+}
+
+export interface CommentDetailResponseDto {
+  id: number;
+  text: string;
+  thread_id: number;
+  user: {
+    id: number;
+    image: string;
+    user_name: string;
+    email: string;
+    short_bio: string;
+  };
+  created_at: string;
+  edited_at: string;
+}
+
+export interface CommentInsertRequestDto {
+  userId: number;
+  postId: number;
+  text: string;
+  threadId?: number;
+}
+
+export interface CommentInsertResponseDto {
+  insert_post_comment: CommentInsertReturningDto;
+}
+
+export interface CommentInsertReturningDto {
+  returning: CommentDetailResponseDto[];
+}
+
+export interface ReplyCommentsFetchRequestDto {
+  comment_id: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ReplyCommentsFetchResponseDto {
+  post_comment: CommentDetailResponseDto[];
+}

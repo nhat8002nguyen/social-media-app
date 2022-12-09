@@ -2,6 +2,7 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+	padding-right: 1rem;
 }
 
 .postContainer > div {

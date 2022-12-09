@@ -4,7 +4,7 @@ import {
   insertPostLike,
   LikeDeleteRequestDto,
   LikeInsertRequestDto,
-} from "./likeAPI";
+} from "../../../../apis/home/likeAPI";
 
 export interface LikeState {
   likeInsertStatus: "idle" | "pending" | "success" | "fail";

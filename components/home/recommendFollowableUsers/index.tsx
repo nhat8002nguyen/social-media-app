@@ -1,8 +1,10 @@
-import { AppButtonLoading } from "@/components/atoms/AppLoading";
 import { CardTitleText, SmallGreyText } from "@/components/atoms/appTexts";
+import FollowButton from "@/components/atoms/follow_button/FollowButton";
 import useAppearedUsers from "@/hooks/useAppearedUsers";
+import appPages from "@/shared/appPages";
 import { ArrowForwardRounded } from "@mui/icons-material";
-import { Avatar, Button, Card } from "@nextui-org/react";
+import { Avatar, Card } from "@nextui-org/react";
+import Link from "next/link";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
@@ -45,18 +47,6 @@ const PersonItem = (props: PersonCardState) => {
   const dispatch = useAppDispatch();
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
-  const getLetterColor = () => {
-    return followingStatus == "following" ? "white" : "#005FF9";
-  };
-
-  const getBackgroundColor = () => {
-    return followingStatus == "following" ? "#005FF9" : "white";
-  };
-
-  const getButtonName = () => {
-    return followingStatus == "following" ? "Following" : "+ Follow";
-  };
-
   const handleFollowClick = () => {
     const sessionUserId = session?.user.db_id;
     if (sessionUserId != null) {
@@ -82,24 +72,28 @@ const PersonItem = (props: PersonCardState) => {
         backgroundColor: "white",
       }}
     >
-      <Avatar rounded src={image} />
-      <CardTitleText text={name.slice(0, 16)} styles={{ marginTop: "1rem" }} />
-      <SmallGreyText text={shortBio.slice(0, 16)} />
-      <Button
-        size="xs"
-        color={"default"}
-        css={{
-          maxW: "$10",
-          backgroundColor: getBackgroundColor(),
-          border: "1px solid #005FF9",
-          color: getLetterColor(),
-          marginTop: "$10",
-          padding: "$5",
+      <Link href={appPages.profile + "/" + userId}>
+        <a>
+          <Avatar pointer rounded src={image} />
+        </a>
+      </Link>
+      <Link
+        href={{
+          pathname: appPages.profile + "/" + userId,
         }}
-        onClick={handleFollowClick}
       >
-        {followingStatus != "pending" ? getButtonName() : <AppButtonLoading />}
-      </Button>
+        <a>
+          <CardTitleText
+            text={name.slice(0, 16)}
+            styles={{ marginTop: "1rem", cursor: "pointer" }}
+          />
+        </a>
+      </Link>
+      <SmallGreyText text={shortBio.slice(0, 16)} />
+      <FollowButton
+        followingStatus={followingStatus}
+        onFollowClick={handleFollowClick}
+      />
     </Card>
   );
 };

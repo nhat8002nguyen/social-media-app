@@ -1,8 +1,9 @@
-import { EvaluationPostDto, PostListResponseDto } from "./postListAPI";
+import { EvaluationPostDto, PostListResponseDto } from "apis/home/interfaces";
 import { ImageState, PostState } from "./postListSlice";
 
-export const updatePostsFromResponse = (
-  response: PostListResponseDto
+export const updateHomePostsFromResponse = (
+  response: PostListResponseDto,
+  userId: number
 ): Array<PostState> => {
   const totalResponsePosts: Array<EvaluationPostDto> = [];
   response?.user[0].followers.forEach((person) =>
@@ -10,7 +11,19 @@ export const updatePostsFromResponse = (
   );
   totalResponsePosts.push(...response.user[0].evaluation_posts);
 
-  const posts = totalResponsePosts.map(
+  const postsState = convertPostListDtoToPostListState(
+    totalResponsePosts,
+    userId
+  );
+
+  return postsState;
+};
+
+export const convertPostListDtoToPostListState = (
+  postListDto: EvaluationPostDto[],
+  currentUserId?: number
+): PostState[] => {
+  const posts = postListDto.map(
     (dto) =>
       <PostState>{
         id: dto.id,
@@ -20,7 +33,7 @@ export const updatePostsFromResponse = (
           image: dto.post_owner.image,
           email: dto.post_owner.email,
           shortBio: dto.post_owner.short_bio,
-          createdAt: new Date(dto.post_owner.created_at),
+          createdAt: dto.post_owner.created_at,
         },
         title: dto.title,
         body: dto.body,
@@ -48,13 +61,26 @@ export const updatePostsFromResponse = (
         likedCount: dto.post_likes_aggregate.aggregate.count,
         sharedCount: dto.post_shares_aggregate.aggregate.count,
         commentCount: dto.post_comments_aggregate.aggregate.count,
-        isLiked: dto.post_likes.length > 0,
-        createdAt: new Date(dto.created_at),
-        updatedAt: new Date(dto.updated_at),
+        isLiked:
+          currentUserId != undefined && currentUserId != null
+            ? dto.post_likes.find((like) => like.user_id == currentUserId) ==
+              undefined
+              ? false
+              : true
+            : false,
+        createdAt: dto.created_at,
+        updatedAt: dto.updated_at,
       }
   );
 
-  posts.sort((a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf());
+  posts.sort(
+    (a, b) => new Date(b.updatedAt).valueOf() - new Date(a.updatedAt).valueOf()
+  );
 
   return posts;
+};
+
+export default {
+  updateHomePostsFromResponse,
+  convertPostListDtoToPostListState,
 };

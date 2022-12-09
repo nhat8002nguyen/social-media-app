@@ -1,5 +1,57 @@
 import { ApiErrorResponse } from "@/shared/interfaces";
-import { hasuraAxios } from "utils/axios/axios";
+
+export interface UserListRequestDto {
+  sessionUserId: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UserListResponseDto {
+  user: UserResponseDto[];
+}
+
+export interface UserResponseDto {
+  id: number;
+  user_name: string;
+  image: string;
+  short_bio: string | null;
+  email: string;
+  phone: string | null;
+  about: string | null;
+  google_account_id: string;
+  updated_at: string;
+  created_at: string;
+  followersByFollowerId: FollowInfoResponseDto[];
+}
+
+export interface FollowInfoResponseDto {
+  user_id: number;
+  following_id: number;
+  created_at: string;
+}
+
+export interface FollowRequestDto {
+  userId: number;
+  followingId: number;
+}
+
+export interface FollowsResponseDto {
+  insert_follower: FollowReturningDto;
+}
+
+export interface FollowReturningDto {
+  returning: FollowResponseDto[];
+}
+
+export interface FollowResponseDto {
+  user_id: number;
+  following_id: number;
+  created_at: string;
+}
+
+export interface UnfollowResponseDto {
+  delete_follower: FollowReturningDto;
+}
 
 export interface PostListRequestDto {
   userId: number;
@@ -86,27 +138,10 @@ export interface PostHotelDto {
   rating: number;
 }
 
-export const fetchNewsFeedOfUser = async (
-  request: PostListRequestDto
-): Promise<PostListResponseDto> => {
-  try {
-    const response = await hasuraAxios.get(
-      "https://refined-baboon-56.hasura.app/api/rest/v1/posts/news-feed",
-      {
-        params: {
-          user_id: request.userId,
-          offset: request.followingOffset ?? 0,
-          limit: request.followingLimit ?? 2,
-          my_offset: request.ownerOffset ?? 0,
-          my_limit: request.ownerLimit ?? 2,
-        },
-      }
-    );
-    if (response.status === 200 && response.data.user?.length > 0) {
-      return response.data;
-    }
-    return;
-  } catch (e) {
-    console.error(e);
-  }
-};
+export interface PostLikeResponseDto {
+  post_like: {
+    user_id: number;
+    post_id: number;
+    liked_at: string;
+  }[];
+}

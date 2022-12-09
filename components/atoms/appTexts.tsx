@@ -23,6 +23,22 @@ export const CardTitleText = ({ text, styles }: TextProps) => {
   );
 };
 
+export const AppNormalText = ({ text, styles }: TextProps) => {
+  return (
+    <Text color="grey" css={{ ...styles }}>
+      {text}
+    </Text>
+  );
+};
+
+export const AppSmallText = ({ text, styles }: TextProps) => {
+  return (
+    <Text size={13} color="grey" css={{ ...styles }}>
+      {text}
+    </Text>
+  );
+};
+
 export const HashTagText = ({ text, styles }: TextProps) => {
   return (
     <Text h6 size={14} color="blue" css={{ ...styles }}>

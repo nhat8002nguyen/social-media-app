@@ -1,6 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  addGoogleAccountToDBIfNotExist,
+  UserRequestDto,
+} from "../../../apis/auth/authAPI";
 import { RootState } from "../../store/store";
-import { addGoogleAccountToDBIfNotExist, UserRequestDto } from "./authAPI";
 
 export interface AuthState {
   sessionStatus: "authenticated" | "loading" | "unauthenticated";
