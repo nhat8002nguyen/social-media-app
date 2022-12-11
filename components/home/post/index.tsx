@@ -1,5 +1,6 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
 import { SmallGreyText } from "@/components/atoms/appTexts";
+import ProfileLink from "@/components/atoms/ProfileLink";
 import ConfirmModal from "@/components/mocules/confirmModal";
 import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { ImageViewModal } from "@/components/mocules/imageView";
@@ -99,13 +100,21 @@ export default function EvaluationPost(props: EvaluationPostProps) {
         <AppButtonLoading />
       ) : (
         <div className={styles.postContainer}>
-          <Avatar src={postProps.postOwner.image} rounded />
+          <ProfileLink
+            profileId={postProps.postOwner.id}
+            child={<Avatar pointer src={postProps.postOwner.image} rounded />}
+          />
           <div className={styles.postMain}>
             <div className={styles.header}>
               <div className={styles.headerLeft}>
-                <Text css={{ fontWeight: "bold" }}>
-                  {postProps.postOwner.username}
-                </Text>
+                <ProfileLink
+                  profileId={postProps.postOwner.id}
+                  child={
+                    <Text css={{ fontWeight: "bold", cursor: "pointer" }}>
+                      {postProps.postOwner.username}
+                    </Text>
+                  }
+                />
                 {true ? <CheckCircle color="primary" fontSize="small" /> : null}
                 <Text css={{ fontSize: "small" }}>
                   {postProps.postOwner.shortBio}
@@ -782,13 +791,21 @@ const CommentThread = (props: CommentThreadProps) => {
 
   return (
     <div className={styles.commentThread}>
-      <Avatar src={owner.image} />
+      <ProfileLink
+        profileId={owner.id}
+        child={<Avatar pointer src={owner.image} />}
+      />
       <div className={styles.commentThreadColumn}>
         <div className={styles.comment}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Text small css={{ fontWeight: "bold" }}>
-              {owner.username}
-            </Text>
+            <ProfileLink
+              profileId={owner.id}
+              child={
+                <Text small css={{ fontWeight: "bold", cursor: "pointer" }}>
+                  {owner.username}
+                </Text>
+              }
+            />
             <SmallGreyText text={owner.shortBio} />
           </div>
           <Text small>{text}</Text>
@@ -840,7 +857,7 @@ const CommentThread = (props: CommentThreadProps) => {
 const Comment = (props: CommentProps) => {
   const {
     reply: {
-      owner: { image, username, shortBio },
+      owner: { id, image, username, shortBio },
       text,
       createdAt,
     },
@@ -848,15 +865,20 @@ const Comment = (props: CommentProps) => {
 
   return (
     <div className={styles.commentThread}>
-      <Avatar src={image} />
+      <ProfileLink profileId={id} child={<Avatar pointer src={image} />} />
       <div className={styles.commentThreadColumn}>
         <div className={styles.comment}>
           <div
             style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem" }}
           >
-            <Text small css={{ fontWeight: "bold" }}>
-              {username}
-            </Text>
+            <ProfileLink
+              profileId={id}
+              child={
+                <Text small css={{ fontWeight: "bold", cursor: "pointer" }}>
+                  {username}
+                </Text>
+              }
+            />
             <SmallGreyText text={shortBio} />
           </div>
           <Text small>{text}</Text>

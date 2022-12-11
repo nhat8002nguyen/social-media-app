@@ -54,19 +54,11 @@ export const updatePostsInteractionsStatusOfSessionUser = async (request: {
       data.post_like.length > 0 && likedPostIds.push(data.post_like[0].post_id);
     });
 
-    // likedPostIds.forEach((id) => {
-    //   const post = posts.find((post) => post.id == id);
-    //   if (post != null && post != undefined) {
-    //     post.isLiked = true;
-    //   }
-    // });
     const updatedPosts = posts.map((post) => {
       return likedPostIds.includes(post.id)
         ? { ...post, isLiked: true }
         : { ...post };
     });
-
-    console.log(updatedPosts);
 
     return updatedPosts;
   } catch (err) {
