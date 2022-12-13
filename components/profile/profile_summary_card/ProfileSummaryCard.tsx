@@ -11,7 +11,7 @@ import {
 import { Avatar, Card, Text } from "@nextui-org/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ProfilePageGetStaticProps } from "pages/profile/[id]";
+import { ProfilePageGetServerSideProps } from "pages/profile/[id]";
 import { ReactElement } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
@@ -25,7 +25,7 @@ import styles from "./styles.module.css";
 
 export default function ProfileSummaryCard({
   summary: initialSummary,
-}: ProfilePageGetStaticProps) {
+}: ProfilePageGetServerSideProps) {
   const { totalFollowableUsers }: FollowableUsersState = useSelector(
     (state: RootState) => state.recommendUserList
   );
