@@ -11,11 +11,10 @@ import RightSide from "@/components/rightSide";
 import { useSnackbarNotificationAndRefreshNewsFeed } from "@/hooks/useSnackbarNotificationAndRefreshNewsFeed";
 import appPages from "@/shared/appPages";
 import * as profilePageAPI from "apis/profile/profilePageAPI";
-import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { ParsedUrlQuery } from "querystring";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
@@ -36,7 +35,7 @@ export default function Profile({
   summary: initialSummary,
   posts: postsOfUser,
   likedPosts: postsLikedByUser,
-}: ProfilePageGetStaticProps) {
+}: ProfilePageGetServerSideProps) {
   const dispatch = useAppDispatch();
   const { data: session, status: sessionState } = useSession();
   const { session: authSession }: AuthState = useSelector(
@@ -124,31 +123,15 @@ export default function Profile({
   );
 }
 
-export interface ProfileGetStaticPaths extends ParsedUrlQuery {
-  id: string;
-}
-
-export const getStaticPaths: GetStaticPaths<
-  ProfileGetStaticPaths
-> = async () => {
-  const data = await profilePageAPI.getUserIds();
-
-  const paths = data.user.map((user) => ({
-    params: { id: user.id.toString() },
-  }));
-
-  return { paths, fallback: false };
-};
-
-export interface ProfilePageGetStaticProps {
+export interface ProfilePageGetServerSideProps {
   summary: SummaryState["summary"];
   posts: PostState[];
   likedPosts: PostState[];
 }
 
-export const getStaticProps: GetStaticProps<ProfilePageGetStaticProps> = async (
-  context: GetStaticPropsContext
-) => {
+export const getServerSideProps: GetServerSideProps<
+  ProfilePageGetServerSideProps
+> = async (context: GetServerSidePropsContext) => {
   try {
     const userId = context.params.id;
 
@@ -177,7 +160,7 @@ export const getStaticProps: GetStaticProps<ProfilePageGetStaticProps> = async (
 
 const fetchUserSummary = async (
   userId: string | string[]
-): Promise<ProfilePageGetStaticProps["summary"]> => {
+): Promise<ProfilePageGetServerSideProps["summary"]> => {
   const data = await profilePageAPI.getUserSummary({
     user_id: typeof userId == "string" ? parseInt(userId) : parseInt(userId[0]),
     follower_show_limit: 5,

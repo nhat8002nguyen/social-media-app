@@ -4,24 +4,23 @@ import {
   PostLikeResponseDto,
   PostListRequestDto,
   PostListResponseDto,
+  TrendingPostsRequestDto,
+  TrendingPostsResponseDto,
 } from "./interfaces";
 
 export const fetchNewsFeedOfUser = async (
   request: PostListRequestDto
 ): Promise<PostListResponseDto> => {
   try {
-    const response = await hasuraAxios.get(
-      "https://refined-baboon-56.hasura.app/api/rest/v1/posts/news-feed",
-      {
-        params: {
-          user_id: request.userId,
-          offset: request.followingOffset ?? 0,
-          limit: request.followingLimit ?? 2,
-          my_offset: request.ownerOffset ?? 0,
-          my_limit: request.ownerLimit ?? 2,
-        },
-      }
-    );
+    const response = await hasuraAxios.get("/posts/news-feed", {
+      params: {
+        user_id: request.userId,
+        offset: request.followingOffset ?? 0,
+        limit: request.followingLimit ?? 2,
+        my_offset: request.ownerOffset ?? 0,
+        my_limit: request.ownerLimit ?? 2,
+      },
+    });
     if (response.status === 200 && response.data.user?.length > 0) {
       return response.data;
     }
@@ -64,4 +63,30 @@ export const updatePostsInteractionsStatusOfSessionUser = async (request: {
   } catch (err) {
     throw Error("Can not update interactions status of session user");
   }
+};
+
+export const getTrendingPosts = async (
+  request: TrendingPostsRequestDto
+): Promise<TrendingPostsResponseDto> => {
+  try {
+    const response = await hasuraAxios.get("/posts/trending", {
+      params: {
+        ...request,
+      },
+    });
+    const data = response.data as TrendingPostsResponseDto;
+    if (response.status === 200) {
+      return data;
+    }
+
+    throw Error("Can not fetch trending posts, please check api call");
+  } catch (e) {
+    console.error(e);
+    throw Error("Can not fetch trending posts, please check api call");
+  }
+};
+
+export default {
+  fetchNewsFeedOfUser,
+  getTrendingPosts,
 };

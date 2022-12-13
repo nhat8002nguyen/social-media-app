@@ -1,17 +1,10 @@
 import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { AccountCircleRounded, AddCircleRounded } from "@mui/icons-material";
 import { useModal } from "@nextui-org/react";
-import { useSelector } from "react-redux";
-import { AuthState } from "redux/slices/auth/authSlice";
-import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
-export default function UserStatusInput({ refreshNewsFeed }) {
-  const dispatch = useAppDispatch();
+export default function UserStatusInput() {
   const { setVisible, bindings } = useModal();
-  const { session, sessionStatus }: AuthState = useSelector(
-    (state: RootState) => state.auth
-  );
 
   return (
     <form className={styles.userStatusInput}>

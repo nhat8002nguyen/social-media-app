@@ -15,6 +15,7 @@ import appPages from "@/shared/appPages";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
+import { HomeGetServerSideProps } from "pages";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
@@ -22,15 +23,17 @@ import { PostState } from "redux/slices/home/posts/postListSlice";
 import { RootState } from "redux/store/store";
 import styles from "./styles.module.css";
 
-export default function Home() {
-  const { data: session, status: sessionState } = useSession();
-  const { session: authSession, syncDBStatus }: AuthState = useSelector(
-    (state: RootState) => state.auth
-  );
+export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
+  const { data: session } = useSession();
+  const {
+    session: authSession,
+    syncDBStatus,
+    sessionStatus,
+  }: AuthState = useSelector((state: RootState) => state.auth);
   const { posts, loading: postsLoading } = useSelector(
     (state: RootState) => state.postList
   );
-  const { refreshNewsFeed } = useNewsFeed();
+  useNewsFeed({ initialPosts });
   useSnackbarNotificationAndRefreshNewsFeed();
   const [loginRequireVisible, setLoginRequireVisible] =
     useState<boolean>(false);
@@ -58,10 +61,14 @@ export default function Home() {
         <LeftSide currentPage={appPages.home} />
         <div className={styles.contentContainer}>
           <NavigationBar tabs={homeActiveTabs} />
-          <UserStatusInput refreshNewsFeed={refreshNewsFeed} />
+          <UserStatusInput />
           <RecommendFollowableUsers />
           <div className={styles.listPost}>
-            {postsLoading == "loading" || syncDBStatus == "pending" ? (
+            {sessionStatus == "unauthenticated" && initialPosts?.length > 0 ? (
+              initialPosts.map((post: PostState) => (
+                <EvaluationPost key={post.id} postState={post} />
+              ))
+            ) : postsLoading == "loading" || syncDBStatus == "pending" ? (
               <AppPageLoading />
             ) : (
               posts.map((post: PostState) => (

@@ -145,3 +145,15 @@ export interface PostLikeResponseDto {
     liked_at: string;
   }[];
 }
+
+export interface TrendingPostsRequestDto {
+  offset?: number;
+  limit?: number;
+  min_like_count: number;
+  min_comment_count: number;
+  min_share_count: number;
+}
+
+export interface TrendingPostsResponseDto {
+  evaluation_post: EvaluationPostDto[];
+}
