@@ -60,12 +60,23 @@
 
 .summaryFooter {
 	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+}
+
+.summaryFollowInfo {
+	display: flex;
 	gap: 3rem;
 }
 
 .summaryFollowers {
 	display: flex;
 	flex-direction: column;
+}
+
+.summaryEdit {
+	display: flex;
+	cursor: pointer;
 }
 
 .summaryFollowImages {

@@ -1,65 +1,46 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  getUserSummary,
-  UserSummaryFetchRequestDto,
+  ProfileSummaryUpdateRequestDto,
   UserSummaryFetchResponseDto,
-} from "apis/profile/profilePageAPI";
+} from "apis/profile/interfaces";
 
-export interface SummaryState {
-  summary: {
-    id: number;
-    image: string;
-    username: string;
-    shortBio: string;
-    phone: string;
-    about: string;
-    email: string;
-    updatedAt: string;
-    createdAt: string;
-    followers: {
-      userId: number;
-      followingId: number;
-      createdAt: string;
-      follower_info: {
-        id: number;
-        image: string;
-        shortBio: string;
-        username: string;
-        createdAt: string;
-      };
-    }[];
-    followings: {
-      createdAt: string;
-      followingUser: {
-        id: number;
-        image: string;
-        username: string;
-        shortBio: string;
-        createdAt: string;
-      };
-    }[];
-    followersCount: number;
-    followingsCount: number;
-    evaluationPostsCount: number;
-  } | null;
-  summaryFetchStatus: "idle" | "pending" | "success" | "fail";
-}
+import { updateProfileSummary } from "apis/profile/profilePageAPI";
 
 const initialState: SummaryState = {
   summary: null,
   summaryFetchStatus: "idle",
+  summaryUpdateStatus: "idle",
 };
 
 const summarySlice = createSlice({
   name: "summary",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setProfileSummary(state, action: PayloadAction<SummaryState["summary"]>) {
+      state.summary = action.payload;
+    },
+  },
   extraReducers: (builder) => {
-    builder.addCase(fetchUserSummary.fulfilled, (state, action) => {
-      state.summary = convertSummaryResponseToState(action.payload);
+    builder.addCase(editProfileSummary.pending, (state, action) => {
+      state.summaryUpdateStatus = "pending";
+    });
+    builder.addCase(editProfileSummary.fulfilled, (state, action) => {
+      state.summaryUpdateStatus = "success";
+      const updatedInfo = action.payload.update_user.returning[0];
+      if (state.summary.id == updatedInfo.id) {
+        state.summary = {
+          ...state.summary,
+          username: updatedInfo.user_name,
+          shortBio: updatedInfo.short_bio,
+          phone: updatedInfo.phone,
+          about: updatedInfo.about,
+        };
+      }
     });
   },
 });
+
+export const { setProfileSummary } = summarySlice.actions;
 
 export const convertSummaryResponseToState = (
   dto: UserSummaryFetchResponseDto
@@ -103,13 +84,52 @@ export const convertSummaryResponseToState = (
   } as SummaryState["summary"];
 };
 
-export const fetchUserSummary = createAsyncThunk(
-  "users/profile/fetchSummary",
-  async (request: UserSummaryFetchRequestDto, thunkAPI) => {
-    return await getUserSummary(request);
+export const editProfileSummary = createAsyncThunk(
+  "users/profile/editProfileSummary",
+  async (request: ProfileSummaryUpdateRequestDto, thunkAPI) => {
+    return await updateProfileSummary(request);
   }
 );
 
-export const {} = summarySlice.actions;
-
 export default summarySlice.reducer;
+
+export interface SummaryState {
+  summary: {
+    id: number;
+    image: string;
+    username: string;
+    shortBio: string;
+    phone: string;
+    about: string;
+    email: string;
+    updatedAt: string;
+    createdAt: string;
+    followers: {
+      userId: number;
+      followingId: number;
+      createdAt: string;
+      follower_info: {
+        id: number;
+        image: string;
+        shortBio: string;
+        username: string;
+        createdAt: string;
+      };
+    }[];
+    followings: {
+      createdAt: string;
+      followingUser: {
+        id: number;
+        image: string;
+        username: string;
+        shortBio: string;
+        createdAt: string;
+      };
+    }[];
+    followersCount: number;
+    followingsCount: number;
+    evaluationPostsCount: number;
+  } | null;
+  summaryFetchStatus: "idle" | "pending" | "success" | "fail";
+  summaryUpdateStatus: "idle" | "pending" | "success" | "fail";
+}

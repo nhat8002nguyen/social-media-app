@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PostFormDetailState } from "redux/slices/home/posts/postFormSlice";
-import { toggleSnackbar } from "redux/slices/statusNotifications/snackbarsSlice";
+import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { useAppDispatch } from "redux/store/store";
 
 export const validatePostValues = (
@@ -11,7 +11,7 @@ export const validatePostValues = (
     let { userId, body, hotel } = postValues;
     if (userId < 0) {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message:
             "Current session is unauthenticated or outdated, please reload page !",
           severity: "error",
@@ -21,7 +21,7 @@ export const validatePostValues = (
     }
     if (body.length == 0) {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Body should not empty, please fill it !",
           severity: "error",
         })
@@ -30,7 +30,7 @@ export const validatePostValues = (
     }
     if (Number.isNaN(hotel)) {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Hotel not found, please enter exiting hotel",
           severity: "error",
         })

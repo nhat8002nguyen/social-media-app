@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import { PostFormState } from "redux/slices/home/posts/postFormSlice";
 import { findNewsFeedPosts } from "redux/slices/home/posts/postListSlice";
-import { toggleSnackbar } from "redux/slices/statusNotifications/snackbarsSlice";
+import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 
 export const useSnackbarNotificationAndRefreshNewsFeed = () => {
@@ -18,7 +18,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
   useEffect(() => {
     if (requestStatus == "failed") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Failed to create new post, please try again !",
           severity: "error",
         })
@@ -26,7 +26,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
     }
     if (requestStatus == "succeeded") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Create a new post successfully !",
           severity: "success",
         })
@@ -38,7 +38,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
   useEffect(() => {
     if (requestUpdationStatus == "failed") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Failed to edit this post, please try again !",
           severity: "error",
         })
@@ -46,7 +46,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
     }
     if (requestUpdationStatus == "succeeded") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Edit your post successfully !",
           severity: "success",
         })
@@ -58,7 +58,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
   useEffect(() => {
     if (requestDeletionStatus == "failed") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Failed to delete this post, please try again !",
           severity: "error",
         })
@@ -66,7 +66,7 @@ export const useSnackbarNotificationAndRefreshNewsFeed = () => {
     }
     if (requestDeletionStatus == "succeeded") {
       dispatch(
-        toggleSnackbar({
+        notifyRequestStatus({
           message: "Delete your post successfully !",
           severity: "success",
         })

@@ -26,6 +26,7 @@ import {
 import postsConverter from "redux/slices/home/posts/postsConverter";
 import {
   convertSummaryResponseToState,
+  setProfileSummary,
   SummaryState,
 } from "redux/slices/profile/summary/summarySlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -50,6 +51,10 @@ export default function Profile({
       signIn(); // Force sign in to hopefully resolve error
     }
   }, [session]);
+
+  useEffect(() => {
+    dispatch(setProfileSummary(initialSummary));
+  }, [initialSummary]);
 
   useEffect(() => {
     dispatch(setPostsList(postsOfUser));

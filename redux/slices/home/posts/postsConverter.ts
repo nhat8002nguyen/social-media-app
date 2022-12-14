@@ -6,10 +6,12 @@ export const updateHomePostsFromResponse = (
   userId: number
 ): Array<PostState> => {
   const totalResponsePosts: Array<EvaluationPostDto> = [];
-  response?.user[0].followers.forEach((person) =>
-    totalResponsePosts.push(...person.following_user.evaluation_posts)
-  );
-  totalResponsePosts.push(...response?.user[0].evaluation_posts);
+  if (response) {
+    response.user[0].followers.forEach((person) =>
+      totalResponsePosts.push(...person.following_user.evaluation_posts)
+    );
+    totalResponsePosts.push(...response.user[0].evaluation_posts);
+  }
 
   const postsState = convertPostListDtoToPostListState(
     totalResponsePosts,

@@ -1,0 +1,8 @@
+.modalBody {
+	padding: 1rem 1.5rem;
+}
+
+.footerButtons {
+	display: flex;
+	gap: 1rem;
+}

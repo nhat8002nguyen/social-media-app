@@ -15,7 +15,7 @@ export const snackbarsSlice = createSlice({
   name: "snackbar",
   initialState,
   reducers: {
-    toggleSnackbar(state, action: PayloadAction<SnackbarState>) {
+    notifyRequestStatus(state, action: PayloadAction<SnackbarState>) {
       state.message = action.payload.message;
       state.severity = action.payload.severity;
     },
@@ -23,7 +23,7 @@ export const snackbarsSlice = createSlice({
   extraReducers: (builder) => {},
 });
 
-export const { toggleSnackbar } = snackbarsSlice.actions;
+export const { notifyRequestStatus } = snackbarsSlice.actions;
 
 export const selectSnackbarState = (state: RootState) => state.snackbar;
 

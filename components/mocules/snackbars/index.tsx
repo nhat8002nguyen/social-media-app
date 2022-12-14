@@ -4,8 +4,8 @@ import Stack from "@mui/material/Stack";
 import * as React from "react";
 import { useSelector } from "react-redux";
 import {
+  notifyRequestStatus,
   SnackbarState,
-  toggleSnackbar,
 } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 
@@ -37,7 +37,7 @@ export default function CustomizedSnackbars() {
     }
 
     setOpenSeverity("none");
-    dispatch(toggleSnackbar({ message: "", severity: "none" }));
+    dispatch(notifyRequestStatus({ message: "", severity: "none" }));
   };
 
   return (

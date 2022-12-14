@@ -1,5 +1,13 @@
 import { EvaluationPostDto } from "apis/home/interfaces";
 import { hasuraAxios } from "utils/axios/axios";
+import {
+  LikedPostsResponseDto,
+  ProfileSummaryUpdateRequestDto,
+  ProfileSummaryUpdateResponseDto,
+  UserIdsResponseDto,
+  UserSummaryFetchRequestDto,
+  UserSummaryFetchResponseDto,
+} from "./interfaces";
 
 export const getUserIds = async (): Promise<UserIdsResponseDto> => {
   try {
@@ -98,81 +106,32 @@ export const getUserLikedPosts = async (request: {
   }
 };
 
+export const updateProfileSummary = async (
+  request: ProfileSummaryUpdateRequestDto
+) => {
+  try {
+    const res = await hasuraAxios.post("/users/profile", null, {
+      params: {
+        ...request,
+      },
+    });
+
+    const data = res.data as ProfileSummaryUpdateResponseDto;
+
+    if (res.status == 200 && data.update_user.returning.length > 0) {
+      return data;
+    }
+
+    throw Error("Can not update profile summary, please check the api request");
+  } catch (error) {
+    console.error(error);
+    throw Error("Can not update profile summary, please check the api request");
+  }
+};
+
 export default {
   getUserIds,
   getUserSummary,
   getUserPosts,
+  updateProfileSummary,
 };
-
-// Interfaces
-
-export interface UserIdsResponseDto {
-  user: {
-    id: number;
-  }[];
-}
-
-export interface UserSummaryFetchRequestDto {
-  user_id: number;
-  follower_show_limit: number;
-  following_show_limit: number;
-}
-
-export interface UserSummaryFetchResponseDto {
-  user: {
-    id: number;
-    image: string;
-    user_name: string;
-    short_bio: string;
-    phone: string;
-    about: string;
-    email: string;
-    updated_at: string;
-    created_at: string;
-    followersByFollowerId: {
-      user_id: number;
-      following_id: number;
-      created_at: string;
-      follower_info: {
-        id: number;
-        image: string;
-        short_bio: string;
-        user_name: string;
-        created_at: string;
-      };
-    }[];
-    followers: {
-      created_at: string;
-      following_user: {
-        id: number;
-        image: string;
-        user_name: string;
-        short_bio: string;
-        created_at: string;
-      };
-    }[];
-    followersByFollowerId_aggregate: {
-      aggregate: {
-        count: number;
-      };
-    };
-    followers_aggregate: {
-      aggregate: {
-        count: number;
-      };
-    };
-    evaluation_posts_aggregate: {
-      aggregate: {
-        count: number;
-      };
-    };
-  }[];
-}
-
-export interface LikedPostsResponseDto {
-  post_like: {
-    post_id: number;
-    liked_at: string;
-    liked_posts: EvaluationPostDto;
-  }[];
-}
