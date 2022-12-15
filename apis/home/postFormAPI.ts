@@ -1,9 +1,6 @@
 import { randomUUID } from "crypto";
 import { cloudinaryAxios, hasuraAxios } from "utils/axios/axios";
-import {
-  PostDeletionState,
-  PostFormDetailState,
-} from "../../redux/slices/home/posts/postFormSlice";
+import { PostFormDetailState } from "../../redux/slices/home/posts/postFormSlice";
 import { EvaluationPostDto, PostImageDto } from "./interfaces";
 
 export interface PostInsertionResponseDto {
@@ -255,34 +252,5 @@ const deleteImageRefsFromPost = async (postId: number) => {
     return response;
   } catch (err) {
     throw Error("Can not delete image refs from post: " + postId);
-  }
-};
-
-interface PostDeletionResponseDto {
-  delete_evaluation_post: PostDeletionReturningDto;
-}
-
-interface PostDeletionReturningDto {
-  returning: IDDto[];
-}
-
-export const deleteEvaluationPost = async (
-  deletion: PostDeletionState
-): Promise<PostDeletionResponseDto> => {
-  const response = await hasuraAxios.delete("/posts", {
-    params: {
-      user_id: deletion.userId,
-      post_id: deletion.postId,
-    },
-  });
-  if (response.status == 200) {
-    if (
-      (response.data as PostDeletionResponseDto).delete_evaluation_post
-        .returning.length > 0
-    ) {
-      return response.data;
-    } else {
-      throw Error("Delete a post fail");
-    }
   }
 };

@@ -47,19 +47,17 @@ import {
   LikeState,
   undoPostLike,
 } from "redux/slices/home/likes/likeSlice";
-import {
-  deleteEvaluationPost,
-  PostFormDetailState,
-} from "redux/slices/home/posts/postFormSlice";
+import { PostFormDetailState } from "redux/slices/home/posts/postFormSlice";
 import {
   decreaseLikeCountOfPost,
-  deletePresentedPost,
+  deleteEvaluationPost,
   increaseCommentCountOfPost,
   increaseLikeCountOfPost,
   PostListState,
   PostState,
   setPostLiked,
 } from "redux/slices/home/posts/postListSlice";
+import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import {
   CommentAreaProps,
@@ -87,86 +85,84 @@ const monthNames = [
   "Dec",
 ];
 
-export default function EvaluationPost(props: EvaluationPostProps) {
-  const { postState } = props;
-  const [postProps, setPostProps] = useState<PostState>(postState);
+export default function EvaluationPost({ postState }: EvaluationPostProps) {
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   return (
     <Card
       css={{ minHeight: "30rem", maxWidth: "50rem", backgroundColor: "white" }}
     >
-      {!postProps ? (
+      {!postState ? (
         <AppButtonLoading />
       ) : (
         <div className={styles.postContainer}>
           <ProfileLink
-            profileId={postProps.postOwner.id}
-            child={<Avatar pointer src={postProps.postOwner.image} rounded />}
+            profileId={postState.postOwner.id}
+            child={<Avatar pointer src={postState.postOwner.image} rounded />}
           />
           <div className={styles.postMain}>
             <div className={styles.header}>
               <div className={styles.headerLeft}>
                 <ProfileLink
-                  profileId={postProps.postOwner.id}
+                  profileId={postState.postOwner.id}
                   child={
                     <Text css={{ fontWeight: "bold", cursor: "pointer" }}>
-                      {postProps.postOwner.username}
+                      {postState.postOwner.username}
                     </Text>
                   }
                 />
                 {true ? <CheckCircle color="primary" fontSize="small" /> : null}
                 <Text css={{ fontSize: "small" }}>
-                  {postProps.postOwner.shortBio}
+                  {postState.postOwner.shortBio}
                 </Text>
               </div>
               <div className={styles.headerRight}>
                 <Text css={{ fontSize: "small" }}>
-                  {showFullLocaleDateTime(new Date(postProps.createdAt))}
+                  {showFullLocaleDateTime(new Date(postState.createdAt))}
                 </Text>
-                <MenuListComposition postProps={postProps} />
+                <MenuListComposition postState={postState} />
               </div>
             </div>
             <div className={styles.content}>
-              <Text className={styles.title}>{postProps.title}</Text>
+              <Text className={styles.title}>{postState.title}</Text>
               <div className={styles.descriptions}>
                 <Text size={14} color="grey">
-                  {postProps.body}
+                  {postState.body}
                 </Text>
               </div>
               <div className={styles.ratingAndHotelDetail}>
                 <PostRatingArea
-                  locationRating={postProps.locationRating}
-                  serviceRating={postProps.serviceRating}
-                  cleanlinessRating={postProps.cleanlinessRating}
-                  valueRating={postProps.valueRating}
+                  locationRating={postState.locationRating}
+                  serviceRating={postState.serviceRating}
+                  cleanlinessRating={postState.cleanlinessRating}
+                  valueRating={postState.valueRating}
                 />
-                {!postProps.hotel ? null : (
+                {!postState.hotel ? null : (
                   <div className={styles.hotelDetail}>
                     <Text
                       className={styles.hotelText}
                       color={appColors.primary}
                     >
-                      {"Hotel: " + postProps.hotel.name}
+                      {"Hotel: " + postState.hotel.name}
                     </Text>
                     <Text
                       className={styles.hotelText}
                       color={appColors.primary}
                     >
-                      {"Location: " + postProps.hotel.location}
+                      {"Location: " + postState.hotel.location}
                     </Text>
                   </div>
                 )}
               </div>
               <PostImages
                 images={{
-                  first: postProps.images[0]?.url,
-                  second: postProps.images[1]?.url,
-                  third: postProps.images[2]?.url,
+                  first: postState.images[0]?.url,
+                  second: postState.images[1]?.url,
+                  third: postState.images[2]?.url,
                 }}
               />
-              <InteractionMetrics {...postProps} />
-              <CommentArea postProps={postProps} avatar={session?.user.image} />
+              <InteractionMetrics {...postState} />
+              <CommentArea postState={postState} avatar={session?.user.image} />
             </div>
           </div>
         </div>
@@ -177,11 +173,14 @@ export default function EvaluationPost(props: EvaluationPostProps) {
 
 const options = ["Edit", "Delete", "Report"];
 
-const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
+const MenuListComposition = ({ postState }: MenuListCompositionProps) => {
   const ITEM_HEIGHT = 48;
 
   const dispatch = useAppDispatch();
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
+  const { deleteRequestStatus }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const { setVisible, bindings } = useModal();
@@ -189,30 +188,29 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
   const [menuOptions, setMenuOptions] = useState<string[]>(options);
   const [isDeleteConfirmVisible, setDeleteConfirmVisible] =
     useState<boolean>(false);
-  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (postProps != null && session?.user.DBID != null) {
+    if (postState != null && session?.user.DBID != null) {
       const currentPostValues: PostFormDetailState = {
         userId: session.user.DBID,
-        postId: postProps.id,
-        title: postProps.title,
-        body: postProps.body,
-        hotel: postProps.hotel?.id,
-        locationRating: postProps.locationRating,
-        serviceRating: postProps.serviceRating,
-        cleanlinessRating: postProps.cleanlinessRating,
-        valueRating: postProps.valueRating,
+        postId: postState.id,
+        title: postState.title,
+        body: postState.body,
+        hotel: postState.hotel?.id,
+        locationRating: postState.locationRating,
+        serviceRating: postState.serviceRating,
+        cleanlinessRating: postState.cleanlinessRating,
+        valueRating: postState.valueRating,
         images: [],
       };
-      if (postProps.postOwner.email != session.user.email) {
+      if (postState.postOwner.email != session.user.email) {
         setMenuOptions(["Report"]);
       } else {
         setMenuOptions(["Edit", "Delete"]);
       }
       setPostValues(currentPostValues);
     }
-  }, [postProps, session]);
+  }, [postState, session]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setDeleteConfirmVisible(false);
@@ -243,23 +241,27 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
   };
 
   const handlePostDeletion = async () => {
-    setDeleteLoading(true);
     try {
       await dispatch(
         deleteEvaluationPost({
           userId: postValues.userId,
           postId: postValues.postId,
         })
-      ).unwrap();
+      );
       dispatch(
-        deletePresentedPost({
-          postId: postValues.postId,
-          userId: postValues.userId,
+        notifyRequestStatus({
+          message: "Delete your post successfully !",
+          severity: "success",
         })
       );
-      setAnchorEl(null);
     } catch (rejected) {
       console.error(rejected);
+      dispatch(
+        notifyRequestStatus({
+          message: "Failed to delete this post, please try again !",
+          severity: "error",
+        })
+      );
     }
   };
 
@@ -301,6 +303,7 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
             </MenuItem>
           ) : (
             <ConfirmModal
+              key={option}
               trigger={
                 <MenuItem key={option} onClick={(e) => handleItemClick(option)}>
                   {option}
@@ -309,9 +312,10 @@ const MenuListComposition = ({ postProps }: MenuListCompositionProps) => {
               title={"Confirmation"}
               description={"Are you sure you want to delete this post ?"}
               visible={isDeleteConfirmVisible}
+              setVisible={setDeleteConfirmVisible}
               onConfirmClick={handlePostDeletion}
               onCloseClick={handleMenuClose}
-              loading={deleteLoading}
+              loading={deleteRequestStatus == "pending"}
             />
           )
         )}
@@ -505,7 +509,13 @@ const PostRatingArea = ({
   );
 };
 
-const InteractionMetrics = ({ id: postId }: PostState) => {
+const InteractionMetrics = ({
+  id: postId,
+  isLiked,
+  likedCount,
+  commentCount,
+  sharedCount,
+}: PostState) => {
   const dispatch = useAppDispatch();
 
   const {
@@ -513,15 +523,12 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
     fetchingStatus,
   }: CommentsState = useSelector((state: RootState) => state.commentsState);
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
-  const post: PostState = useSelector((state: RootState) =>
-    (state.postList as PostListState).posts.find((post) => post.id == postId)
-  );
   const { likeInsertStatus, likeDeleteStatus }: LikeState = useSelector(
     (state: RootState) => state.likeState
   );
 
   const toggleLike = async () => {
-    if (!post?.isLiked) {
+    if (!isLiked) {
       await dispatch(
         likePost({ post_id: postId, user_id: session?.user.DBID })
       );
@@ -580,8 +587,8 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
         <AppButtonLoading color={"primary"} />
       ) : (
         <div className={styles.metric}>
-          <LikeIcon onClick={toggleLike} liked={post?.isLiked} />
-          <Text css={{ fontSize: "small" }}>{showNum(post?.likedCount)}</Text>
+          <LikeIcon onClick={toggleLike} liked={isLiked} />
+          <Text css={{ fontSize: "small" }}>{showNum(likedCount)}</Text>
         </div>
       )}
       {fetchingStatus == "pending" ? (
@@ -589,12 +596,12 @@ const InteractionMetrics = ({ id: postId }: PostState) => {
       ) : (
         <div className={styles.metric} onClick={handleModeCommentClick}>
           <ModeCommentOutlined />
-          <Text css={{ fontSize: "small" }}>{showNum(post?.commentCount)}</Text>
+          <Text css={{ fontSize: "small" }}>{showNum(commentCount)}</Text>
         </div>
       )}
       <div className={styles.metric}>
         <ScreenShareOutlined />
-        <Text css={{ fontSize: "small" }}>{showNum(post?.sharedCount)}</Text>
+        <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>
       </div>
       <div className={styles.metric}>
         <ShareOutlined />
@@ -611,7 +618,7 @@ const LikeIcon = ({ onClick, liked }) => {
   );
 };
 
-const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
+const CommentArea = ({ postState, avatar }: CommentAreaProps) => {
   const dispatch = useAppDispatch();
   const [input, setInput] = useState<string>("");
   const {
@@ -625,7 +632,7 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
 
   useEffect(() => {
     if (
-      currentCommentOpenPostId == postProps.id &&
+      currentCommentOpenPostId == postState.id &&
       fetchingStatus == "success" &&
       comments.length > 0 &&
       repliesFetchStatus != "success"
@@ -642,14 +649,14 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
     if (trimInput.length > 0) {
       await dispatch(
         addComment({
-          postId: postProps.id,
+          postId: postState.id,
           userId: session?.user.DBID,
           text: trimInput,
         })
       );
-      dispatch(increaseCommentCountOfPost(postProps.id));
-      await dispatch(fetchCommentsByPostID({ postId: postProps.id }));
-      dispatch(openCommentSession({ postId: postProps.id }));
+      dispatch(increaseCommentCountOfPost(postState.id));
+      await dispatch(fetchCommentsByPostID({ postId: postState.id }));
+      dispatch(openCommentSession({ postId: postState.id }));
     }
     setInput("");
   };
@@ -675,13 +682,13 @@ const CommentArea = ({ postProps, avatar }: CommentAreaProps) => {
         onInputKeydown={handleInputKeyDown}
         insertStatus={insertStatus}
       />
-      {currentCommentOpenPostId == postProps.id && (
+      {currentCommentOpenPostId == postState.id && (
         <div className={styles.commentThreads}>
           {comments.map((thread) => (
             <CommentThread
               key={thread.id}
               commentState={thread}
-              postProps={postProps}
+              postState={postState}
             />
           ))}
         </div>
@@ -735,7 +742,7 @@ const CommentThread = (props: CommentThreadProps) => {
 
   const {
     commentState: { id: currentCommentId, owner, text, createdAt, replies },
-    postProps: { id: postId },
+    postState: { id: postId },
   } = props;
   const {
     comments,

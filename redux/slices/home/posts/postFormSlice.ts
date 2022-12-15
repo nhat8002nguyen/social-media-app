@@ -44,13 +44,13 @@ export const postFormSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(postNewEvaluationPost.pending, (state, action) => {
+    builder.addCase(addNewEvaluationPost.pending, (state, action) => {
       state.requestStatus = "pending";
     });
-    builder.addCase(postNewEvaluationPost.fulfilled, (state, action) => {
+    builder.addCase(addNewEvaluationPost.fulfilled, (state, action) => {
       state.requestStatus = "succeeded";
     });
-    builder.addCase(postNewEvaluationPost.rejected, (state, action) => {
+    builder.addCase(addNewEvaluationPost.rejected, (state, action) => {
       state.requestStatus = "failed";
     });
     builder.addCase(updateEvaluationPost.pending, (state, action) => {
@@ -62,19 +62,10 @@ export const postFormSlice = createSlice({
     builder.addCase(updateEvaluationPost.rejected, (state, action) => {
       state.requestUpdationStatus = "failed";
     });
-    builder.addCase(deleteEvaluationPost.pending, (state, action) => {
-      state.requestDeletionStatus = "pending";
-    });
-    builder.addCase(deleteEvaluationPost.fulfilled, (state, action) => {
-      state.requestDeletionStatus = "succeeded";
-    });
-    builder.addCase(deleteEvaluationPost.rejected, (state, action) => {
-      state.requestDeletionStatus = "failed";
-    });
   },
 });
 
-export const postNewEvaluationPost = createAsyncThunk(
+export const addNewEvaluationPost = createAsyncThunk(
   "posts/addNewPost",
   async (post: PostFormDetailState, thunkAPI) => {
     return await postFormAPI.saveEvaluationPost(post);
@@ -85,13 +76,6 @@ export const updateEvaluationPost = createAsyncThunk(
   "posts/updatePost",
   async (post: PostFormDetailState, thunkAPI) => {
     return await postFormAPI.updateEvaluationPost(post);
-  }
-);
-
-export const deleteEvaluationPost = createAsyncThunk(
-  "posts/deletePost",
-  async (deletion: PostDeletionState, thunkAPI) => {
-    return await postFormAPI.deleteEvaluationPost(deletion);
   }
 );
 

@@ -8,6 +8,7 @@ import * as postsConverter from "./postsConverter";
 export interface PostListState {
   posts: Array<PostState>;
   loading: "idle" | "loading" | "succeeded" | "failed";
+  deleteRequestStatus: "idle" | "pending" | "succeeded" | "failed";
 }
 
 export interface PostState {
@@ -54,17 +55,13 @@ export interface HotelState {
 const initialState: PostListState = {
   posts: [],
   loading: "idle",
+  deleteRequestStatus: "idle",
 };
 
 export const postListSlice = createSlice({
   name: "postList",
   initialState,
   reducers: {
-    deletePresentedPost(state, action: PayloadAction<PostDeletionState>) {
-      state.posts = state.posts.filter(
-        (post) => post.id != action.payload.postId
-      );
-    },
     increaseCommentCountOfPost(state, action: PayloadAction<number>) {
       const targetPost = state.posts.find((post) => post.id == action.payload);
       if (targetPost != null) {
@@ -117,11 +114,23 @@ export const postListSlice = createSlice({
         state.posts = action.payload;
       }
     );
+    builder.addCase(deleteEvaluationPost.pending, (state, action) => {
+      state.deleteRequestStatus = "pending";
+    });
+    builder.addCase(deleteEvaluationPost.fulfilled, (state, action) => {
+      state.deleteRequestStatus = "succeeded";
+      state.posts = state.posts.filter(
+        (post) =>
+          post.id != action.payload.delete_evaluation_post.returning[0].id
+      );
+    });
+    builder.addCase(deleteEvaluationPost.rejected, (state, action) => {
+      state.deleteRequestStatus = "failed";
+    });
   },
 });
 
 export const {
-  deletePresentedPost,
   increaseCommentCountOfPost,
   increaseLikeCountOfPost,
   decreaseLikeCountOfPost,
@@ -137,6 +146,13 @@ export const findNewsFeedPosts = createAsyncThunk(
   "posts/newsFeedPosts",
   async (postList: PostListRequestDto, thunkAPI) => {
     return await postListApi.fetchNewsFeedOfUser(postList);
+  }
+);
+
+export const deleteEvaluationPost = createAsyncThunk(
+  "posts/deletePost",
+  async (deletion: PostDeletionState, thunkAPI) => {
+    return await postListApi.deleteEvaluationPost(deletion);
   }
 );
 

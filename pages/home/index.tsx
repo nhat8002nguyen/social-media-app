@@ -10,20 +10,27 @@ import ConfirmModal from "@/components/mocules/confirmModal";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
 import useNewsFeed from "@/hooks/useNewsFeed";
-import { useSnackbarNotificationAndRefreshNewsFeed } from "@/hooks/useSnackbarNotificationAndRefreshNewsFeed";
+import { useRefreshNewsFeed } from "@/hooks/useRefreshNewsFeed";
 import appPages from "@/shared/appPages";
+import { TrendingPostsRequestDto } from "apis/home/interfaces";
+import postListAPI from "apis/home/postListAPI";
+import { GetServerSideProps } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { HomeGetServerSideProps } from "pages";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import { PostState } from "redux/slices/home/posts/postListSlice";
-import { RootState } from "redux/store/store";
+import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
+import { setTrendingPosts } from "redux/slices/trending/trendingSlice";
+import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
 export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const { data: session } = useSession();
   const {
     session: authSession,
@@ -34,9 +41,15 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
     (state: RootState) => state.postList
   );
   useNewsFeed({ initialPosts });
-  useSnackbarNotificationAndRefreshNewsFeed();
+  useRefreshNewsFeed();
   const [loginRequireVisible, setLoginRequireVisible] =
     useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialPosts) {
+      dispatch(setTrendingPosts(initialPosts));
+    }
+  }, [initialPosts]);
 
   useEffect(() => {
     if ((session as any)?.error === "RefreshAccessTokenError") {
@@ -50,6 +63,10 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
     }
   };
 
+  const handleSignInConfirmClick = async () => {
+    await signIn("google");
+  };
+
   return (
     <div className={styles.container} onClick={handlePageClick}>
       <Head>
@@ -60,7 +77,7 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
       <main className={styles.main}>
         <LeftSide currentPage={appPages.home} />
         <div className={styles.contentContainer}>
-          <NavigationBar tabs={homeActiveTabs} />
+          <NavigationBar tabs={homeActiveTabs} type="APP" />
           <UserStatusInput />
           <RecommendFollowableUsers />
           <div className={styles.listPost}>
@@ -87,7 +104,7 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
           "You need login by your google account, or register a new account to use full features of this application."
         }
         visible={loginRequireVisible}
-        onConfirmClick={() => signIn("google")}
+        onConfirmClick={handleSignInConfirmClick}
         onCloseClick={() => setLoginRequireVisible(false)}
         loading={false}
       />
@@ -106,3 +123,29 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
     </div>
   );
 }
+
+export interface HomeGetServerSideProps {
+  posts?: PostState[];
+}
+
+export const getServerSideProps: GetServerSideProps<
+  HomeGetServerSideProps
+> = async () => {
+  const request: TrendingPostsRequestDto = {
+    offset: 0,
+    limit: 10,
+    min_like_count: 3,
+    min_comment_count: 5,
+    min_share_count: 0,
+  };
+
+  const data = await postListAPI.getTrendingPosts(request);
+
+  const posts = convertPostListDtoToPostListState(data.evaluation_post);
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};

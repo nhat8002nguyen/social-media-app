@@ -1,3 +1,4 @@
+import { AppPageLoading } from "@/components/atoms/AppLoading";
 import NavigationBar, {
   homeActiveTabs,
   NavigationBarProps,
@@ -8,7 +9,6 @@ import LeftSide from "@/components/leftSide";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import ProfileSummaryCard from "@/components/profile/profile_summary_card/ProfileSummaryCard";
 import RightSide from "@/components/rightSide";
-import { useSnackbarNotificationAndRefreshNewsFeed } from "@/hooks/useSnackbarNotificationAndRefreshNewsFeed";
 import appPages from "@/shared/appPages";
 import * as profilePageAPI from "apis/profile/profilePageAPI";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
+  PostListState,
   PostState,
   setPostsList,
   updatePostsInteractionsStatusOfSessionUser,
@@ -39,12 +40,15 @@ export default function Profile({
 }: ProfilePageGetServerSideProps) {
   const dispatch = useAppDispatch();
   const { data: session, status: sessionState } = useSession();
+
   const { session: authSession }: AuthState = useSelector(
     (state: RootState) => state.auth
   );
-  useSnackbarNotificationAndRefreshNewsFeed();
+  const { posts }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
 
-  const [posts, setPosts] = useState<PostState[]>(postsOfUser);
+  const [currentPosts, setCurrentPosts] = useState<PostState[]>(postsOfUser);
 
   useEffect(() => {
     if ((session as any)?.error === "RefreshAccessTokenError") {
@@ -57,28 +61,40 @@ export default function Profile({
   }, [initialSummary]);
 
   useEffect(() => {
-    dispatch(setPostsList(postsOfUser));
+    // re-set posts if it's not shown
+    setTimeout(() => {
+      if (posts.length == 0) {
+        dispatch(setPostsList(currentPosts));
+      }
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
     const sessionUserId = authSession?.user.DBID;
     if (sessionUserId != null) {
+      // reset posts list
+      dispatch(setPostsList([]));
       dispatch(
         updatePostsInteractionsStatusOfSessionUser({
           userId: sessionUserId,
-          posts: posts,
+          posts: currentPosts ?? postsOfUser,
         })
       );
     }
-  }, [authSession, posts, dispatch, postsOfUser]);
+  }, [currentPosts, postsOfUser]);
 
   const handlePostTabChange = (tab: NavigationBarProps["tabs"][number]) => {
     switch (tab.name) {
       case "POST":
-        setPosts(postsOfUser);
+        dispatch(setPostsList(postsOfUser));
+        setCurrentPosts(postsOfUser);
         break;
       case "LIKED":
-        setPosts(postsLikedByUser);
+        dispatch(setPostsList(postsLikedByUser));
+        setCurrentPosts(postsLikedByUser);
         break;
       default:
-        setPosts(postsOfUser);
+        dispatch(setPostsList(postsOfUser));
         break;
     }
   };
@@ -93,7 +109,7 @@ export default function Profile({
       <main className={styles.main}>
         <LeftSide currentPage={appPages.profile} />
         <div className={styles.contentContainer}>
-          <NavigationBar tabs={homeActiveTabs} />
+          <NavigationBar tabs={homeActiveTabs} type="APP" />
           <ProfileSummaryCard
             summary={initialSummary}
             posts={postsOfUser}
@@ -101,12 +117,17 @@ export default function Profile({
           />
           <NavigationBar
             tabs={profilePostTabs}
+            type="PROFILE"
             onTabChange={handlePostTabChange}
           />
           <div className={styles.listPost}>
-            {posts.map((post: PostState) => (
-              <EvaluationPost key={post.id} postState={post} />
-            ))}
+            {posts.length == 0 ? (
+              <AppPageLoading />
+            ) : (
+              posts.map((post: PostState) => (
+                <EvaluationPost key={post.id} postState={post} />
+              ))
+            )}
           </div>
         </div>
         <RightSide />

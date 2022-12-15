@@ -1,3 +1,4 @@
+import { PostDeletionState } from "redux/slices/home/posts/postFormSlice";
 import { PostState } from "redux/slices/home/posts/postListSlice";
 import { hasuraAxios } from "utils/axios/axios";
 import {
@@ -36,22 +37,19 @@ export const updatePostsInteractionsStatusOfSessionUser = async (request: {
 }): Promise<PostState[]> => {
   const { userId, posts } = request;
   try {
-    const promises = posts.map((post) => {
-      return hasuraAxios.get("/likes/single-like", {
+    const likedPostIds = [];
+    for (let i = 0; i < posts.length; i++) {
+      const res = await hasuraAxios.get("/likes/single-like", {
         params: {
           user_id: userId,
-          post_id: post.id,
+          post_id: posts[i].id,
         },
       });
-    });
-
-    const responses = await Promise.all(promises);
-
-    const likedPostIds: number[] = [];
-    responses.forEach((res) => {
       const data = res.data as PostLikeResponseDto;
-      data.post_like.length > 0 && likedPostIds.push(data.post_like[0].post_id);
-    });
+      if (data.post_like.length) {
+        likedPostIds.push(data.post_like[0].post_id);
+      }
+    }
 
     const updatedPosts = posts.map((post) => {
       return likedPostIds.includes(post.id)
@@ -61,7 +59,7 @@ export const updatePostsInteractionsStatusOfSessionUser = async (request: {
 
     return updatedPosts;
   } catch (err) {
-    throw Error("Can not update interactions status of session user");
+    throw Error("Can not update interaction status, please check api call");
   }
 };
 
@@ -86,7 +84,37 @@ export const getTrendingPosts = async (
   }
 };
 
+interface PostDeletionResponseDto {
+  delete_evaluation_post: {
+    returning: {
+      id: number;
+    }[];
+  };
+}
+
+export const deleteEvaluationPost = async (
+  deletion: PostDeletionState
+): Promise<PostDeletionResponseDto> => {
+  const response = await hasuraAxios.delete("/posts", {
+    params: {
+      user_id: deletion.userId,
+      post_id: deletion.postId,
+    },
+  });
+  if (response.status == 200) {
+    if (
+      (response.data as PostDeletionResponseDto).delete_evaluation_post
+        .returning.length > 0
+    ) {
+      return response.data;
+    } else {
+      throw Error("Delete a post fail");
+    }
+  }
+};
+
 export default {
   fetchNewsFeedOfUser,
   getTrendingPosts,
+  deleteEvaluationPost,
 };

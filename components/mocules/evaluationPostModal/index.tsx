@@ -16,11 +16,12 @@ import { ChangeEvent, ReactElement, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
+  addNewEvaluationPost,
   PostFormDetailState,
   PostFormState,
-  postNewEvaluationPost,
   updateEvaluationPost,
 } from "redux/slices/home/posts/postFormSlice";
+import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import { ImageViewModal } from "../imageView";
 import {
@@ -87,15 +88,31 @@ export const PostModal = ({
   };
 
   const onPostClick = async () => {
-    const isValid = validatePostValues(postValues, setPostValues, dispatch);
+    try {
+      const isValid = validatePostValues(postValues, setPostValues, dispatch);
 
-    if (isValid == false) {
-      return;
-    }
-    if (purpose == "add") {
-      await dispatch(postNewEvaluationPost(postValues));
-    } else if (purpose == "edit") {
-      await dispatch(updateEvaluationPost(postValues));
+      if (isValid == false) {
+        return;
+      }
+      if (purpose == "add") {
+        await dispatch(addNewEvaluationPost(postValues));
+        dispatch(
+          notifyRequestStatus({
+            message: "Create a new post successfully !",
+            severity: "success",
+          })
+        );
+      } else if (purpose == "edit") {
+        await dispatch(updateEvaluationPost(postValues));
+      }
+    } catch (rejectedValue) {
+      console.error(rejectedValue);
+      dispatch(
+        notifyRequestStatus({
+          message: "Failed to create or update new post, please try again !",
+          severity: "error",
+        })
+      );
     }
     setVisible(false);
   };

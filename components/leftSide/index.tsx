@@ -10,6 +10,7 @@ import { UserRequestDto } from "apis/auth/authAPI";
 import { Session } from "next-auth";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -29,7 +30,7 @@ const createMenuItems = (currentPage) => [
   {
     id: 0,
     icon: <HomeRounded />,
-    name: "FEED",
+    name: "HOME",
     focus: currentPage == appPages.home,
     path: appPages.home,
   } as MenuItemProps["item"],
@@ -72,11 +73,11 @@ interface MenuItemProps {
   item: {
     id: number;
     icon: JSX.Element;
-    name: "FEED" | "PROFILE" | "TRENDING" | "LOGOUT";
+    name: "HOME" | "PROFILE" | "TRENDING" | "LOGOUT";
     focus: boolean;
     path: string;
   };
-  onMenuItemClick: (name: string) => void;
+  onMenuItemClick: (name: MenuItemProps["item"]["name"]) => void;
   confirmModalVisible: boolean;
   onLogoutModalCloseClick: () => void;
 }
@@ -88,6 +89,7 @@ export interface LeftSideProps {
 export default function LeftSide(props: LeftSideProps) {
   const { currentPage } = props;
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const { session: authSession }: AuthState = useSelector(
     (state: RootState) => state.auth
@@ -158,18 +160,19 @@ export default function LeftSide(props: LeftSideProps) {
       return;
     }
     if (sessionStatus == "authenticated") {
-      //TODO: navigate to profile page
-      signOut();
+      router.push(appPages.profile + "/" + authSession?.user.DBID);
       return;
     }
     signIn("google");
   };
 
-  const handleMenuItemClick = (name: string) => {
-    if (name == "FEED") {
+  const handleMenuItemClick = (name: MenuItemProps["item"]["name"]) => {
+    if (name == "HOME") {
       handleHomeItemClick();
     } else if (name == "LOGOUT") {
       handleLogoutItemClick();
+    } else if (name == "TRENDING") {
+      router.push(appPages.trending);
     }
   };
 
@@ -188,6 +191,10 @@ export default function LeftSide(props: LeftSideProps) {
   const handleLoginRequireClose = () => {
     setLoginRequireVisible(false);
     clearInterval(loginRequireInterval);
+  };
+
+  const handleLoginConfirmClick = async () => {
+    await signIn("google");
   };
 
   return (
@@ -213,7 +220,7 @@ export default function LeftSide(props: LeftSideProps) {
               "You need login by your google account, or register a new account to use full features of this application."
             }
             visible={loginRequireVisible}
-            onConfirmClick={() => signIn("google")}
+            onConfirmClick={handleLoginConfirmClick}
             onCloseClick={handleLoginRequireClose}
             loading={false}
           />
@@ -265,7 +272,7 @@ const MenuItem = (props: MenuItemProps) => {
   }
   if (item.name == "PROFILE") {
     const userId = session?.user.DBID;
-    const path = userId != null ? item.path + "/" + userId : "/home";
+    const path = userId != null ? item.path + "/" + userId : appPages.home;
     return (
       <Link href={path}>
         <a>

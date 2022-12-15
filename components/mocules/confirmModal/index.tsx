@@ -1,13 +1,14 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
 import { Button, Modal, Text } from "@nextui-org/react";
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 
 export interface ConfirmModalProps {
   trigger: ReactElement;
   title: string;
   description: string;
   visible: boolean;
-  onConfirmClick: () => void;
+	setVisible?: ReturnType<typeof useState<boolean>>[1];
+  onConfirmClick: () => Promise<void>;
   onCloseClick: () => void;
   loading: boolean;
 }
@@ -17,10 +18,15 @@ export default function ConfirmModal({
   title,
   description,
   visible,
+	setVisible,
   onConfirmClick,
   onCloseClick,
   loading,
 }: ConfirmModalProps) {
+	const handleConfirmClick = async () => {
+		await onConfirmClick();
+		setVisible(false);
+	}
   return (
     <div>
       {trigger}
@@ -42,8 +48,8 @@ export default function ConfirmModal({
           <Button auto flat color="error" onClick={onCloseClick}>
             Close
           </Button>
-          <Button auto onClick={onConfirmClick}>
-            {loading == false ? "Confirm" : <AppButtonLoading />}
+          <Button disabled={loading} auto onClick={handleConfirmClick}>
+            {!loading ? "Confirm" : <AppButtonLoading />}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -15,6 +15,7 @@ import postFormReducer from "redux/slices/home/posts/postFormSlice";
 import postListReducer from "redux/slices/home/posts/postListSlice";
 import summaryReducer from "redux/slices/profile/summary/summarySlice";
 import snackbarsReducer from "redux/slices/statusNotifications/snackbarsSlice";
+import trendingSlice from "redux/slices/trending/trendingSlice";
 
 const combinedReducer = combineReducers({
   auth: authSliceReducer,
@@ -25,6 +26,7 @@ const combinedReducer = combineReducers({
   commentsState: commentsReducer,
   likeState: likeReducer,
   summaryState: summaryReducer,
+  trendingState: trendingSlice,
 });
 
 const reducer = (

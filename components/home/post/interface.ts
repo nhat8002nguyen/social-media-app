@@ -12,7 +12,7 @@ import {
 import { PostState } from "redux/slices/home/posts/postListSlice";
 
 export interface MenuListCompositionProps {
-  postProps: PostState;
+  postState: PostState;
 }
 
 export interface EvaluationPostProps {
@@ -20,7 +20,7 @@ export interface EvaluationPostProps {
 }
 
 export interface CommentAreaProps {
-  postProps: PostState;
+  postState: PostState;
   avatar: string | null;
 }
 
@@ -38,7 +38,7 @@ export interface CommentInputProps {
 
 export interface CommentThreadProps {
   commentState: CommentDetailState;
-  postProps: PostState;
+  postState: PostState;
 }
 
 export interface PostRatingArea {
