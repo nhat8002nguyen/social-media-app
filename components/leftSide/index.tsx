@@ -1,4 +1,3 @@
-import AppLogo from "@/shared/assets/app-logo.png";
 import {
   AccountCircleRounded,
   ExitToAppRounded,
@@ -212,7 +211,7 @@ export default function LeftSide(props: LeftSideProps) {
       <div className={styles.fixedArea}>
         <div className={styles.iconContainer}>
           <Image
-            src={AppLogo}
+            src={"/app-logo.png"}
             alt="Not found"
             width={50}
             height={50}
