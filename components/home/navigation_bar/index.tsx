@@ -12,6 +12,7 @@ export const homeActiveTabs: NavigationBarProps["tabs"] = [
 export const profilePostTabs: NavigationBarProps["tabs"] = [
   { id: 0, name: "POST" },
   { id: 1, name: "LIKED" },
+  { id: 2, name: "SHARED" },
 ];
 
 export interface NavigationBarProps {

@@ -1,9 +1,11 @@
 import { EvaluationPostDto } from "apis/home/interfaces";
 import { hasuraAxios } from "utils/axios/axios";
 import {
+  InteractedPostsRequestDto,
   LikedPostsResponseDto,
   ProfileSummaryUpdateRequestDto,
   ProfileSummaryUpdateResponseDto,
+  SharedPostsResponseDto,
   UserIdsResponseDto,
   UserSummaryFetchRequestDto,
   UserSummaryFetchResponseDto,
@@ -59,11 +61,9 @@ const throwUserSummaryFetchFail = (userId: number) => {
   throw Error("Cannot fetch summary of user: " + userId);
 };
 
-export const getUserPosts = async (request: {
-  user_id: number;
-  limit?: number;
-  offset?: number;
-}): Promise<EvaluationPostDto[]> => {
+export const getUserPosts = async (
+  request: InteractedPostsRequestDto
+): Promise<EvaluationPostDto[]> => {
   try {
     const response = await hasuraAxios.get("/posts/single-user", {
       params: { ...request },
@@ -83,11 +83,9 @@ export const getUserPosts = async (request: {
   }
 };
 
-export const getUserLikedPosts = async (request: {
-  user_id: number;
-  limit?: number;
-  offset?: number;
-}): Promise<LikedPostsResponseDto> => {
+export const getUserLikedPosts = async (
+  request: InteractedPostsRequestDto
+): Promise<LikedPostsResponseDto> => {
   try {
     const response = await hasuraAxios.get("/posts/user/liked", {
       params: { ...request },
@@ -103,6 +101,29 @@ export const getUserLikedPosts = async (request: {
   } catch (error) {
     console.error(error);
     throw Error("Can not fetch user posts liked by user: " + request.user_id);
+  }
+};
+
+export const getUserSharedPosts = async (
+  request: InteractedPostsRequestDto
+): Promise<SharedPostsResponseDto> => {
+  try {
+    const response = await hasuraAxios.get("/posts/user/shared", {
+      params: { ...request },
+    });
+
+    if (response.status != 200) {
+      throw Error(
+        "Can not fetch user posts shared by user: " + request.user_id
+      );
+    }
+
+    const data = response.data as SharedPostsResponseDto;
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw Error("Can not fetch user posts shared by user: " + request.user_id);
   }
 };
 
@@ -134,4 +155,6 @@ export default {
   getUserSummary,
   getUserPosts,
   updateProfileSummary,
+  getUserLikedPosts,
+  getUserSharedPosts,
 };

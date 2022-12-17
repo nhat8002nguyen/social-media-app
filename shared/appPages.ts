@@ -1,11 +1,12 @@
 const appPages = {
-  home: "/home",
-  profile: "/profile",
-  language: "/language",
-  logout: "/logout",
-  pages: "/pages",
-  trending: "/trending",
-  people: "/people",
+  home: "/home/",
+  user: "/user/",
+  profile: "/profile/",
+  language: "/language/",
+  logout: "/logout/",
+  pages: "/pages/",
+  trending: "/trending/",
+  people: "/people/",
 };
 
 export default appPages;

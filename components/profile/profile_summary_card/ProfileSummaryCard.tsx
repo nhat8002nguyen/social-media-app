@@ -1,7 +1,9 @@
 import { AppNormalText, AppSmallText } from "@/components/atoms/appTexts";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
+import ProfileLink from "@/components/atoms/ProfileLink";
 import { handleFollowButtonClick } from "@/components/home/recommendFollowableUsers";
 import { ProfileEditModal } from "@/components/mocules/profileEditModal";
+import { ProfilePageGetServerSideProps } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
 import { appColors } from "@/shared/theme";
 import {
@@ -11,9 +13,7 @@ import {
   Link as LinkIcon,
 } from "@mui/icons-material";
 import { Avatar, Card, Text, useModal } from "@nextui-org/react";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { ProfilePageGetServerSideProps } from "pages/profile/[id]";
 import { ReactElement } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
@@ -32,7 +32,9 @@ export const defaultProfileAbout = (name: string | null) =>
 
 export default function ProfileSummaryCard({
   summary: initialSummary,
-}: ProfilePageGetServerSideProps) {
+}: {
+  summary: ProfilePageGetServerSideProps["summary"];
+}) {
   const { totalFollowableUsers }: FollowableUsersState = useSelector(
     (state: RootState) => state.recommendUserList
   );
@@ -102,12 +104,16 @@ export default function ProfileSummaryCard({
           <div className={styles.summaryLinkAndDate}>
             <div className={styles.summaryLink}>
               <LinkIcon color="disabled" />
-              <Link passHref href={appPages.profile + "/" + summaryState?.id}>
-                <AppSmallText
-                  styles={{ color: appColors.primary }}
-                  text={appPages.profile + "/" + summaryState?.id}
-                />
-              </Link>
+              <ProfileLink
+                sessionId={session?.user.DBID}
+                profileId={summaryState?.id}
+                child={
+                  <AppSmallText
+                    styles={{ color: appColors.primary }}
+                    text={appPages.profile + summaryState?.id}
+                  />
+                }
+              />
             </div>
             <div className={styles.summaryDate}>
               <CalendarToday color="disabled" fontSize="inherit" />
@@ -168,11 +174,15 @@ const SummaryFollowerImages = ({
   followersInfo,
 }: SummaryFollowerImagesProps): ReactElement => {
   const router = useRouter();
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
   const handleImageClick = (
     person: SummaryState["summary"]["followers"][number]
   ) => {
     router.push({
-      pathname: appPages.profile + "/[profileId]",
+      pathname: session?.user.DBID
+        ? appPages.user + session.user.DBID + appPages.profile + "[profileId]"
+        : appPages.profile + "[profileId]",
       query: { profileId: person.userId },
     });
   };
@@ -197,11 +207,15 @@ const SummaryFollowingImages = ({
   followersInfo,
 }: SummaryFollowingImagesProps): ReactElement => {
   const router = useRouter();
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
+
   const handleImageClick = (
     person: SummaryState["summary"]["followings"][number]
   ) => {
     router.push({
-      pathname: appPages.profile + "/[profileId]",
+      pathname: session?.user.DBID
+        ? appPages.user + session.user.DBID + appPages.profile + "[profileId]"
+        : appPages.profile + "[profileId]",
       query: { profileId: person.followingUser.id },
     });
   };

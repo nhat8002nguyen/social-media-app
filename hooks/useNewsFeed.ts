@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
-  findNewsFeedPosts,
   PostState,
+  fetchSharedPostsOfFollowings,
+  findNewsFeedPosts,
   setPostsList,
 } from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -41,11 +42,12 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
     }
   }, [sessionState, authSession, refreshCount]);
 
-  const fetchNewsFeedPosts = (userId: number) => {
+  const fetchNewsFeedPosts = async (userId: number) => {
     const request: PostListRequestDto = {
       userId: userId,
     };
-    dispatch(findNewsFeedPosts(request));
+    await dispatch(findNewsFeedPosts(request));
+    await dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
   };
 
   return { refreshNewsFeed };

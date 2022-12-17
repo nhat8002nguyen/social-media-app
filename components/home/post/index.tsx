@@ -1,19 +1,18 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
-import { SmallGreyText } from "@/components/atoms/appTexts";
 import ProfileLink from "@/components/atoms/ProfileLink";
+import { AppSmallText, SmallGreyText } from "@/components/atoms/appTexts";
 import ConfirmModal from "@/components/mocules/confirmModal";
 import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { ImageViewModal } from "@/components/mocules/imageView";
 import { imageUrlAlt } from "@/constants/homeConstants";
 import { appColors } from "@/shared/theme";
-import { showFullLocaleDateTime } from "@/shared/utils/home";
+import { showFullLocaleDateTime, showNum } from "@/shared/utils/home";
 import {
   CheckCircle,
   ModeCommentOutlined,
   MoreVertRounded,
   ScreenShareOutlined,
   Send,
-  ShareOutlined,
   ThumbUp,
   ThumbUpOutlined,
 } from "@mui/icons-material";
@@ -27,35 +26,35 @@ import {
   useModal,
 } from "@nextui-org/react";
 import { ReplyCommentsFetchRequestDto } from "apis/home/commentsAPI";
+import shareAPI from "apis/home/shareAPI";
 import Image from "next/image";
 import React, { KeyboardEvent, ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
+  CommentsState,
   addComment,
   addReplyComment,
   closeCommentSession,
   closeReplyInputOpen,
-  CommentsState,
   fetchCommentsByPostID,
   fetchReplyCommentsOfCurrentComments,
   openCommentSession,
   openReplyInputOpenWithCommentId,
 } from "redux/slices/home/comments/commentsSlice";
 import {
-  likePost,
   LikeState,
+  likePost,
   undoPostLike,
 } from "redux/slices/home/likes/likeSlice";
 import { PostFormDetailState } from "redux/slices/home/posts/postFormSlice";
 import {
-  decreaseLikeCountOfPost,
-  deleteEvaluationPost,
-  increaseCommentCountOfPost,
-  increaseLikeCountOfPost,
   PostListState,
   PostState,
+  deleteEvaluationPost,
+  increaseCommentCountOfPost,
   setPostLiked,
+  setPostShared,
 } from "redux/slices/home/posts/postListSlice";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -88,6 +87,26 @@ const monthNames = [
 export default function EvaluationPost({ postState }: EvaluationPostProps) {
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
+  const getSharedPostNote = () => {
+    const sharedUsers = postState.sharedUsers;
+
+    if (sharedUsers.length == 0) {
+      return;
+    }
+
+    return (
+      <AppSmallText
+        styles={{ marginBottom: 5 }}
+        text={
+          sharedUsers[0].username +
+          (sharedUsers[1] && sharedUsers[1].username != sharedUsers[0].username
+            ? ", " + sharedUsers[1].username + " shared this post"
+            : " shared this post")
+        }
+      />
+    );
+  };
+
   return (
     <Card
       css={{ minHeight: "30rem", maxWidth: "50rem", backgroundColor: "white" }}
@@ -95,74 +114,84 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
       {!postState ? (
         <AppButtonLoading />
       ) : (
-        <div className={styles.postContainer}>
-          <ProfileLink
-            profileId={postState.postOwner.id}
-            child={<Avatar pointer src={postState.postOwner.image} rounded />}
-          />
-          <div className={styles.postMain}>
-            <div className={styles.header}>
-              <div className={styles.headerLeft}>
-                <ProfileLink
-                  profileId={postState.postOwner.id}
-                  child={
-                    <Text css={{ fontWeight: "bold", cursor: "pointer" }}>
-                      {postState.postOwner.username}
-                    </Text>
-                  }
+        <div>
+          {getSharedPostNote()}
+          <div className={styles.postContainer}>
+            <ProfileLink
+              sessionId={session?.user.DBID}
+              profileId={postState.postOwner.id}
+              child={<Avatar pointer src={postState.postOwner.image} rounded />}
+            />
+            <div className={styles.postMain}>
+              <div className={styles.header}>
+                <div className={styles.headerLeft}>
+                  <ProfileLink
+                    sessionId={session?.user.DBID}
+                    profileId={postState.postOwner.id}
+                    child={
+                      <Text css={{ fontWeight: "bold", cursor: "pointer" }}>
+                        {postState.postOwner.username}
+                      </Text>
+                    }
+                  />
+                  {true ? (
+                    <CheckCircle color="primary" fontSize="small" />
+                  ) : null}
+                  <Text css={{ fontSize: "small" }}>
+                    {postState.postOwner.shortBio}
+                  </Text>
+                </div>
+                <div className={styles.headerRight}>
+                  <Text css={{ fontSize: "small" }}>
+                    {showFullLocaleDateTime(new Date(postState.createdAt))}
+                  </Text>
+                  <MenuListComposition postState={postState} />
+                </div>
+              </div>
+              <div className={styles.content}>
+                <Text className={styles.title}>{postState.title}</Text>
+                <div className={styles.descriptions}>
+                  <Text size={14} color="grey">
+                    {postState.body}
+                  </Text>
+                </div>
+                <div className={styles.ratingAndHotelDetail}>
+                  <PostRatingArea
+                    locationRating={postState.locationRating}
+                    serviceRating={postState.serviceRating}
+                    cleanlinessRating={postState.cleanlinessRating}
+                    valueRating={postState.valueRating}
+                  />
+                  {!postState.hotel ? null : (
+                    <div className={styles.hotelDetail}>
+                      <Text
+                        className={styles.hotelText}
+                        color={appColors.primary}
+                      >
+                        {"Hotel: " + postState.hotel.name}
+                      </Text>
+                      <Text
+                        className={styles.hotelText}
+                        color={appColors.primary}
+                      >
+                        {"Location: " + postState.hotel.location}
+                      </Text>
+                    </div>
+                  )}
+                </div>
+                <PostImages
+                  images={{
+                    first: postState.images[0]?.url,
+                    second: postState.images[1]?.url,
+                    third: postState.images[2]?.url,
+                  }}
                 />
-                {true ? <CheckCircle color="primary" fontSize="small" /> : null}
-                <Text css={{ fontSize: "small" }}>
-                  {postState.postOwner.shortBio}
-                </Text>
-              </div>
-              <div className={styles.headerRight}>
-                <Text css={{ fontSize: "small" }}>
-                  {showFullLocaleDateTime(new Date(postState.createdAt))}
-                </Text>
-                <MenuListComposition postState={postState} />
-              </div>
-            </div>
-            <div className={styles.content}>
-              <Text className={styles.title}>{postState.title}</Text>
-              <div className={styles.descriptions}>
-                <Text size={14} color="grey">
-                  {postState.body}
-                </Text>
-              </div>
-              <div className={styles.ratingAndHotelDetail}>
-                <PostRatingArea
-                  locationRating={postState.locationRating}
-                  serviceRating={postState.serviceRating}
-                  cleanlinessRating={postState.cleanlinessRating}
-                  valueRating={postState.valueRating}
+                <InteractionMetrics {...postState} />
+                <CommentArea
+                  postState={postState}
+                  avatar={session?.user.image}
                 />
-                {!postState.hotel ? null : (
-                  <div className={styles.hotelDetail}>
-                    <Text
-                      className={styles.hotelText}
-                      color={appColors.primary}
-                    >
-                      {"Hotel: " + postState.hotel.name}
-                    </Text>
-                    <Text
-                      className={styles.hotelText}
-                      color={appColors.primary}
-                    >
-                      {"Location: " + postState.hotel.location}
-                    </Text>
-                  </div>
-                )}
               </div>
-              <PostImages
-                images={{
-                  first: postState.images[0]?.url,
-                  second: postState.images[1]?.url,
-                  third: postState.images[2]?.url,
-                }}
-              />
-              <InteractionMetrics {...postState} />
-              <CommentArea postState={postState} avatar={session?.user.image} />
             </div>
           </div>
         </div>
@@ -512,11 +541,16 @@ const PostRatingArea = ({
 const InteractionMetrics = ({
   id: postId,
   isLiked,
+  isShared,
   likedCount,
   commentCount,
   sharedCount,
 }: PostState) => {
   const dispatch = useAppDispatch();
+  const [shareConfirmVisible, setShareConfirmVisible] =
+    useState<boolean>(false);
+  const [shareRequestLoading, setShareRequestLoading] =
+    useState<boolean>(false);
 
   const {
     commentSessionOpen: { postId: currentCommentOpenPostId },
@@ -533,42 +567,11 @@ const InteractionMetrics = ({
         likePost({ post_id: postId, user_id: session?.user.DBID })
       );
       dispatch(setPostLiked({ postId: postId, isLiked: true }));
-      dispatch(increaseLikeCountOfPost(postId));
     } else {
       await dispatch(
         undoPostLike({ post_id: postId, user_id: session?.user.DBID })
       );
       dispatch(setPostLiked({ postId: postId, isLiked: false }));
-      dispatch(decreaseLikeCountOfPost(postId));
-    }
-  };
-
-  const showNum = (num: number) => {
-    const numStr = String(num);
-    if (num < 1000) return numStr;
-
-    if (num < 1000000) {
-      if (num % 1000 == 0) {
-        return numStr.substring(0, numStr.length - 3) + "k";
-      } else {
-        return (
-          numStr.substring(0, numStr.length - 3) +
-          "." +
-          numStr.charAt(numStr.length - 3) +
-          "k"
-        );
-      }
-    }
-
-    if (num % 1000000 == 0) {
-      return numStr.substring(0, numStr.length - 6) + "k";
-    } else {
-      return (
-        numStr.substring(0, numStr.length - 6) +
-        "." +
-        numStr.charAt(numStr.length - 6) +
-        "m"
-      );
     }
   };
 
@@ -579,6 +582,31 @@ const InteractionMetrics = ({
       await dispatch(fetchCommentsByPostID({ postId: postId }));
       dispatch(openCommentSession({ postId: postId }));
     }
+  };
+
+  const handelShareConfirmClick = async () => {
+    try {
+      setShareRequestLoading(true);
+      await shareAPI.insertPostShare({
+        user_id: session?.user.DBID,
+        post_id: postId,
+      });
+      dispatch(setPostShared({ postId: postId, isShared: true }));
+      dispatch(
+        notifyRequestStatus({
+          severity: "success",
+          message: "Share this post successfully !",
+        })
+      );
+    } catch (rejectedValue) {
+      dispatch(
+        notifyRequestStatus({
+          severity: "error",
+          message: "Something's wrong, please try again !",
+        })
+      );
+    }
+    setShareRequestLoading(false);
   };
 
   return (
@@ -599,13 +627,30 @@ const InteractionMetrics = ({
           <Text css={{ fontSize: "small" }}>{showNum(commentCount)}</Text>
         </div>
       )}
-      <div className={styles.metric}>
-        <ScreenShareOutlined />
-        <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>
-      </div>
-      <div className={styles.metric}>
-        <ShareOutlined />
-      </div>
+      <ConfirmModal
+        trigger={
+          <div
+            className={styles.metric}
+            onClick={() => {
+              setShareConfirmVisible(true);
+            }}
+          >
+            <ScreenShareOutlined htmlColor={isShared && appColors.primary} />
+            <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>
+          </div>
+        }
+        title={"Share this post !"}
+        description={
+          "This post will be shared to your profile page, and will be displayed in your followers feed."
+        }
+        visible={shareConfirmVisible}
+        setVisible={setShareConfirmVisible}
+        onConfirmClick={handelShareConfirmClick}
+        onCloseClick={() => {
+          setShareConfirmVisible(false);
+        }}
+        loading={shareRequestLoading}
+      />
     </div>
   );
 };
@@ -806,6 +851,7 @@ const CommentThread = (props: CommentThreadProps) => {
         <div className={styles.comment}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <ProfileLink
+              sessionId={session?.user.DBID}
               profileId={owner.id}
               child={
                 <Text small css={{ fontWeight: "bold", cursor: "pointer" }}>
@@ -869,16 +915,22 @@ const Comment = (props: CommentProps) => {
       createdAt,
     },
   } = props;
+  const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   return (
     <div className={styles.commentThread}>
-      <ProfileLink profileId={id} child={<Avatar pointer src={image} />} />
+      <ProfileLink
+        sessionId={session?.user.DBID}
+        profileId={id}
+        child={<Avatar pointer src={image} />}
+      />
       <div className={styles.commentThreadColumn}>
         <div className={styles.comment}>
           <div
             style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem" }}
           >
             <ProfileLink
+              sessionId={session?.user.DBID}
               profileId={id}
               child={
                 <Text small css={{ fontWeight: "bold", cursor: "pointer" }}>

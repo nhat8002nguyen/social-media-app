@@ -1,14 +1,15 @@
+import AppLogo from "@/shared/assets/app-logo.png";
 import {
   AccountCircleRounded,
   ExitToAppRounded,
   HomeRounded,
-  Twitter,
   WhatshotRounded,
 } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
 import { UserRequestDto } from "apis/auth/authAPI";
 import { Session } from "next-auth";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -19,7 +20,10 @@ import {
   syncGoogleAccountDB,
 } from "redux/slices/auth/authSlice";
 import { showOtherUsers } from "redux/slices/home/followableUsers/recommendUserListSlice";
-import { findNewsFeedPosts } from "redux/slices/home/posts/postListSlice";
+import {
+  fetchSharedPostsOfFollowings,
+  findNewsFeedPosts,
+} from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import appPages from "../../shared/appPages";
 import GlobalButton from "../atoms/GlobalButton";
@@ -160,7 +164,12 @@ export default function LeftSide(props: LeftSideProps) {
       return;
     }
     if (sessionStatus == "authenticated") {
-      router.push(appPages.profile + "/" + authSession?.user.DBID);
+      router.push(
+        appPages.user +
+          authSession?.user.DBID +
+          appPages.profile +
+          authSession?.user.DBID
+      );
       return;
     }
     signIn("google");
@@ -181,6 +190,7 @@ export default function LeftSide(props: LeftSideProps) {
     if (userId != null) {
       dispatch(showOtherUsers({ showType: "random" }));
       dispatch(findNewsFeedPosts({ userId: userId }));
+      dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
     }
   };
 
@@ -201,7 +211,13 @@ export default function LeftSide(props: LeftSideProps) {
     <div className={styles.menu}>
       <div className={styles.fixedArea}>
         <div className={styles.iconContainer}>
-          <Twitter style={{ color: "rgb(101, 165, 255)" }} fontSize="large" />
+          <Image
+            src={AppLogo}
+            width={50}
+            height={50}
+            style={{ borderRadius: "2rem", cursor: "pointer" }}
+            onClick={handleHomeItemClick}
+          />
         </div>
         <div className={styles.menuItemList}>
           {menuItems.map((item) => (
@@ -272,7 +288,10 @@ const MenuItem = (props: MenuItemProps) => {
   }
   if (item.name == "PROFILE") {
     const userId = session?.user.DBID;
-    const path = userId != null ? item.path + "/" + userId : appPages.home;
+    const path =
+      userId != null
+        ? appPages.user + userId + appPages.profile + userId
+        : appPages.home;
     return (
       <Link href={path}>
         <a>

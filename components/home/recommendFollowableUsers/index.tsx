@@ -1,10 +1,9 @@
-import { CardTitleText, SmallGreyText } from "@/components/atoms/appTexts";
+import { SmallGreyText } from "@/components/atoms/appTexts";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
+import ProfileLink from "@/components/atoms/ProfileLink";
 import useAppearedUsers from "@/hooks/useAppearedUsers";
-import appPages from "@/shared/appPages";
 import { ArrowForwardRounded } from "@mui/icons-material";
-import { Avatar, Card } from "@nextui-org/react";
-import Link from "next/link";
+import { Avatar, Card, Text } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
@@ -67,29 +66,46 @@ const PersonItem = (props: PersonCardState) => {
         backgroundColor: "white",
       }}
     >
-      <Link href={appPages.profile + "/" + userId}>
-        <a>
-          <Avatar pointer rounded src={image} />
-        </a>
-      </Link>
-      <Link
-        href={{
-          pathname: appPages.profile + "/" + userId,
-        }}
-      >
-        <a>
-          <CardTitleText
-            text={name.slice(0, 16)}
-            styles={{ marginTop: "1rem", cursor: "pointer" }}
-          />
-        </a>
-      </Link>
-      <SmallGreyText text={shortBio.slice(0, 16)} />
+      <ProfileLink
+        sessionId={session?.user.DBID}
+        profileId={userId}
+        child={<Avatar pointer rounded src={image} />}
+      />
+      <ProfileLink
+        sessionId={session?.user.DBID}
+        profileId={userId}
+        child={
+          <Text
+            h6
+            size={13}
+            color="black"
+            css={{ marginTop: "1rem", cursor: "pointer" }}
+          >
+            {name.slice(0, 16)}
+          </Text>
+        }
+      />
+
+      <ShortBioText shortBio={shortBio} />
+
       <FollowButton
         followingStatus={followingStatus}
         onFollowClick={handleFollowClick}
       />
     </Card>
+  );
+};
+
+const ShortBioText = ({ shortBio }): JSX.Element => {
+  const shortBioWords = shortBio.split(/\s/);
+  return (
+    <div style={{ textAlign: "center" }}>
+      <SmallGreyText text={shortBioWords[0]} />
+      <SmallGreyText
+        text={shortBioWords[1]}
+        styles={shortBioWords ? { height: "1rem" } : null}
+      />
+    </div>
   );
 };
 

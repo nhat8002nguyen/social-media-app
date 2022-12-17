@@ -63,11 +63,27 @@ export interface UserSummaryFetchResponseDto {
   }[];
 }
 
+export interface InteractedPostsRequestDto {
+  user_id: number;
+  session_user_id?: number;
+  after_time?: string;
+  offset?: number;
+  limit?: number;
+}
+
 export interface LikedPostsResponseDto {
   post_like: {
     post_id: number;
     liked_at: string;
     liked_posts: EvaluationPostDto;
+  }[];
+}
+
+export interface SharedPostsResponseDto {
+  post_share: {
+    post_id: number;
+    shared_at: string;
+    shared_posts: EvaluationPostDto;
   }[];
 }
 

@@ -25,7 +25,7 @@ export default function ConfirmModal({
 }: ConfirmModalProps) {
 	const handleConfirmClick = async () => {
 		await onConfirmClick();
-		setVisible(false);
+		setVisible && setVisible(false);
 	}
   return (
     <div>

@@ -54,3 +54,32 @@ export const generateRandom = (min = 0, max = 100) => {
 export const showFullLocaleDateTime = (date: Date): string => {
 		return date.toLocaleTimeString() + " " + date.toLocaleDateString().replaceAll("/", "-");
 }
+
+export const showNum = (num: number) => {
+    const numStr = String(num);
+    if (num < 1000) return numStr;
+
+    if (num < 1000000) {
+      if (num % 1000 == 0) {
+        return numStr.substring(0, numStr.length - 3) + "k";
+      } else {
+        return (
+          numStr.substring(0, numStr.length - 3) +
+          "." +
+          numStr.charAt(numStr.length - 3) +
+          "k"
+        );
+      }
+    }
+
+    if (num % 1000000 == 0) {
+      return numStr.substring(0, numStr.length - 6) + "k";
+    } else {
+      return (
+        numStr.substring(0, numStr.length - 6) +
+        "." +
+        numStr.charAt(numStr.length - 6) +
+        "m"
+      );
+    }
+  };

@@ -45,7 +45,7 @@ export const insertPostLike = async (
     if (response.status == 200) {
       if (data.insert_post_like.returning.length == 0) {
         throwLikeInsertError(request.post_id);
-      } else if (data.insert_post_like.returning.length > 1) {
+      } else if (data.insert_post_like.returning.length > 0) {
         return data;
       }
     }
@@ -73,7 +73,7 @@ export const deletePostLike = async (
     if (response.status == 200) {
       if (data.delete_post_like.returning.length == 0) {
         throwLikeDeleteError(request.post_id);
-      } else if (data.delete_post_like.returning.length > 1) {
+      } else if (data.delete_post_like.returning.length > 0) {
         return data;
       }
     }

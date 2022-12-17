@@ -97,6 +97,11 @@ export interface EvaluationPostDto {
     post_id: number;
     liked_at: string;
   }[];
+  post_shares: {
+    user_id: number;
+    post_id: number;
+    shared_at: string;
+  }[];
   post_hotel: PostHotelDto;
 }
 
@@ -146,6 +151,14 @@ export interface PostLikeResponseDto {
   }[];
 }
 
+export interface PostShareResponseDto {
+  post_share: {
+    user_id: number;
+    post_id: number;
+    shared_at: string;
+  }[];
+}
+
 export interface TrendingPostsRequestDto {
   offset?: number;
   limit?: number;
@@ -156,4 +169,20 @@ export interface TrendingPostsRequestDto {
 
 export interface TrendingPostsResponseDto {
   evaluation_post: EvaluationPostDto[];
+}
+
+export interface PostsSharedByFollowingsResDto {
+  user: {
+    followers: {
+      following_user: {
+        id: number;
+        user_name: string;
+        post_shares: {
+          post_id: number;
+          shared_at: string;
+          shared_posts: EvaluationPostDto;
+        }[];
+      };
+    }[];
+  }[];
 }

@@ -9,11 +9,7 @@ import LeftSide from "@/components/leftSide";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import ProfileSummaryCard from "@/components/profile/profile_summary_card/ProfileSummaryCard";
 import RightSide from "@/components/rightSide";
-import {
-  fetchUserLikedPosts,
-  fetchUserPosts,
-  fetchUserSharedPosts,
-  fetchUserSummary,
+import profileServices, {
   ProfilePageGetServerSideProps,
 } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
@@ -21,7 +17,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
@@ -33,7 +29,7 @@ import { setProfileSummary } from "redux/slices/profile/summary/summarySlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
-export default function Profile({
+export default function PersonProfile({
   summary: initialSummary,
   posts: postsOfUser,
   likedPosts: postsLikedByUser,
@@ -49,8 +45,6 @@ export default function Profile({
     (state: RootState) => state.postList
   );
 
-  const [currentPosts, setCurrentPosts] = useState<PostState[]>(postsOfUser);
-
   useEffect(() => {
     if ((session as any)?.error === "RefreshAccessTokenError") {
       signIn(); // Force sign in to hopefully resolve error
@@ -62,27 +56,22 @@ export default function Profile({
   }, [initialSummary]);
 
   useEffect(() => {
-    // re-set posts if it's not shown
-    setTimeout(() => {
-      if (posts.length == 0) {
-        dispatch(setPostsList(currentPosts));
-      }
-    }, 3000);
-  }, []);
+    dispatch(setPostsList(postsOfUser));
+    console.log(postsOfUser);
+    console.log(postsLikedByUser);
+    console.log(sharedPosts);
+  }, [postsOfUser]);
 
   const handlePostTabChange = (tab: NavigationBarProps["tabs"][number]) => {
     switch (tab.name) {
       case "POST":
         dispatch(setPostsList(postsOfUser));
-        setCurrentPosts(postsOfUser);
         break;
       case "LIKED":
         dispatch(setPostsList(postsLikedByUser));
-        setCurrentPosts(postsLikedByUser);
         break;
       case "SHARED":
         dispatch(setPostsList(sharedPosts));
-        setCurrentPosts(sharedPosts);
         break;
       default:
         dispatch(setPostsList(postsOfUser));
@@ -140,15 +129,27 @@ export const getServerSideProps: GetServerSideProps<
   ProfilePageGetServerSideProps
 > = async (context: GetServerSidePropsContext) => {
   try {
+    const sessionUserId = context.params.sessionUserId;
     const userId = context.params.id;
 
-    const summaryReq = fetchUserSummary(userId);
-    const postsReq = fetchUserPosts(userId);
-    const likedPostsReq = fetchUserLikedPosts({
+    const summaryReq = profileServices.fetchUserSummary(userId);
+    const postsReq = profileServices.fetchUserPosts(
+      userId,
+      parseInt(
+        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
+      )
+    );
+    const likedPostsReq = profileServices.fetchUserLikedPosts({
       userId: parseInt(typeof userId == "string" ? userId : userId[0]),
+      sessionUserId: parseInt(
+        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
+      ),
     });
-    const sharedPostReq = fetchUserSharedPosts({
+    const sharedPostReq = profileServices.fetchUserSharedPosts({
       userId: parseInt(typeof userId == "string" ? userId : userId[0]),
+      sessionUserId: parseInt(
+        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
+      ),
     });
 
     const [summary, posts, likedPosts, sharedPosts] = await Promise.all([

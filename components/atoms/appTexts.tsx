@@ -9,33 +9,41 @@ interface TextProps {
 
 export const SmallGreyText = ({ text, styles, onClick }: TextProps) => {
   return (
-    <Text onClick={onClick} h6 size={11} color="grey" css={{ ...styles }}>
-      {text}
-    </Text>
+    <a>
+      <Text onClick={onClick} h6 size={11} color="grey" css={{ ...styles }}>
+        {text}
+      </Text>
+    </a>
   );
 };
 
 export const CardTitleText = ({ text, styles }: TextProps) => {
   return (
-    <Text h6 size={13} color="black" css={{ ...styles }}>
-      {text}
-    </Text>
+    <a>
+      <Text h6 size={13} color="black" css={{ ...styles }}>
+        {text}
+      </Text>
+    </a>
   );
 };
 
 export const AppNormalText = ({ text, styles }: TextProps) => {
   return (
-    <Text color="grey" css={{ ...styles }}>
-      {text}
-    </Text>
+    <a>
+      <Text color="grey" css={{ ...styles }}>
+        {text}
+      </Text>
+    </a>
   );
 };
 
 export const AppSmallText = ({ text, styles }: TextProps) => {
   return (
-    <Text size={13} color="grey" css={{ ...styles }}>
-      {text}
-    </Text>
+    <a>
+      <Text size={13} color="grey" css={{ ...styles }}>
+        {text}
+      </Text>
+    </a>
   );
 };
 
