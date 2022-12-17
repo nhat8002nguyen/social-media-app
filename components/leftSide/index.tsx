@@ -211,7 +211,9 @@ export default function LeftSide(props: LeftSideProps) {
       <div className={styles.fixedArea}>
         <div className={styles.iconContainer}>
           <Image
-            src={"/app-logo.png"}
+            src={
+              "https://res.cloudinary.com/dggrsi7ck/image/upload/v1671247771/app-logo_emyf9f.png"
+            }
             alt="Not found"
             width={50}
             height={50}
