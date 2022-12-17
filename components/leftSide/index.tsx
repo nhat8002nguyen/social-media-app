@@ -213,6 +213,7 @@ export default function LeftSide(props: LeftSideProps) {
         <div className={styles.iconContainer}>
           <Image
             src={AppLogo}
+            alt="Not found"
             width={50}
             height={50}
             style={{ borderRadius: "2rem", cursor: "pointer" }}
