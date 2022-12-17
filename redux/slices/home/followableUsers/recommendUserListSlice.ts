@@ -1,4 +1,3 @@
-import { recommendedFriends } from "@/dummyData/recommendedFriends.json";
 import { generateRandom } from "@/shared/utils/home";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -34,20 +33,8 @@ export interface UsersShowPayload {
 }
 
 const initialValue: FollowableUsersState = {
-  totalFollowableUsers: recommendedFriends.map((data) => ({
-    userId: data.id,
-    image: data.image,
-    name: data.name,
-    shortBio: data.short_bio,
-    followingStatus: data.following_status == 0 ? "followable" : "following",
-  })),
-  appearedUsers: recommendedFriends.map((data) => ({
-    userId: data.id,
-    image: data.image,
-    name: data.name,
-    shortBio: data.short_bio,
-    followingStatus: data.following_status == 0 ? "followable" : "following",
-  })),
+  totalFollowableUsers: [],
+  appearedUsers: [],
   nextIndex: NUMBER_SHOWN_CARD,
 };
 

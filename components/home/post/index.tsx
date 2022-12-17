@@ -635,7 +635,9 @@ const InteractionMetrics = ({
               setShareConfirmVisible(true);
             }}
           >
-            <ScreenShareOutlined htmlColor={isShared && appColors.primary} />
+            <ScreenShareOutlined
+              htmlColor={isShared ? appColors.primary : ""}
+            />
             <Text css={{ fontSize: "small" }}>{showNum(sharedCount)}</Text>
           </div>
         }
