@@ -1,30 +1,42 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
 import { appColors } from "@/shared/theme";
 import { validatePostValues } from "@/shared/utils/home";
-import { AddPhotoAlternate } from "@mui/icons-material";
+import { AddPhotoAlternate, CheckCircleOutline } from "@mui/icons-material";
 import { Rating, Typography } from "@mui/material";
 import {
   Avatar,
   Button,
+  Dropdown,
   FormElement,
   Input,
   Modal,
   Text,
   Textarea,
 } from "@nextui-org/react";
-import { ChangeEvent, ReactElement, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  Key,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
-  addNewEvaluationPost,
   PostFormDetailState,
   PostFormState,
+  addNewEvaluationPost,
   updateEvaluationPost,
 } from "redux/slices/home/posts/postFormSlice";
+import { PostListState } from "redux/slices/home/posts/postListSlice";
+import { getHotelSearchList } from "redux/slices/search/hotelSearch";
+import { HotelSearchList } from "redux/slices/search/interfaces";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import { ImageViewModal } from "../imageView";
 import {
+  AccommodationInputProps,
   FileWithURL,
   PhotosAddingProps,
   PostModalProps,
@@ -80,10 +92,10 @@ export const PostModal = ({
     setPostValues((prev) => ({ ...prev, body: e.target.value?.trim() }));
   };
 
-  const handleHotelChange = (e: ChangeEvent<FormElement>) => {
+  const handleHotelChange = (id: number) => {
     setPostValues((prev) => ({
       ...prev,
-      hotel: parseInt(e.target.value?.trim()),
+      hotel: id,
     }));
   };
 
@@ -152,16 +164,9 @@ export const PostModal = ({
               onChange={handleBodyChange}
               rows={7}
             />
-            <Input
-              label="Hotel"
-              bordered
-              initialValue={postValues.hotel?.toString()}
-              onChange={handleHotelChange}
-              color="primary"
-              //TODO: wait for implementation
-              // disabled={purpose == "edit"}
-              disabled
-              placeholder="Wait for implemetation..."
+            <AccommodationInput
+              postId={postValues.postId}
+              onHotelIdSelected={handleHotelChange}
             />
             <RatingArea
               postInfo={postValues}
@@ -177,7 +182,10 @@ export const PostModal = ({
               <Button
                 auto
                 onClick={onPostClick}
-                disabled={requestStatus == "pending"}
+                disabled={
+                  requestStatus == "pending" ||
+                  requestUpdationStatus == "pending"
+                }
               >
                 {requestStatus == "pending" ||
                 requestUpdationStatus == "pending" ? (
@@ -192,6 +200,89 @@ export const PostModal = ({
           </Modal.Footer>
         </Modal>
       )}
+    </div>
+  );
+};
+
+const AccommodationInput = ({
+  postId,
+  onHotelIdSelected,
+}: AccommodationInputProps): JSX.Element => {
+  const dispatch = useAppDispatch();
+  const [input, setInput] = useState<string>();
+  const [verified, setVerified] = useState<boolean>();
+
+  const { hotels, searchStatus }: HotelSearchList = useSelector(
+    (state: RootState) => state.hotelSearch
+  );
+  const { posts }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
+  const currentHotel = posts?.find((p) => p.id == postId)?.hotel;
+
+  useEffect(() => {
+    if (currentHotel) {
+      setInput(currentHotel.name);
+    }
+  }, [currentHotel]);
+
+  const handleInputChange = (e: ChangeEvent<FormElement>) => {
+    setInput(e.currentTarget.value);
+    setVerified(false);
+  };
+
+  const handleSearchClick = () => {
+    dispatch(getHotelSearchList({ search: input, limitation: 5 }));
+  };
+
+  const handleItemSelected = (key: Key) => {
+    const selected = hotels.find((i) => i.id == key)?.name;
+    setInput(selected);
+    if (selected) {
+      setVerified(true);
+      onHotelIdSelected(parseInt(key.toString()));
+    }
+  };
+
+  return (
+    <div className={styles.hotelInput}>
+      <Input
+        css={{ flex: 1 }}
+        bordered
+        label="Enter hotel, homestay, accommodation,..."
+        color="primary"
+        // TODO: initial value for case edit
+        // initialValue=""
+        value={input}
+        onChange={handleInputChange}
+        contentRight={verified && <CheckCircleOutline color="success" />}
+      />
+      <Dropdown>
+        <Dropdown.Button
+          onPress={handleSearchClick}
+          onClick={handleSearchClick}
+        >
+          {"Search"}
+        </Dropdown.Button>
+        <Dropdown.Menu
+          aria-label="Static Actions"
+          onAction={handleItemSelected}
+        >
+          {searchStatus == "pending" ? (
+            <Dropdown.Item color="error" key={0}>
+              <AppButtonLoading />
+            </Dropdown.Item>
+          ) : hotels?.length == 0 ? (
+            <Dropdown.Item color="error" key={0}>
+              {"Service not found"}
+            </Dropdown.Item>
+          ) : (
+            hotels.map((item) => (
+              <Dropdown.Item key={item.id}>{item.name}</Dropdown.Item>
+            ))
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 };

@@ -28,6 +28,10 @@ export const convertPostListDtoToPostListState = ({
   postListDto: EvaluationPostDto[];
   sessionUserId?: number;
 }): PostState[] => {
+  if (!postListDto) {
+    return;
+  }
+
   const posts = postListDto.map((dto) =>
     convertPostDtoToPostState(dto, sessionUserId)
   );

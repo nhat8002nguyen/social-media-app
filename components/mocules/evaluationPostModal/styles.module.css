@@ -2,12 +2,16 @@
 	padding: 1rem 1.5rem;
 }
 
-.titleInput {
-}
-
 .footerButtons {
 	display: flex;
 	gap: 1rem;
+}
+
+.hotelInput {
+	display: flex;
+	align-items: flex-end;
+	gap: 1rem;
+	justify-content: space-between;
 }
 
 .ratingArea {

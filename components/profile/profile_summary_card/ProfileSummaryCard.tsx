@@ -1,6 +1,6 @@
+import ProfileLink from "@/components/atoms/ProfileLink";
 import { AppNormalText, AppSmallText } from "@/components/atoms/appTexts";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
-import ProfileLink from "@/components/atoms/ProfileLink";
 import { handleFollowButtonClick } from "@/components/home/recommendFollowableUsers";
 import { ProfileEditModal } from "@/components/mocules/profileEditModal";
 import { ProfilePageGetServerSideProps } from "@/services/profileServices";
@@ -70,7 +70,12 @@ export default function ProfileSummaryCard({
 
   return (
     <Card
-      css={{ minHeight: "15rem", maxWidth: "50rem", backgroundColor: "white" }}
+      css={{
+        minHeight: "15rem",
+        maxWidth: "50rem",
+        backgroundColor: "white",
+        padding: "$10",
+      }}
     >
       <div className={styles.summary}>
         <div className={styles.summaryHeader}>

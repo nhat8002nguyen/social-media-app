@@ -31,7 +31,7 @@ export const validatePostValues = (
     if (Number.isNaN(hotel)) {
       dispatch(
         notifyRequestStatus({
-          message: "Hotel not found, please enter exiting hotel",
+          message: "Hotel not found, please enter exiting hotel or leave it empty !",
           severity: "error",
         })
       );

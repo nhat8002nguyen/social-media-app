@@ -137,6 +137,7 @@ display: flex;
 .comment {
   display: flex;
   flex-direction: column;
+	gap: 0.2rem;
   background-color: var(--app-background-color);
   padding: 0.5rem;
   border-radius: 1rem;

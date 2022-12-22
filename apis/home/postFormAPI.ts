@@ -230,6 +230,7 @@ const updatePurePost = async (post: PostFormDetailState) => {
         post_id: post.postId,
         title: post.title,
         body: post.body,
+        hotel: post.hotel,
         location_rating: post.locationRating,
         cleanliness_rating: post.cleanlinessRating,
         service_rating: post.serviceRating,

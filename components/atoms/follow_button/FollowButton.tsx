@@ -32,8 +32,7 @@ export default function FollowButton(props: FollowButtonProps) {
         backgroundColor: getBackgroundColor(),
         border: "1px solid #005FF9",
         color: getLetterColor(),
-        marginTop: "$10",
-        padding: "$5",
+        marginTop: "$5",
       }}
       onClick={onFollowClick}
     >

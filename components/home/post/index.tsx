@@ -109,7 +109,12 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
 
   return (
     <Card
-      css={{ minHeight: "30rem", maxWidth: "50rem", backgroundColor: "white" }}
+      css={{
+        minHeight: "30rem",
+        maxWidth: "50rem",
+        backgroundColor: "white",
+        padding: "$10",
+      }}
     >
       {!postState ? (
         <AppButtonLoading />

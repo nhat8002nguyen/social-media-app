@@ -1,15 +1,15 @@
+import ProfileLink from "@/components/atoms/ProfileLink";
 import { SmallGreyText } from "@/components/atoms/appTexts";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
-import ProfileLink from "@/components/atoms/ProfileLink";
 import useAppearedUsers from "@/hooks/useAppearedUsers";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { Avatar, Card, Text } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
+  PersonCardState,
   makeFollowAUser,
   makeUnfollowAUser,
-  PersonCardState,
   showOtherUsers,
 } from "redux/slices/home/followableUsers/recommendUserListSlice";
 import { AppDispatch, RootState, useAppDispatch } from "redux/store/store";
@@ -60,10 +60,12 @@ const PersonItem = (props: PersonCardState) => {
       key={userId}
       color="default"
       css={{
+        flex: 1,
         mh: "$50",
         w: "$35",
         alignItems: "center",
         backgroundColor: "white",
+        padding: "$5",
       }}
     >
       <ProfileLink
@@ -79,15 +81,13 @@ const PersonItem = (props: PersonCardState) => {
             h6
             size={13}
             color="black"
-            css={{ marginTop: "1rem", cursor: "pointer" }}
+            css={{ marginTop: "$5", marginBottom: "$0", cursor: "pointer" }}
           >
             {name.slice(0, 16)}
           </Text>
         }
       />
-
       <ShortBioText shortBio={shortBio} />
-
       <FollowButton
         followingStatus={followingStatus}
         onFollowClick={handleFollowClick}

@@ -1,11 +1,11 @@
 import {
   Action,
   AnyAction,
+  ThunkAction,
   combineReducers,
   configureStore,
-  ThunkAction,
 } from "@reduxjs/toolkit";
-import { createWrapper, HYDRATE } from "next-redux-wrapper";
+import { HYDRATE, createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
 import authSliceReducer from "redux/slices/auth/authSlice";
 import commentsReducer from "redux/slices/home/comments/commentsSlice";
@@ -14,6 +14,7 @@ import likeReducer from "redux/slices/home/likes/likeSlice";
 import postFormReducer from "redux/slices/home/posts/postFormSlice";
 import postListReducer from "redux/slices/home/posts/postListSlice";
 import summaryReducer from "redux/slices/profile/summary/summarySlice";
+import hotelSearch from "redux/slices/search/hotelSearch";
 import snackbarsReducer from "redux/slices/statusNotifications/snackbarsSlice";
 import trendingSlice from "redux/slices/trending/trendingSlice";
 
@@ -27,6 +28,7 @@ const combinedReducer = combineReducers({
   likeState: likeReducer,
   summaryState: summaryReducer,
   trendingState: trendingSlice,
+  hotelSearch: hotelSearch,
 });
 
 const reducer = (

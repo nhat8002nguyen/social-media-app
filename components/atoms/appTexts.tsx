@@ -10,7 +10,13 @@ interface TextProps {
 export const SmallGreyText = ({ text, styles, onClick }: TextProps) => {
   return (
     <a>
-      <Text onClick={onClick} h6 size={11} color="grey" css={{ ...styles }}>
+      <Text
+        onClick={onClick}
+        h6
+        size={11}
+        color="grey"
+        css={{ ...styles, margin: "$0" }}
+      >
         {text}
       </Text>
     </a>

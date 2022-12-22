@@ -147,7 +147,7 @@ export const getServerSideProps: GetServerSideProps<
   const data = await postListAPI.getTrendingPosts(request);
 
   const posts = convertPostListDtoToPostListState({
-    postListDto: data.evaluation_post,
+    postListDto: data?.evaluation_post,
   });
 
   return {
