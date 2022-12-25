@@ -1,7 +1,7 @@
 import { AppPageLoading } from "@/components/atoms/AppLoading";
 import NavigationBar, {
-  homeActiveTabs,
   NavigationBarProps,
+  homeActiveTabs,
   profilePostTabs,
 } from "@/components/home/navigation_bar";
 import EvaluationPost from "@/components/home/post";
@@ -19,7 +19,6 @@ import Head from "next/head";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { AuthState } from "redux/slices/auth/authSlice";
 import {
   PostListState,
   PostState,
@@ -38,9 +37,6 @@ export default function PersonProfile({
   const dispatch = useAppDispatch();
   const { data: session, status: sessionState } = useSession();
 
-  const { session: authSession }: AuthState = useSelector(
-    (state: RootState) => state.auth
-  );
   const { posts }: PostListState = useSelector(
     (state: RootState) => state.postList
   );
@@ -57,9 +53,6 @@ export default function PersonProfile({
 
   useEffect(() => {
     dispatch(setPostsList(postsOfUser));
-    console.log(postsOfUser);
-    console.log(postsLikedByUser);
-    console.log(sharedPosts);
   }, [postsOfUser]);
 
   const handlePostTabChange = (tab: NavigationBarProps["tabs"][number]) => {

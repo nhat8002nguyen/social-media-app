@@ -5,11 +5,6 @@
 	padding-right: 1rem;
 }
 
-.postContainer > div {
-  flex: 1;
-	display: flex;
-}
-
 .postMain {
   padding: 0.5rem 0;
 	display: flex;

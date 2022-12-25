@@ -122,11 +122,15 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
         <div>
           {getSharedPostNote()}
           <div className={styles.postContainer}>
-            <ProfileLink
-              sessionId={session?.user.DBID}
-              profileId={postState.postOwner.id}
-              child={<Avatar pointer src={postState.postOwner.image} rounded />}
-            />
+            <div className={styles.postOwnerImage}>
+              <ProfileLink
+                sessionId={session?.user.DBID}
+                profileId={postState.postOwner.id}
+                child={
+                  <Avatar pointer src={postState.postOwner.image} rounded />
+                }
+              />
+            </div>
             <div className={styles.postMain}>
               <div className={styles.header}>
                 <div className={styles.headerLeft}>

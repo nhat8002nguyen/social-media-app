@@ -7,6 +7,7 @@ const appPages = {
   pages: "/pages/",
   trending: "/trending/",
   people: "/people/",
+  post: "/post/",
 };
 
 export default appPages;

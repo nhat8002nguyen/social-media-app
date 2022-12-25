@@ -1,19 +1,30 @@
 import appPages from "@/shared/appPages";
-import Link from "next/link";
+import { useRouter } from "next/router";
+import { ReactNode, useState } from "react";
 
 export interface ProfileLinkProps {
   sessionId?: number;
   profileId: number;
-  child: JSX.Element;
+  child: ReactNode;
+	setLoading?: ReturnType<typeof useState<boolean>>[1];
 }
 
 export default function ProfileLink({
   sessionId,
   profileId,
   child,
+	setLoading
 }: ProfileLinkProps) {
-  const href = sessionId
-    ? appPages.user + sessionId + appPages.profile + profileId
-    : appPages.profile + profileId;
-  return <Link href={href}>{child}</Link>;
+  const router = useRouter();
+
+  const handleLinkClick = async () => {
+    const path = sessionId
+      ? appPages.user + sessionId + appPages.profile + profileId
+      : appPages.profile + profileId;
+
+		setLoading && setLoading(true);
+    await router.push(path);
+		setLoading && setLoading(false);
+  };
+  return <div onClick={handleLinkClick}>{child}</div>;
 }

@@ -30,7 +30,7 @@ import {
   updateEvaluationPost,
 } from "redux/slices/home/posts/postFormSlice";
 import { PostListState } from "redux/slices/home/posts/postListSlice";
-import { getHotelSearchList } from "redux/slices/search/hotelSearch";
+import { getHotelSearchList } from "redux/slices/search";
 import { HotelSearchList } from "redux/slices/search/interfaces";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -232,7 +232,7 @@ const AccommodationInput = ({
   };
 
   const handleSearchClick = () => {
-    dispatch(getHotelSearchList({ search: input, limitation: 5 }));
+    dispatch(getHotelSearchList({ search: input, limit: 5 }));
   };
 
   const handleItemSelected = (key: Key) => {
@@ -251,8 +251,6 @@ const AccommodationInput = ({
         bordered
         label="Enter hotel, homestay, accommodation,..."
         color="primary"
-        // TODO: initial value for case edit
-        // initialValue=""
         value={input}
         onChange={handleInputChange}
         contentRight={verified && <CheckCircleOutline color="success" />}

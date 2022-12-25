@@ -7,6 +7,8 @@ import {
   PostListResponseDto,
   PostShareResponseDto,
   PostsSharedByFollowingsResDto,
+  SinglePostRequestDto,
+  SinglePostResponseDto,
   TrendingPostsRequestDto,
   TrendingPostsResponseDto,
 } from "./interfaces";
@@ -178,9 +180,32 @@ const throwfetchPostsSharedByFollowingsError = () => {
   );
 };
 
+export const getEvaluationPost = async (
+  request: SinglePostRequestDto
+): Promise<SinglePostResponseDto> => {
+  try {
+    const res = await hasuraAxios.get("/posts/single", {
+      params: {
+        ...request,
+      },
+    });
+
+    const data = res.data as SinglePostResponseDto;
+
+    if (res.status != 200 || data.evaluation_post.length == 0) {
+      throw Error("Failed to get a post with id: " + request.post_id);
+    }
+
+    return data;
+  } catch (error) {
+    throw Error("Failed to get a post with id: " + request.post_id);
+  }
+};
+
 export default {
   fetchNewsFeedOfUser,
   getTrendingPosts,
   deleteEvaluationPost,
   fetchPostsSharedByFollowings,
+  getEvaluationPost,
 };

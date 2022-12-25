@@ -1,9 +1,11 @@
 import ProfileLink from "@/components/atoms/ProfileLink";
 import { SmallGreyText } from "@/components/atoms/appTexts";
+import { AppMaskLoading } from "@/components/atoms/app_mask_loading";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
 import useAppearedUsers from "@/hooks/useAppearedUsers";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { Avatar, Card, Text } from "@nextui-org/react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
 import {
@@ -44,6 +46,8 @@ export default function RecommendFollowableUsers() {
 const PersonItem = (props: PersonCardState) => {
   const { userId, image, name, shortBio, followingStatus } = props;
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   const handleFollowClick = () => {
@@ -56,43 +60,46 @@ const PersonItem = (props: PersonCardState) => {
   };
 
   return (
-    <Card
-      key={userId}
-      color="default"
-      css={{
-        flex: 1,
-        mh: "$50",
-        w: "$35",
-        alignItems: "center",
-        backgroundColor: "white",
-        padding: "$5",
-      }}
-    >
-      <ProfileLink
-        sessionId={session?.user.DBID}
-        profileId={userId}
-        child={<Avatar pointer rounded src={image} />}
-      />
-      <ProfileLink
-        sessionId={session?.user.DBID}
-        profileId={userId}
-        child={
-          <Text
-            h6
-            size={13}
-            color="black"
-            css={{ marginTop: "$5", marginBottom: "$0", cursor: "pointer" }}
-          >
-            {name.slice(0, 16)}
-          </Text>
-        }
-      />
-      <ShortBioText shortBio={shortBio} />
-      <FollowButton
-        followingStatus={followingStatus}
-        onFollowClick={handleFollowClick}
-      />
-    </Card>
+    <AppMaskLoading style={{ flex: 1 }} isLoading={loading}>
+      <Card
+        key={userId}
+        color="default"
+        css={{
+          mh: "$50",
+          w: "$35",
+          alignItems: "center",
+          backgroundColor: "white",
+          padding: "$5",
+        }}
+      >
+        <ProfileLink
+          sessionId={session?.user.DBID}
+          profileId={userId}
+          child={<Avatar pointer rounded src={image} />}
+          setLoading={setLoading}
+        />
+        <ProfileLink
+          sessionId={session?.user.DBID}
+          profileId={userId}
+          child={
+            <Text
+              h6
+              size={13}
+              color="black"
+              css={{ marginTop: "$5", marginBottom: "$0", cursor: "pointer" }}
+            >
+              {name.slice(0, 16)}
+            </Text>
+          }
+          setLoading={setLoading}
+        />
+        <ShortBioText shortBio={shortBio} />
+        <FollowButton
+          followingStatus={followingStatus}
+          onFollowClick={handleFollowClick}
+        />
+      </Card>
+    </AppMaskLoading>
   );
 };
 

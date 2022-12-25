@@ -2,6 +2,7 @@ import { FormElement, Text } from "@nextui-org/react";
 import { CSSProperties, MouseEventHandler } from "react";
 
 interface TextProps {
+  className?: string;
   text: string;
   styles?: CSSProperties;
   onClick?: MouseEventHandler<FormElement>;
@@ -23,20 +24,26 @@ export const SmallGreyText = ({ text, styles, onClick }: TextProps) => {
   );
 };
 
-export const CardTitleText = ({ text, styles }: TextProps) => {
+export const CardTitleText = ({ className, text, styles }: TextProps) => {
   return (
     <a>
-      <Text h6 size={13} color="black" css={{ ...styles }}>
+      <Text
+        h6
+        size={13}
+        color="black"
+        css={{ ...styles }}
+        className={className}
+      >
         {text}
       </Text>
     </a>
   );
 };
 
-export const AppNormalText = ({ text, styles }: TextProps) => {
+export const AppNormalText = ({ className, text, styles }: TextProps) => {
   return (
     <a>
-      <Text color="grey" css={{ ...styles }}>
+      <Text color="grey" css={{ ...styles }} className={className}>
         {text}
       </Text>
     </a>

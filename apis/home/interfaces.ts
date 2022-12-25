@@ -186,3 +186,14 @@ export interface PostsSharedByFollowingsResDto {
     }[];
   }[];
 }
+
+export interface SinglePostRequestDto {
+  post_id: number;
+  user_id?: number;
+  offset?: number;
+  limit?: number;
+}
+
+export interface SinglePostResponseDto {
+  evaluation_post: EvaluationPostDto[];
+}
