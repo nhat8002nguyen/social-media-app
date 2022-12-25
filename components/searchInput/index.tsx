@@ -171,7 +171,7 @@ export default function SearchInput() {
                   <AppButtonLoading />
                 ) : result.items?.length > 0 ? (
                   result.items.map((item) => (
-                    <AppMaskLoading isLoading={loading}>
+                    <AppMaskLoading key={item.id} isLoading={loading}>
                       <div
                         key={item.id}
                         className={styles.item}
