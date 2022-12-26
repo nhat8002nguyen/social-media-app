@@ -87,7 +87,7 @@ export const saveEvaluationPost = async (
           (res) => res.data as ImagesSavingCloudinaryDto
         );
         const imageRefsResponses = await addImageReferencesToDB(
-          postId,
+          purePostResData,
           imagesSavingDtos
         );
         if (imageRefsResponses[0]?.status == 200) {
@@ -147,15 +147,26 @@ const saveImagesToCloudinary = async (images: File[]) => {
 };
 
 const addImageReferencesToDB = async (
-  postId: number,
+  postData: PostInsertionResponseDto | PostUpdationResponseDto,
   imageSavingDtos: Array<ImagesSavingCloudinaryDto>
 ) => {
   try {
+    const post =
+      "insert_evaluation_post" in postData
+        ? postData.insert_evaluation_post.returning[0]
+        : postData.update_evaluation_post.returning[0];
+    console.info(post);
+    const postId = post.id;
+    const userId = post.post_owner.id;
+    const serviceId = post.post_hotel?.id;
+
     const imageReferencesPromises = imageSavingDtos.map((dto) => {
       return hasuraAxios.post("/posts/images", null, {
         params: {
           post_id: postId,
           url: dto.url,
+          user_id: userId,
+          service_id: serviceId,
         },
       });
     });
@@ -207,7 +218,7 @@ export const updateEvaluationPost = async (
       (res) => res.data as ImagesSavingCloudinaryDto
     );
     const imageRefsResponses = await addImageReferencesToDB(
-      post.postId,
+      purePostData,
       cloudinaryImages
     );
     const imageRefs = imageRefsResponses.map(

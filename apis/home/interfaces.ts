@@ -82,7 +82,7 @@ export interface EvaluationPostDto {
   body: string;
   post_owner: PostOwnerDto;
   post_images: Array<PostImageDto>;
-  hote: number | null;
+  hotel: number | null;
   location_rating: number;
   cleanliness_rating: number;
   service_rating: number;
