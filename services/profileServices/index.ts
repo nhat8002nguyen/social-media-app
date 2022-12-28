@@ -1,5 +1,5 @@
 import profilePageAPI from "apis/profile/profilePageAPI";
-import { PostState } from "redux/slices/home/posts/postListSlice";
+import { PostState } from "redux/slices/home/posts/interfaces";
 import postsConverter from "redux/slices/home/posts/postsConverter";
 import {
   convertSummaryResponseToState,

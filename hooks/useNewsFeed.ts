@@ -3,8 +3,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
+import { PostState } from "redux/slices/home/posts/interfaces";
 import {
-  PostState,
   fetchSharedPostsOfFollowings,
   findNewsFeedPosts,
   setPostsList,

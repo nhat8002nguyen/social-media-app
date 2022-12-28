@@ -20,11 +20,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import {
-  PostListState,
-  PostState,
-  setPostsList,
-} from "redux/slices/home/posts/postListSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
+import { setPostsList } from "redux/slices/home/posts/postListSlice";
 import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
 import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";

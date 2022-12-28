@@ -11,7 +11,7 @@ import appPages from "@/shared/appPages";
 import Head from "next/head";
 import Image from "next/image";
 import { useSelector } from "react-redux";
-import { PostState } from "redux/slices/home/posts/postListSlice";
+import { PostState } from "redux/slices/home/posts/interfaces";
 import { TrendingState } from "redux/slices/trending/trendingSlice";
 import { RootState } from "redux/store/store";
 import styles from "./styles.module.css";

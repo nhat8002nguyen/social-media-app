@@ -9,7 +9,7 @@ import {
   CommentDetailState,
   CommentsState,
 } from "redux/slices/home/comments/commentsSlice";
-import { PostState } from "redux/slices/home/posts/postListSlice";
+import { PostState } from "redux/slices/home/posts/interfaces";
 
 export interface MenuListCompositionProps {
   postState: PostState;

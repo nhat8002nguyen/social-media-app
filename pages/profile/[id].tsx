@@ -1,7 +1,7 @@
 import { AppPageLoading } from "@/components/atoms/AppLoading";
 import NavigationBar, {
-  homeActiveTabs,
   NavigationBarProps,
+  homeActiveTabs,
   profilePostTabs,
 } from "@/components/home/navigation_bar";
 import EvaluationPost from "@/components/home/post";
@@ -10,11 +10,11 @@ import CustomizedSnackbars from "@/components/mocules/snackbars";
 import ProfileSummaryCard from "@/components/profile/profile_summary_card/ProfileSummaryCard";
 import RightSide from "@/components/rightSide";
 import {
+  ProfilePageGetServerSideProps,
   fetchUserLikedPosts,
   fetchUserPosts,
   fetchUserSharedPosts,
   fetchUserSummary,
-  ProfilePageGetServerSideProps,
 } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
@@ -24,11 +24,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import {
-  PostListState,
-  PostState,
-  setPostsList,
-} from "redux/slices/home/posts/postListSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
+import { setPostsList } from "redux/slices/home/posts/postListSlice";
 import { setProfileSummary } from "redux/slices/profile/summary/summarySlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
