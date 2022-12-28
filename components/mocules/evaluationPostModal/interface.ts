@@ -25,10 +25,12 @@ export interface FileWithURL {
 export interface PhotosAddingProps {
 	postInfo: UseStateType[0];
 	setPostValues: UseStateType[1];
+	type?: "postImage" | "proofImage";
 }
 
 export interface AccommodationInputProps {
 	postId?: number;
 	initialHotelId?: number;
 	onHotelIdSelected: (id: number) => void;
+	disabled?: boolean;
 }

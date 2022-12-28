@@ -7,6 +7,7 @@ import {
 } from "@reduxjs/toolkit";
 import { HYDRATE, createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
+import { postListListenerMiddleware } from "redux/middlewares/evaluation_posts";
 import authSliceReducer from "redux/slices/auth/authSlice";
 import commentsReducer from "redux/slices/home/comments/commentsSlice";
 import recommendUserList from "redux/slices/home/followableUsers/recommendUserListSlice";
@@ -56,6 +57,11 @@ export const makeStore = () =>
   configureStore({
     reducer,
     devTools: process.env.NODE_ENV != "production",
+    middleware(getDefaultMiddleware) {
+      return getDefaultMiddleware().prepend(
+        postListListenerMiddleware.middleware
+      );
+    },
   });
 
 type Store = ReturnType<typeof makeStore>;

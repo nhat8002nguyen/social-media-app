@@ -1,5 +1,5 @@
+import { PostState } from "redux/slices/home/posts/interfaces";
 import { PostDeletionState } from "redux/slices/home/posts/postFormSlice";
-import { PostState } from "redux/slices/home/posts/postListSlice";
 import { hasuraAxios } from "utils/axios/axios";
 import {
   PostLikeResponseDto,
@@ -11,6 +11,8 @@ import {
   SinglePostResponseDto,
   TrendingPostsRequestDto,
   TrendingPostsResponseDto,
+  UsedProofReqDto,
+  UsedProofResDto,
 } from "./interfaces";
 
 export const fetchNewsFeedOfUser = async (
@@ -199,6 +201,30 @@ export const getEvaluationPost = async (
     return data;
   } catch (error) {
     throw Error("Failed to get a post with id: " + request.post_id);
+  }
+};
+
+export const getVerifiedStatus = async (
+  request: UsedProofReqDto[]
+): Promise<UsedProofResDto[]> => {
+  try {
+    const promises = request.map((dto) =>
+      hasuraAxios.get("/proofs/one", {
+        params: { ...dto },
+      })
+    );
+
+    const reses = await Promise.all(promises);
+
+    const data = reses.map((res) => res.data as UsedProofResDto);
+
+    if (reses[0]?.status != 200) {
+      throw Error("Failed to get used proof of posts (1): " + request);
+    }
+
+    return data;
+  } catch (error) {
+    throw Error("Failed to get used proof of posts (2): " + request);
   }
 };
 

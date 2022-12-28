@@ -30,9 +30,18 @@
 }
 
 .title {
-	padding: 1rem 0;
 	font-weight: 700;
 	font-size: 16px;
+}
+
+.titleAndVerified {
+	padding: 1rem 0;
+	display: flex;	
+	flex-direction: column;
+}
+
+.verified {
+	color: rgb(42, 182, 42);
 }
 
 .descriptions {

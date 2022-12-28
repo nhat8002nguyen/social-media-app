@@ -20,6 +20,7 @@ export interface PostFormDetailState {
   cleanlinessRating: number;
   valueRating: number;
   images: Array<File>;
+  proofImages: Array<File>;
 }
 
 export interface PostDeletionState {

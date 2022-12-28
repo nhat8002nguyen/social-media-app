@@ -1,7 +1,12 @@
+import { AxiosResponse } from "axios";
 import { randomUUID } from "crypto";
 import { cloudinaryAxios, hasuraAxios } from "utils/axios/axios";
 import { PostFormDetailState } from "../../redux/slices/home/posts/postFormSlice";
-import { EvaluationPostDto, PostImageDto } from "./interfaces";
+import {
+  EvaluationPostDto,
+  PostImageDto,
+  ServiceUsedProofInsertionResDto,
+} from "./interfaces";
 
 export interface PostInsertionResponseDto {
   insert_evaluation_post: PostMutationDto;
@@ -69,33 +74,112 @@ export const saveEvaluationPost = async (
 ): Promise<EvaluationPostDto> => {
   // Accept that if transaction is unfortunately fail,
   // the images will be rundundant in the cloud
-  const imagesSavingResponses = await saveImagesToCloudinary(post.images);
+  const imagesSavingPromises = saveImagesToCloudinary(post.images);
+  const proofImagesSavingPromises = saveImagesToCloudinary(post.proofImages);
 
-  const purePostRes = await saveEvaluationPostWithoutImages(post);
+  const [imagesSavingResponses, proofImagesSavingResponses] = await Promise.all(
+    [imagesSavingPromises, proofImagesSavingPromises]
+  );
+
+  const purePostPromise = saveEvaluationPostWithoutImages(post);
+  const pureUsedProofPromise = saveServiceUsedProofWithoutImages(post);
+
+  const [purePostRes, pureUsedProofRes] = await Promise.all([
+    purePostPromise,
+    pureUsedProofPromise,
+  ]);
 
   if (purePostRes.status == 200) {
-    if (post.images.length == 0) {
-      return purePostRes.data;
-    } else if (
-      post.images.length > 0 &&
-      imagesSavingResponses[0].status == 200
-    ) {
-      const purePostResData = purePostRes.data as PostInsertionResponseDto;
-      const postId = purePostResData.insert_evaluation_post.returning[0].id;
-      if (postId != null) {
-        const imagesSavingDtos = imagesSavingResponses.map(
-          (res) => res.data as ImagesSavingCloudinaryDto
+    const proofImagesSavingPromise = await saveProofImageRefsToDBIFHave(
+      post,
+      pureUsedProofRes,
+      proofImagesSavingResponses
+    );
+    const postImagesSavingPromise = await savePostImageRefsToDBIfHave(
+      post,
+      purePostRes,
+      imagesSavingResponses
+    );
+    const [result] = await Promise.all([
+      postImagesSavingPromise,
+      proofImagesSavingPromise,
+    ]);
+    return result;
+  }
+};
+
+const saveProofImageRefsToDBIFHave = async (
+  post: PostFormDetailState,
+  pureUsedProofRes: AxiosResponse,
+  imagesSavingResponses: AxiosResponse[]
+) => {
+  if (post.proofImages.length == 0) {
+    return;
+  } else if (
+    post.proofImages.length > 0 &&
+    imagesSavingResponses[0].status == 200
+  ) {
+    const pureUsedProofData =
+      pureUsedProofRes.data as ServiceUsedProofInsertionResDto;
+    const proofId = pureUsedProofData.insert_service_used_proof_one.id;
+    if (proofId != null) {
+      const imagesSavingDtos = imagesSavingResponses.map(
+        (res) => res.data as ImagesSavingCloudinaryDto
+      );
+      await addProofImageReferencesToDB(pureUsedProofData, imagesSavingDtos);
+    }
+  }
+};
+
+const addProofImageReferencesToDB = async (
+  pureUsedProofData: ServiceUsedProofInsertionResDto,
+  imagesSavingDtos: ImagesSavingCloudinaryDto[]
+) => {
+  try {
+    const proof = pureUsedProofData.insert_service_used_proof_one;
+
+    const proofId = proof.id;
+
+    const imageReferencesPromises = imagesSavingDtos.map((dto) => {
+      return hasuraAxios.post("/proof-images", null, {
+        params: {
+          proof_id: proofId,
+          url: dto.url,
+        },
+      });
+    });
+    return await Promise.all(imageReferencesPromises);
+  } catch (err) {
+    console.error(err);
+    throw Error(
+      "Can add proof image to DB, please check addProofImageReferencesDB api call"
+    );
+  }
+};
+
+const savePostImageRefsToDBIfHave = async (
+  post: PostFormDetailState,
+  purePostRes: AxiosResponse,
+  imagesSavingResponses: AxiosResponse[]
+): Promise<EvaluationPostDto> => {
+  if (post.images.length == 0) {
+    return purePostRes.data;
+  } else if (post.images.length > 0 && imagesSavingResponses[0].status == 200) {
+    const purePostResData = purePostRes.data as PostInsertionResponseDto;
+    const postId = purePostResData.insert_evaluation_post.returning[0].id;
+    if (postId != null) {
+      const imagesSavingDtos = imagesSavingResponses.map(
+        (res) => res.data as ImagesSavingCloudinaryDto
+      );
+      const imageRefsResponses = await addImageReferencesToDB(
+        purePostResData,
+        imagesSavingDtos
+      );
+      if (imageRefsResponses[0]?.status == 200) {
+        return combinePostWithImages(
+          purePostRes.data,
+          imageRefsResponses.map((res) => res.data as PostImageInsertionDto)
         );
-        const imageRefsResponses = await addImageReferencesToDB(
-          purePostResData,
-          imagesSavingDtos
-        );
-        if (imageRefsResponses[0]?.status == 200) {
-          return combinePostWithImages(
-            purePostRes.data,
-            imageRefsResponses.map((res) => res.data as PostImageInsertionDto)
-          );
-        }
       }
     }
   }
@@ -116,6 +200,20 @@ const saveEvaluationPostWithoutImages = async (post: PostFormDetailState) => {
       },
     });
     return purePostRes;
+  } catch (err) {
+    throw Error("Can not save post to DB");
+  }
+};
+
+const saveServiceUsedProofWithoutImages = async (post: PostFormDetailState) => {
+  try {
+    const pureUsedProofRes = await hasuraAxios.post("/proofs", null, {
+      params: {
+        user_id: post.userId,
+        hotel_id: post.hotel,
+      },
+    });
+    return pureUsedProofRes;
   } catch (err) {
     throw Error("Can not save post to DB");
   }
@@ -142,7 +240,7 @@ const saveImagesToCloudinary = async (images: File[]) => {
     return imagesSavingResponses;
   } catch (err) {
     console.error(err);
-    throw Error("Can not upload images, please try again !");
+    throw Error("Can not upload images to cloudinary, please try again !");
   }
 };
 
@@ -155,7 +253,6 @@ const addImageReferencesToDB = async (
       "insert_evaluation_post" in postData
         ? postData.insert_evaluation_post.returning[0]
         : postData.update_evaluation_post.returning[0];
-    console.info(post);
     const postId = post.id;
     const userId = post.post_owner.id;
     const serviceId = post.post_hotel?.id;

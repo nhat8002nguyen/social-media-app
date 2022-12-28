@@ -1,3 +1,4 @@
+import constants from "@/constants/index";
 import {
   AccountCircleRounded,
   ExitToAppRounded,
@@ -233,10 +234,8 @@ export default function LeftSide(props: LeftSideProps) {
           ))}
           <ConfirmModal
             trigger={undefined}
-            title={"Please login to use the application !"}
-            description={
-              "You need login by your google account, or register a new account to use full features of this application."
-            }
+            title={constants.loginRequireTitle}
+            description={constants.loginRequireBody}
             visible={loginRequireVisible}
             onConfirmClick={handleLoginConfirmClick}
             onCloseClick={handleLoginRequireClose}

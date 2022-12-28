@@ -1,5 +1,5 @@
 import { EvaluationPostDto, PostListResponseDto } from "apis/home/interfaces";
-import { ImageState, PostState } from "./postListSlice";
+import { ImageState, PostState } from "./interfaces";
 
 export const updateHomePostsFromResponse = (
   response: PostListResponseDto,
@@ -96,6 +96,7 @@ export const convertPostDtoToPostState = (
         : true
       : false,
     sharedUsers: [],
+    verified: false,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

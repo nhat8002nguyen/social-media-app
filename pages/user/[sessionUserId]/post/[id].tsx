@@ -9,6 +9,7 @@ import LeftSide from "@/components/leftSide";
 import ConfirmModal from "@/components/mocules/confirmModal";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
+import constants from "@/constants/index";
 import appPages from "@/shared/appPages";
 import { SinglePostRequestDto } from "apis/home/interfaces";
 import postListAPI from "apis/home/postListAPI";
@@ -96,10 +97,8 @@ export default function EvaluationPostPage({
       <CustomizedSnackbars />
       <ConfirmModal
         trigger={undefined}
-        title={"Please login to use the application !"}
-        description={
-          "You need login by your google account, or register a new account to use full features of this application."
-        }
+        title={constants.loginRequireTitle}
+        description={constants.loginRequireBody}
         visible={loginRequireVisible}
         onConfirmClick={handleSignInConfirmClick}
         onCloseClick={() => setLoginRequireVisible(false)}

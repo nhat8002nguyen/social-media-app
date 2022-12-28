@@ -19,11 +19,8 @@ import Head from "next/head";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import {
-  PostListState,
-  PostState,
-  setPostsList,
-} from "redux/slices/home/posts/postListSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
+import { setPostsList } from "redux/slices/home/posts/postListSlice";
 import { setProfileSummary } from "redux/slices/profile/summary/summarySlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";

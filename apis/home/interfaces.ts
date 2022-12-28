@@ -197,3 +197,30 @@ export interface SinglePostRequestDto {
 export interface SinglePostResponseDto {
   evaluation_post: EvaluationPostDto[];
 }
+
+export interface ServiceUsedProofInsertionResDto {
+  insert_service_used_proof_one: {
+    id: number;
+    user_id: number;
+    hotel_id: number;
+    verified: boolean;
+    updated_at: string;
+    created_at: string;
+  };
+}
+
+export interface UsedProofReqDto {
+  user_id: number;
+  hotel_id: number;
+}
+
+export interface UsedProofResDto {
+  service_used_proof: {
+    id: number;
+    user_id: number;
+    hotel_id: number;
+    verified: boolean;
+    updated_at: string;
+    created_at: string;
+  }[];
+}

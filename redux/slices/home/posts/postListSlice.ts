@@ -1,61 +1,10 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { PostListRequestDto } from "apis/home/interfaces";
+import { PostListRequestDto, UsedProofReqDto } from "apis/home/interfaces";
 import * as postListApi from "../../../../apis/home/postListAPI";
 import { RootState } from "../../../store/store";
+import { PostListState, PostState } from "./interfaces";
 import { PostDeletionState } from "./postFormSlice";
 import * as postsConverter from "./postsConverter";
-
-export interface PostListState {
-  posts: Array<PostState>;
-  loading: "idle" | "loading" | "succeeded" | "failed";
-  deleteRequestStatus: "idle" | "pending" | "succeeded" | "failed";
-}
-
-export interface PostState {
-  id: number;
-  postOwner: PostOwnerState;
-  title: string | null;
-  body: string;
-  images: Array<ImageState>;
-  hotel: HotelState | null;
-  locationRating: number;
-  cleanlinessRating: number;
-  serviceRating: number;
-  valueRating: number;
-  likedCount: number;
-  sharedCount: number;
-  commentCount: number;
-  isLiked: boolean;
-  isShared: boolean;
-  sharedUsers: {
-    id: number;
-    username: string;
-  }[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PostOwnerState {
-  id: number;
-  username: string;
-  image: string;
-  email?: string;
-  shortBio: string | null;
-  createdAt: string;
-}
-
-export interface ImageState {
-  id: number;
-  url: string;
-}
-
-export interface HotelState {
-  id: number;
-  name: string;
-  location: string;
-  about: string;
-  rating: number;
-}
 
 const initialState: PostListState = {
   posts: [],
@@ -139,29 +88,35 @@ export const postListSlice = createSlice({
     });
     builder.addCase(fetchSharedPostsOfFollowings.fulfilled, (state, action) => {
       const sharedPostsOfFollowings = action.payload;
-      const sharedPostsNotExist: PostState[] = [];
+      const sharedPostsThatNotExist: PostState[] = [];
 
       sharedPostsOfFollowings.forEach((sp) => {
         const existPost = state.posts.find((p) => p.id == sp.id);
         if (existPost) {
           existPost.sharedUsers.push(...sp.sharedUsers);
         } else {
-          const post = sharedPostsNotExist.find((p) => p.id == sp.id);
+          const post = sharedPostsThatNotExist.find((p) => p.id == sp.id);
           if (post) {
             post.sharedUsers.push(...sp.sharedUsers);
           } else {
-            sharedPostsNotExist.push(sp);
+            sharedPostsThatNotExist.push(sp);
           }
         }
       });
 
-      state.posts = [...state.posts, ...sharedPostsNotExist];
+      state.posts = [...state.posts, ...sharedPostsThatNotExist];
 
       state.posts.sort(
         (a, b) =>
           new Date(b.updatedAt).valueOf() - new Date(a.updatedAt).valueOf()
       );
     });
+    builder.addCase(
+      displayVerifiedStatusOfPostsList.fulfilled,
+      (state, action) => {
+        state.posts = action.payload;
+      }
+    );
   },
 });
 
@@ -226,5 +181,35 @@ export const fetchSharedPostsOfFollowings = createAsyncThunk(
     );
 
     return postStateList;
+  }
+);
+
+export const displayVerifiedStatusOfPostsList = createAsyncThunk(
+  "posts/verified-status",
+  async (states: PostState[], thunkAPI): Promise<PostState[]> => {
+    const input = states.map(
+      (post) =>
+        ({
+          user_id: post.postOwner.id,
+          hotel_id: post.hotel?.id ?? 0,
+        } as UsedProofReqDto)
+    );
+
+    const reses = await postListApi.getVerifiedStatus(input);
+
+    let result = [...states];
+    reses.forEach((res) => {
+      if (res.service_used_proof.length == 0) {
+        return;
+      }
+      const proof = res.service_used_proof[0];
+      result = result.map((p) =>
+        p.postOwner.id == proof.user_id && p.hotel?.id == proof.hotel_id
+          ? { ...p, verified: proof.verified }
+          : p
+      );
+    });
+
+    return result;
   }
 );

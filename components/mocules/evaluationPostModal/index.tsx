@@ -1,4 +1,6 @@
 import { AppButtonLoading } from "@/components/atoms/AppLoading";
+import { AppSmallText } from "@/components/atoms/appTexts";
+import constants from "@/constants/index";
 import { appColors } from "@/shared/theme";
 import { validatePostValues } from "@/shared/utils/home";
 import { AddPhotoAlternate, CheckCircleOutline } from "@mui/icons-material";
@@ -23,13 +25,13 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
+import { PostListState } from "redux/slices/home/posts/interfaces";
 import {
   PostFormDetailState,
   PostFormState,
   addNewEvaluationPost,
   updateEvaluationPost,
 } from "redux/slices/home/posts/postFormSlice";
-import { PostListState } from "redux/slices/home/posts/postListSlice";
 import { getHotelSearchList } from "redux/slices/search";
 import { HotelSearchList } from "redux/slices/search/interfaces";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
@@ -79,6 +81,7 @@ export const PostModal = ({
             cleanlinessRating: 2.5,
             valueRating: 2.5,
             images: [],
+            proofImages: [],
           }
       );
     }
@@ -116,6 +119,12 @@ export const PostModal = ({
         );
       } else if (purpose == "edit") {
         await dispatch(updateEvaluationPost(postValues));
+        dispatch(
+          notifyRequestStatus({
+            message: "Edit a post successfully !",
+            severity: "success",
+          })
+        );
       }
     } catch (rejectedValue) {
       console.error(rejectedValue);
@@ -167,14 +176,24 @@ export const PostModal = ({
             <AccommodationInput
               postId={postValues.postId}
               onHotelIdSelected={handleHotelChange}
+              disabled={purpose == "edit"}
             />
             <RatingArea
               postInfo={postValues}
               setPostValues={setPostValues}
             ></RatingArea>
-          </Modal.Body>
-          <Modal.Footer justify="space-between">
             <PhotosAdding postInfo={postValues} setPostValues={setPostValues} />
+          </Modal.Body>
+          <Modal.Footer
+            justify={purpose == "add" ? "space-between" : "flex-end"}
+          >
+            {purpose == "add" && (
+              <PhotosAdding
+                type="proofImage"
+                postInfo={postValues}
+                setPostValues={setPostValues}
+              />
+            )}
             <div className={styles.footerButtons}>
               <Button auto flat color="error" onClick={onCloseClick}>
                 Close
@@ -207,6 +226,7 @@ export const PostModal = ({
 const AccommodationInput = ({
   postId,
   onHotelIdSelected,
+  disabled,
 }: AccommodationInputProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const [input, setInput] = useState<string>();
@@ -254,6 +274,7 @@ const AccommodationInput = ({
         value={input}
         onChange={handleInputChange}
         contentRight={verified && <CheckCircleOutline color="success" />}
+        disabled={disabled}
       />
       <Dropdown>
         <Dropdown.Button
@@ -359,8 +380,8 @@ const RatingArea = ({
 };
 
 const PhotosAdding = ({
-  postInfo,
   setPostValues,
+  type,
 }: PhotosAddingProps): ReactElement => {
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState<Array<FileWithURL>>([]);
@@ -380,10 +401,17 @@ const PhotosAdding = ({
         ...prev,
         { file: fileList[i], url: URL.createObjectURL(fileList[i]) },
       ]);
-      setPostValues((prev: PostFormDetailState) => ({
-        ...prev,
-        images: [...prev.images, fileList[i]],
-      }));
+      if (type != "proofImage") {
+        setPostValues((prev: PostFormDetailState) => ({
+          ...prev,
+          images: [...prev.images, fileList[i]],
+        }));
+      } else {
+        setPostValues((prev: PostFormDetailState) => ({
+          ...prev,
+          proofImages: [...prev.proofImages, fileList[i]],
+        }));
+      }
     }
   };
 
@@ -394,13 +422,26 @@ const PhotosAdding = ({
 
   const removeAllImages = () => {
     setFiles([]);
-    setPostValues((prev) => ({ ...prev, images: [] }));
+    if (type != "proofImage") {
+      setPostValues((prev) => ({ ...prev, images: [] }));
+    } else {
+      setPostValues((prev) => ({ ...prev, proofImages: [] }));
+    }
   };
 
   return (
     <div className={styles.photoAddingArea}>
-      <div onClick={openFileUploader} style={{ fontSize: "2.5rem" }}>
+      <div
+        onClick={openFileUploader}
+        style={{ fontSize: "2.5rem", display: "flex", alignItems: "flex-end" }}
+      >
         <AddPhotoAlternate fontSize="inherit" color="primary" />
+        {type == "proofImage" && (
+          <AppSmallText
+            styles={{ color: appColors.primary }}
+            text={constants.proofImageIconLabel}
+          />
+        )}
       </div>
       <Input
         multiple

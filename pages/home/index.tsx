@@ -9,6 +9,7 @@ import LeftSide from "@/components/leftSide";
 import ConfirmModal from "@/components/mocules/confirmModal";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
+import constants from "@/constants/index";
 import useNewsFeed from "@/hooks/useNewsFeed";
 import { useRefreshNewsFeed } from "@/hooks/useRefreshNewsFeed";
 import appPages from "@/shared/appPages";
@@ -22,7 +23,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { PostState } from "redux/slices/home/posts/postListSlice";
+import { PostState } from "redux/slices/home/posts/interfaces";
 import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
 import { setTrendingPosts } from "redux/slices/trending/trendingSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -104,10 +105,8 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
       <CustomizedSnackbars />
       <ConfirmModal
         trigger={undefined}
-        title={"Please login to use the application !"}
-        description={
-          "You need login by your google account, or register a new account to use full features of this application."
-        }
+        title={constants.loginRequireTitle}
+        description={constants.loginRequireBody}
         visible={loginRequireVisible}
         onConfirmClick={handleSignInConfirmClick}
         onCloseClick={() => setLoginRequireVisible(false)}

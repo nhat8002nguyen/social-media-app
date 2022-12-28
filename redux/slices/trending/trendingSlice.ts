@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PostState } from "../home/posts/postListSlice";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PostState } from "../home/posts/interfaces";
 
 export interface TrendingState {
   posts: PostState[];

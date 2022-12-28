@@ -47,10 +47,9 @@ import {
   likePost,
   undoPostLike,
 } from "redux/slices/home/likes/likeSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import { PostFormDetailState } from "redux/slices/home/posts/postFormSlice";
 import {
-  PostListState,
-  PostState,
   deleteEvaluationPost,
   increaseCommentCountOfPost,
   setPostLiked,
@@ -158,7 +157,14 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
                 </div>
               </div>
               <div className={styles.content}>
-                <Text className={styles.title}>{postState.title}</Text>
+                <div className={styles.titleAndVerified}>
+                  <Text className={styles.title}>{postState.title}</Text>
+                  {postState.verified && (
+                    <Text size={13} className={styles.verified}>
+                      {"(already used the services)"}
+                    </Text>
+                  )}
+                </div>
                 <div className={styles.descriptions}>
                   <Text size={14} color="grey">
                     {postState.body}
@@ -177,7 +183,7 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
                         className={styles.hotelText}
                         color={appColors.primary}
                       >
-                        {"Hotel: " + postState.hotel.name}
+                        {"Accommodation: " + postState.hotel.name}
                       </Text>
                       <Text
                         className={styles.hotelText}
@@ -240,6 +246,7 @@ const MenuListComposition = ({ postState }: MenuListCompositionProps) => {
         cleanlinessRating: postState.cleanlinessRating,
         valueRating: postState.valueRating,
         images: [],
+        proofImages: [],
       };
       if (postState.postOwner.email != session.user.email) {
         setMenuOptions(["Report"]);
