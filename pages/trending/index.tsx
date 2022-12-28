@@ -8,18 +8,39 @@ import LeftSide from "@/components/leftSide";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
 import appPages from "@/shared/appPages";
+import { TrendingPostsRequestDto } from "apis/home/interfaces";
+import postListAPI from "apis/home/postListAPI";
+import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { PostState } from "redux/slices/home/posts/interfaces";
-import { TrendingState } from "redux/slices/trending/trendingSlice";
-import { RootState } from "redux/store/store";
+import { AuthState } from "redux/slices/auth/authSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
+import { setPostsList } from "redux/slices/home/posts/postListSlice";
+import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
+import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
-export default function TrendingPage() {
-  const { posts }: TrendingState = useSelector(
-    (state: RootState) => state.trendingState
+export default function TrendingPage({
+  posts: initialPosts,
+}: TrendingPageGetServerSideProps) {
+  const dispatch = useAppDispatch();
+  const { sessionStatus }: AuthState = useSelector(
+    (state: RootState) => state.auth
   );
+  const { posts }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
+
+  useEffect(() => {
+    if (initialPosts) {
+      dispatch(setPostsList(initialPosts));
+    }
+    return () => {
+      dispatch(setPostsList([]));
+    };
+  }, [initialPosts]);
 
   return (
     <div className={styles.container}>
@@ -58,3 +79,31 @@ export default function TrendingPage() {
     </div>
   );
 }
+
+export interface TrendingPageGetServerSideProps {
+  posts?: PostState[];
+}
+
+export const getServerSideProps: GetServerSideProps<
+  TrendingPageGetServerSideProps
+> = async () => {
+  const request: TrendingPostsRequestDto = {
+    offset: 0,
+    limit: 10,
+    min_like_count: 3,
+    min_comment_count: 5,
+    min_share_count: 3,
+  };
+
+  const data = await postListAPI.getTrendingPosts(request);
+
+  const posts = convertPostListDtoToPostListState({
+    postListDto: data?.evaluation_post,
+  });
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};

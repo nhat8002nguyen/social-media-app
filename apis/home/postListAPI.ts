@@ -208,13 +208,17 @@ export const getVerifiedStatus = async (
   request: UsedProofReqDto[]
 ): Promise<UsedProofResDto[]> => {
   try {
-    const promises = request.map((dto) =>
-      hasuraAxios.get("/proofs/one", {
-        params: { ...dto },
-      })
-    );
+    const reses = [];
+    for (let i = 0; i < request.length; i++) {
+      const res = await hasuraAxios.get("/proofs/one", {
+        params: { ...request[i] },
+      });
 
-    const reses = await Promise.all(promises);
+      // add delay to avoid call too many request consecutively
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      reses.push(res);
+    }
 
     const data = reses.map((res) => res.data as UsedProofResDto);
 

@@ -20,11 +20,9 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
   const [refreshCount, refresh] = useState(0);
   const refreshNewsFeed = () => refresh(refreshCount + 1);
   const { data: session, status: sessionState } = useSession();
-  const {
-    session: authSession,
-    sessionStatus: authSessionStatus,
-    syncDBStatus,
-  }: AuthState = useSelector((state: RootState) => state.auth);
+  const { session: authSession }: AuthState = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     if (initialPosts?.length > 0) {

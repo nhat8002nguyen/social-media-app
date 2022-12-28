@@ -8,10 +8,9 @@ import {
   Text,
   Textarea,
 } from "@nextui-org/react";
-import { ChangeEvent, ReactElement, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { PostFormState } from "redux/slices/home/posts/postFormSlice";
 import { editProfileSummary } from "redux/slices/profile/summary/summarySlice";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
@@ -25,21 +24,37 @@ export const ProfileEditModal = ({
   loading,
 }: ProfileEditModalProps): ReactElement => {
   const dispatch = useAppDispatch();
-  const { requestStatus, requestUpdationStatus }: PostFormState = useSelector(
-    (state: RootState) => state.postForm
-  );
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   const [profileInfo, setProfileInfo] = useState<EditableProfileState>(() => {
     return {
-      username: prevProfileInfo?.username ?? "",
-      shortBio: prevProfileInfo?.shortBio ?? "User",
-      phone: prevProfileInfo?.phone ?? "",
-      about:
-        prevProfileInfo?.about ??
-        defaultProfileAbout(prevProfileInfo?.username),
+      username: "",
+      shortBio: "User",
+      phone: "",
+      about: "",
     };
   });
+
+  useEffect(() => {
+    setProfileInfo(() => {
+      return {
+        username: prevProfileInfo?.username ?? "",
+        shortBio: prevProfileInfo?.shortBio ?? "User",
+        phone: prevProfileInfo?.phone ?? "",
+        about:
+          prevProfileInfo?.about ??
+          defaultProfileAbout(prevProfileInfo?.username),
+      };
+    });
+
+    return () =>
+      setProfileInfo({
+        username: "",
+        shortBio: "User",
+        phone: "",
+        about: "",
+      });
+  }, [prevProfileInfo]);
 
   const handleUsernameChange = (e: ChangeEvent<FormElement>) => {
     setProfileInfo((prev) => ({ ...prev, username: e.target.value }));

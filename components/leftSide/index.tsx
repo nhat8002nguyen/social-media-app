@@ -133,7 +133,7 @@ export default function LeftSide(props: LeftSideProps) {
     if (sessionStatus == "unauthenticated") {
       const loginRequireInterval = setInterval(() => {
         setLoginRequireVisible(true);
-      }, 5000);
+      }, 15000);
       setLoginRequireInterval(loginRequireInterval);
     } else if (sessionStatus == "authenticated") {
       clearInterval(loginRequireInterval);
@@ -141,12 +141,7 @@ export default function LeftSide(props: LeftSideProps) {
       syncGoogleAccountToDB();
       setSignInButtonText(session.user.name);
     }
-  }, [
-    sessionStatus,
-    syncGoogleAccountDB,
-    setSignInButtonText,
-    setLoginRequireVisible,
-  ]);
+  }, [sessionStatus, syncGoogleAccountDB, setSignInButtonText]);
 
   const syncGoogleAccountToDB = () => {
     const user: UserRequestDto = {
@@ -200,7 +195,6 @@ export default function LeftSide(props: LeftSideProps) {
 
   const handleLoginRequireClose = () => {
     setLoginRequireVisible(false);
-    clearInterval(loginRequireInterval);
   };
 
   const handleLoginConfirmClick = async () => {
