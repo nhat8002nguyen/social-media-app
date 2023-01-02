@@ -180,12 +180,12 @@ export default function LeftSide(props: LeftSideProps) {
     }
   };
 
-  const handleHomeItemClick = () => {
+  const handleHomeItemClick = async () => {
     const userId = authSession?.user.DBID;
     if (userId != null) {
       dispatch(showOtherUsers({ showType: "random" }));
-      dispatch(findNewsFeedPosts({ userId: userId }));
-      dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
+      await dispatch(findNewsFeedPosts({ userId: userId }));
+      await dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
     }
   };
 

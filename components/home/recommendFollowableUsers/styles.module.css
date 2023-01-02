@@ -8,10 +8,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+	margin-bottom: 0.5rem;
+}
+
+.cardListHeaderArrow {
+  cursor: pointer;
+	border-radius: 50%;
+}
+
+.cardListHeaderArrow:hover {
+  background-color: white;
+	color: #005FF9;
+	scale: 1.2;
 }
 
 .recommendList {
   display: flex;
   justify-content: center;
   gap: 1rem;
+	width: 90%;
+	margin: auto;
 }

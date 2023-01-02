@@ -5,5 +5,27 @@
 .fixedArea {
   position: fixed;
   width: 20vw;
+	height: 100vh;
   right: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.notificationView {
+	background-color: white;
+	border-radius: 1rem;
+}
+
+.notificationTile {
+	border-top: 1px solid rgb(201, 201, 201);	
+	padding: 0.5rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.notificationTile:hover {
+	background-color: var(--app-hover-color);
 }

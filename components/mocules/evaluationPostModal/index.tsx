@@ -92,7 +92,9 @@ export const PostModal = ({
   };
 
   const handleBodyChange = (e: ChangeEvent<FormElement>) => {
-    setPostValues((prev) => ({ ...prev, body: e.target.value?.trim() }));
+    const value = e.target.value;
+    const validParagraph = value?.replaceAll("\n", "\\n").trim();
+    setPostValues((prev) => ({ ...prev, body: validParagraph }));
   };
 
   const handleHotelChange = (id: number) => {

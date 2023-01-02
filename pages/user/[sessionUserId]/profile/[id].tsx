@@ -9,12 +9,12 @@ import LeftSide from "@/components/leftSide";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import ProfileSummaryCard from "@/components/profile/profile_summary_card/ProfileSummaryCard";
 import RightSide from "@/components/rightSide";
+import useForceSignIn from "@/hooks/useForceSignIn";
 import profileServices, {
   ProfilePageGetServerSideProps,
 } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -32,17 +32,12 @@ export default function PersonProfile({
   sharedPosts,
 }: ProfilePageGetServerSideProps) {
   const dispatch = useAppDispatch();
-  const { data: session, status: sessionState } = useSession();
+
+  useForceSignIn();
 
   const { posts }: PostListState = useSelector(
     (state: RootState) => state.postList
   );
-
-  useEffect(() => {
-    if ((session as any)?.error === "RefreshAccessTokenError") {
-      signIn(); // Force sign in to hopefully resolve error
-    }
-  }, [session]);
 
   useEffect(() => {
     dispatch(setProfileSummary(initialSummary));

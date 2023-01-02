@@ -1,11 +1,10 @@
 import axios from "axios";
 
 export const hasuraAxios = axios.create({
-  baseURL: "https://refined-baboon-56.hasura.app/api/rest/v1",
+  baseURL: process.env.NEXT_PUBLIC_HASURA_BASE_ENDPOINT,
   headers: {
     common: {
-      "x-hasura-admin-secret":
-        "viWASZFfXH6vUouDpheBH9pZDiwlDTwuvBmk6QVEeBumgPq0xCCZ7IJuT563uR3Z",
+      "x-hasura-admin-secret": process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET,
     },
   },
   timeout: 10000,

@@ -55,5 +55,5 @@
 }
 
 .item:hover {
-	background-color: rgb(238, 238, 238);
+	background-color: var(--app-hover-color);
 }

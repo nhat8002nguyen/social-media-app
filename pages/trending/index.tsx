@@ -15,7 +15,6 @@ import Head from "next/head";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { AuthState } from "redux/slices/auth/authSlice";
 import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import { setPostsList } from "redux/slices/home/posts/postListSlice";
 import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
@@ -26,9 +25,7 @@ export default function TrendingPage({
   posts: initialPosts,
 }: TrendingPageGetServerSideProps) {
   const dispatch = useAppDispatch();
-  const { sessionStatus }: AuthState = useSelector(
-    (state: RootState) => state.auth
-  );
+
   const { posts }: PostListState = useSelector(
     (state: RootState) => state.postList
   );

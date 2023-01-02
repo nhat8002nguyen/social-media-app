@@ -10,51 +10,40 @@ import ConfirmModal from "@/components/mocules/confirmModal";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
 import constants from "@/constants/index";
+import useForceSignIn from "@/hooks/useForceSignIn";
 import useNewsFeed from "@/hooks/useNewsFeed";
+import usePrefetchProfilePage from "@/hooks/usePrefetchProfilePage";
 import { useRefreshNewsFeed } from "@/hooks/useRefreshNewsFeed";
 import appPages from "@/shared/appPages";
 import { TrendingPostsRequestDto } from "apis/home/interfaces";
 import postListAPI from "apis/home/postListAPI";
 import { GetServerSideProps } from "next";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { PostState } from "redux/slices/home/posts/interfaces";
-import { setPostsList } from "redux/slices/home/posts/postListSlice";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
-import { RootState, useAppDispatch } from "redux/store/store";
+import { RootState } from "redux/store/store";
 import styles from "./styles.module.css";
 
 export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
-  const dispatch = useAppDispatch();
-  const { data: session } = useSession();
-  const {
-    session: authSession,
-    syncDBStatus,
-    sessionStatus,
-  }: AuthState = useSelector((state: RootState) => state.auth);
-  const { posts, loading: postsLoading } = useSelector(
+  const { syncDBStatus }: AuthState = useSelector(
+    (state: RootState) => state.auth
+  );
+  const { posts, loading: postsLoading }: PostListState = useSelector(
     (state: RootState) => state.postList
   );
+
+  useForceSignIn();
   useNewsFeed({ initialPosts });
   useRefreshNewsFeed();
+  usePrefetchProfilePage({ ids: posts?.map((p) => p.postOwner.id) });
+
   const [loginRequireVisible, setLoginRequireVisible] =
     useState<boolean>(false);
-
-  useEffect(() => {
-    if (initialPosts?.length > 0 && sessionStatus == "unauthenticated") {
-      dispatch(setPostsList(initialPosts));
-    }
-  }, [initialPosts, sessionStatus]);
-
-  useEffect(() => {
-    if ((session as any)?.error === "RefreshAccessTokenError") {
-      signIn(); // Force sign in to hopefully resolve error
-    }
-  }, [session]);
 
   const handleSignInConfirmClick = async () => {
     await signIn("google");

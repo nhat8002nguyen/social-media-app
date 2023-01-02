@@ -1,5 +1,4 @@
 import { PostListRequestDto } from "apis/home/interfaces";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
@@ -19,26 +18,25 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
   const dispatch = useAppDispatch();
   const [refreshCount, refresh] = useState(0);
   const refreshNewsFeed = () => refresh(refreshCount + 1);
-  const { data: session, status: sessionState } = useSession();
-  const { session: authSession }: AuthState = useSelector(
+  const { session: authSession, sessionStatus }: AuthState = useSelector(
     (state: RootState) => state.auth
   );
 
   useEffect(() => {
-    if (initialPosts?.length > 0) {
+    if (initialPosts?.length > 0 && sessionStatus == "unauthenticated") {
       dispatch(setPostsList(initialPosts));
     }
-  }, []);
+  }, [initialPosts, sessionStatus]);
 
   useEffect(() => {
-    if (sessionState == "authenticated" && session.user != null) {
-      const userId = authSession?.user?.DBID;
+    if (sessionStatus == "authenticated" && authSession?.user.DBID != null) {
+      const userId = authSession?.user.DBID;
       if (userId == null) {
         return;
       }
       fetchNewsFeedPosts(userId);
     }
-  }, [sessionState, authSession, refreshCount]);
+  }, [authSession, refreshCount]);
 
   const fetchNewsFeedPosts = async (userId: number) => {
     const request: PostListRequestDto = {

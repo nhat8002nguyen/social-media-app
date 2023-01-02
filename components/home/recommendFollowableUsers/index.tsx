@@ -3,6 +3,7 @@ import { SmallGreyText } from "@/components/atoms/appTexts";
 import { AppMaskLoading } from "@/components/atoms/app_mask_loading";
 import FollowButton from "@/components/atoms/follow_button/FollowButton";
 import useAppearedUsers from "@/hooks/useAppearedUsers";
+import usePrefetchProfilePage from "@/hooks/usePrefetchProfilePage";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { Avatar, Card, Text } from "@nextui-org/react";
 import { useState } from "react";
@@ -18,8 +19,9 @@ import { AppDispatch, RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
 export default function RecommendFollowableUsers() {
-  const { appearedUsers } = useAppearedUsers();
   const dispatch = useAppDispatch();
+  const { appearedUsers } = useAppearedUsers();
+  usePrefetchProfilePage({ ids: appearedUsers?.map((u) => u.userId) });
 
   const handleArrowClick = () => {
     dispatch(showOtherUsers({ showType: "next" }));
@@ -30,7 +32,7 @@ export default function RecommendFollowableUsers() {
       <div className={styles.cardListHeader}>
         <p>Follow People</p>
         <ArrowForwardRounded
-          style={{ cursor: "pointer" }}
+          className={styles.cardListHeaderArrow}
           onClick={handleArrowClick}
         />
       </div>

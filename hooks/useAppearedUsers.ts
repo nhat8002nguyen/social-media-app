@@ -14,11 +14,9 @@ export default function useAppearedUsers() {
   );
   const dispatch = useAppDispatch();
   const { data: session, status: sessionState } = useSession();
-  const {
-    session: authSession,
-    sessionStatus: authSessionStatus,
-    syncDBStatus,
-  }: AuthState = useSelector((state: RootState) => state.auth);
+  const { session: authSession }: AuthState = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     if (sessionState == "authenticated" && session.user != null) {

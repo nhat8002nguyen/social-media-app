@@ -105,11 +105,6 @@ export const postListSlice = createSlice({
       });
 
       state.posts = [...state.posts, ...sharedPostsThatNotExist];
-
-      state.posts.sort(
-        (a, b) =>
-          new Date(b.updatedAt).valueOf() - new Date(a.updatedAt).valueOf()
-      );
     });
     builder.addCase(
       displayVerifiedStatusOfPostsList.fulfilled,
@@ -187,13 +182,15 @@ export const fetchSharedPostsOfFollowings = createAsyncThunk(
 export const displayVerifiedStatusOfPostsList = createAsyncThunk(
   "posts/verified-status",
   async (states: PostState[], thunkAPI): Promise<PostState[]> => {
-    const input = states.map(
-      (post) =>
-        ({
-          user_id: post.postOwner.id,
-          hotel_id: post.hotel?.id ?? 0,
-        } as UsedProofReqDto)
-    );
+    const input = states
+      .filter((p) => p.hotel?.id != null)
+      .map(
+        (post) =>
+          ({
+            user_id: post.postOwner.id,
+            hotel_id: post.hotel?.id ?? 0,
+          } as UsedProofReqDto)
+      );
 
     const reses = await postListApi.getVerifiedStatus(input);
 

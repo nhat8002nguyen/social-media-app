@@ -213,10 +213,6 @@ export const getVerifiedStatus = async (
       const res = await hasuraAxios.get("/proofs/one", {
         params: { ...request[i] },
       });
-
-      // add delay to avoid call too many request consecutively
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       reses.push(res);
     }
 

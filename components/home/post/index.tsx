@@ -166,9 +166,11 @@ export default function EvaluationPost({ postState }: EvaluationPostProps) {
                   )}
                 </div>
                 <div className={styles.descriptions}>
-                  <Text size={14} color="grey">
-                    {postState.body}
-                  </Text>
+                  {postState.body?.split("\\n").map((parag, i) => (
+                    <Text key={i.toString()} size={14} color="grey">
+                      {parag}
+                    </Text>
+                  ))}
                 </div>
                 <div className={styles.ratingAndHotelDetail}>
                   <PostRatingArea

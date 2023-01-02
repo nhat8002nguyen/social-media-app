@@ -54,7 +54,7 @@
 }
 
 .hotelDetail {
-	flex: 1;
+	flex: 3;
 }
 
 .hotelText {
@@ -65,7 +65,7 @@
 /* Rating Area */
 
 .ratingArea {
-	flex: 1;
+	flex: 2;
 	display: flex;
 	flex-direction: column;
 }
