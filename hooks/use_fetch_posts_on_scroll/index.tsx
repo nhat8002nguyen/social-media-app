@@ -13,7 +13,7 @@ export default function useFetchPostsOnScroll() {
   const dispatch = useAppDispatch();
 
   const [fetchLoading, setFetchLoading] = useState<boolean>(false);
-  const [scrollBtnVisible, setScrollBtnVisible] = useState<boolean>(true);
+  const [scrollBtnVisible, setScrollBtnVisible] = useState<boolean>(false);
 
   const { session: authSession, sessionStatus }: AuthState = useSelector(
     (state: RootState) => state.auth
