@@ -1,21 +1,16 @@
 import { appColors } from "@/shared/theme";
 import { ArrowCircleUp } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { GlobalState } from "redux/slices/global";
+import { RootState } from "redux/store/store";
 
 export const ScrollToTopButton = (): JSX.Element => {
-  const [visible, setVisible] = useState<boolean>(false);
+  const { scrollTopButtonVisible }: GlobalState = useSelector(
+    (state: RootState) => state.global
+  );
   const handleArrowUpClick = () => {
     window.scrollTo({ left: 0, top: 0, behavior: "smooth" });
   };
-
-  useEffect(() => {
-    if (document) {
-      document.onscroll = () => {
-        setVisible(window.scrollY > 2000);
-      };
-    }
-    return () => (document.onscroll = null);
-  }, []);
 
   return (
     <div
@@ -26,7 +21,7 @@ export const ScrollToTopButton = (): JSX.Element => {
         cursor: "pointer",
       }}
     >
-      {visible && (
+      {scrollTopButtonVisible && (
         <ArrowCircleUp
           fontSize="large"
           htmlColor={appColors.primary}

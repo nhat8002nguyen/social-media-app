@@ -171,6 +171,12 @@ export interface TrendingPostsResponseDto {
   evaluation_post: EvaluationPostDto[];
 }
 
+export interface PostsSharedByFollowingsReqDto {
+  user_id: number;
+  shared_limit?: number;
+  offset?: number;
+}
+
 export interface PostsSharedByFollowingsResDto {
   user: {
     followers: {

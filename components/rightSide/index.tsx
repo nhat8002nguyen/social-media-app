@@ -4,7 +4,7 @@ import useNotification, {
 import { appColors } from "@/shared/theme";
 import { showFullLocaleDateTime } from "@/shared/utils/home";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollToTopButton } from "../atoms/ScrollToTopButton";
 import { AppNormalText, AppSmallText } from "../atoms/appTexts";
 import { AppMaskLoading } from "../atoms/app_mask_loading";
@@ -12,7 +12,7 @@ import SearchInput from "../searchInput";
 import styles from "./styles.module.css";
 
 export default function RightSide() {
-  const { notifications, loading } = useNotification({ feedProps: null });
+  const { notifications } = useNotification({ feedProps: null });
 
   return (
     <div className={styles.right}>
@@ -45,7 +45,9 @@ const NotificationView = ({
         }}
       />
       {notifications?.length > 0
-        ? notifications.map((n) => <NotificationTile key={n.id} {...n} />)
+        ? notifications.map((n, i) => (
+            <NotificationTile key={n.id} {...n} index={i} />
+          ))
         : Array(4).map((_, i) => (
             <NotificationTile
               key={i}
@@ -65,10 +67,22 @@ const NotificationTile = ({
   description,
   dateTime,
   path,
+  index,
 }: NotificationTileProps): JSX.Element => {
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [blink, setBlink] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (index === 0) {
+      setBlink(true);
+      setTimeout(() => {
+        setBlink(false);
+      }, 5000);
+    }
+    router.prefetch(path);
+  }, []);
 
   const handleTileClick = async () => {
     setLoading(true);
@@ -77,7 +91,13 @@ const NotificationTile = ({
   };
   return (
     <AppMaskLoading isLoading={loading}>
-      <div className={styles.notificationTile} onClick={handleTileClick}>
+      <div
+        className={styles.notificationTile}
+        style={
+          blink ? { border: "2px solid green", borderRadius: "1rem" } : null
+        }
+        onClick={handleTileClick}
+      >
         <AppSmallText
           styles={{
             fontStyle: "bold",

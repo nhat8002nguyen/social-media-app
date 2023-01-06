@@ -14,6 +14,7 @@ import useForceSignIn from "@/hooks/useForceSignIn";
 import useNewsFeed from "@/hooks/useNewsFeed";
 import usePrefetchProfilePage from "@/hooks/usePrefetchProfilePage";
 import { useRefreshNewsFeed } from "@/hooks/useRefreshNewsFeed";
+import useFetchPostsOnScroll from "@/hooks/use_fetch_posts_on_scroll";
 import appPages from "@/shared/appPages";
 import { TrendingPostsRequestDto } from "apis/home/interfaces";
 import postListAPI from "apis/home/postListAPI";
@@ -41,6 +42,7 @@ export default function Home({ posts: initialPosts }: HomeGetServerSideProps) {
   useNewsFeed({ initialPosts });
   useRefreshNewsFeed();
   usePrefetchProfilePage({ ids: posts?.map((p) => p.postOwner.id) });
+  useFetchPostsOnScroll();
 
   const [loginRequireVisible, setLoginRequireVisible] =
     useState<boolean>(false);

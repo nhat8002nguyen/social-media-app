@@ -6,7 +6,11 @@ import { PostModal } from "@/components/mocules/evaluationPostModal";
 import { ImageViewModal } from "@/components/mocules/imageView";
 import { imageUrlAlt } from "@/constants/homeConstants";
 import { appColors } from "@/shared/theme";
-import { showFullLocaleDateTime, showNum } from "@/shared/utils/home";
+import {
+  getHtmlCommentId,
+  showFullLocaleDateTime,
+  showNum,
+} from "@/shared/utils/home";
 import {
   CheckCircle,
   ModeCommentOutlined,
@@ -39,7 +43,6 @@ import {
   closeReplyInputOpen,
   fetchCommentsByPostID,
   fetchReplyCommentsOfCurrentComments,
-  openCommentSession,
   openReplyInputOpenWithCommentId,
 } from "redux/slices/home/comments/commentsSlice";
 import {
@@ -598,7 +601,6 @@ const InteractionMetrics = ({
       dispatch(closeCommentSession());
     } else {
       await dispatch(fetchCommentsByPostID({ postId: postId }));
-      dispatch(openCommentSession({ postId: postId }));
     }
   };
 
@@ -721,7 +723,6 @@ const CommentArea = ({ postState, avatar }: CommentAreaProps) => {
       );
       dispatch(increaseCommentCountOfPost(postState.id));
       await dispatch(fetchCommentsByPostID({ postId: postState.id }));
-      dispatch(openCommentSession({ postId: postState.id }));
     }
     setInput("");
   };
@@ -862,7 +863,10 @@ const CommentThread = (props: CommentThreadProps) => {
   };
 
   return (
-    <div className={styles.commentThread}>
+    <div
+      className={styles.commentThread}
+      id={getHtmlCommentId(postId, currentCommentId)}
+    >
       <ProfileLink
         profileId={owner.id}
         child={<Avatar pointer src={owner.image} />}
@@ -918,7 +922,7 @@ const CommentThread = (props: CommentThreadProps) => {
         {replies?.length > 0 && isRepliesShow && (
           <div className={styles.replies}>
             {replies.map((reply) => (
-              <Comment key={reply.id} reply={reply} />
+              <Comment key={reply.id} reply={reply} postId={postId} />
             ))}
           </div>
         )}
@@ -930,15 +934,21 @@ const CommentThread = (props: CommentThreadProps) => {
 const Comment = (props: CommentProps) => {
   const {
     reply: {
+      id: commentId,
       owner: { id, image, username, shortBio },
       text,
+      threadId,
       createdAt,
     },
+    postId,
   } = props;
   const { session }: AuthState = useSelector((state: RootState) => state.auth);
 
   return (
-    <div className={styles.commentThread}>
+    <div
+      className={styles.commentThread}
+      id={getHtmlCommentId(postId, commentId, threadId)}
+    >
       <ProfileLink
         sessionId={session?.user.DBID}
         profileId={id}

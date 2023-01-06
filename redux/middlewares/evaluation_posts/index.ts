@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { PostState } from "redux/slices/home/posts/interfaces";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import {
   displayVerifiedStatusOfPostsList,
   fetchSharedPostsOfFollowings,
@@ -8,7 +8,6 @@ import {
 import { RootState } from "redux/store/store";
 
 export const postListListenerMiddleware = createListenerMiddleware();
-export const trendingPostsListenerMiddleware = createListenerMiddleware();
 
 postListListenerMiddleware.startListening({
   predicate: (action, currentState: RootState, prevState: RootState) => {
@@ -22,8 +21,16 @@ postListListenerMiddleware.startListening({
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const posts = (listenerApi.getState() as RootState).postList
-      .posts as PostState[];
-    await listenerApi.dispatch(displayVerifiedStatusOfPostsList(posts));
+    const postListState = (listenerApi.getState() as RootState)
+      .postList as PostListState;
+
+    const posts = postListState.posts as PostState[];
+
+    await listenerApi.dispatch(
+      displayVerifiedStatusOfPostsList({
+        states: posts,
+        start: postListState.previousIndex,
+      })
+    );
   },
 });

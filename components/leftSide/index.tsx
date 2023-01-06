@@ -20,10 +20,6 @@ import {
   syncGoogleAccountDB,
 } from "redux/slices/auth/authSlice";
 import { showOtherUsers } from "redux/slices/home/followableUsers/recommendUserListSlice";
-import {
-  fetchSharedPostsOfFollowings,
-  findNewsFeedPosts,
-} from "redux/slices/home/posts/postListSlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import appPages from "../../shared/appPages";
 import GlobalButton from "../atoms/GlobalButton";
@@ -81,7 +77,7 @@ interface MenuItemProps {
     focus: boolean;
     path: string;
   };
-  onMenuItemClick: (name: MenuItemProps["item"]["name"]) => void;
+  onMenuItemClick: (name: MenuItemProps["item"]["name"], path: string) => void;
   confirmModalVisible: boolean;
   onLogoutModalCloseClick: () => void;
 }
@@ -170,9 +166,12 @@ export default function LeftSide(props: LeftSideProps) {
     signIn("google");
   };
 
-  const handleMenuItemClick = (name: MenuItemProps["item"]["name"]) => {
+  const handleMenuItemClick = (
+    name: MenuItemProps["item"]["name"],
+    path: MenuItemProps["item"]["path"]
+  ) => {
     if (name == "HOME") {
-      handleHomeItemClick();
+      handleHomeItemClick(path);
     } else if (name == "LOGOUT") {
       handleLogoutItemClick();
     } else if (name == "TRENDING") {
@@ -180,12 +179,11 @@ export default function LeftSide(props: LeftSideProps) {
     }
   };
 
-  const handleHomeItemClick = async () => {
+  const handleHomeItemClick = async (path: MenuItemProps["item"]["path"]) => {
+    router.push(path);
     const userId = authSession?.user.DBID;
     if (userId != null) {
       dispatch(showOtherUsers({ showType: "random" }));
-      await dispatch(findNewsFeedPosts({ userId: userId }));
-      await dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
     }
   };
 
@@ -213,7 +211,7 @@ export default function LeftSide(props: LeftSideProps) {
             width={50}
             height={50}
             style={{ borderRadius: "2rem", cursor: "pointer" }}
-            onClick={handleHomeItemClick}
+            onClick={() => handleHomeItemClick(appPages.home)}
           />
         </div>
         <div className={styles.menuItemList}>
@@ -261,7 +259,7 @@ const MenuItem = (props: MenuItemProps) => {
       <div
         key={item.id}
         className={!item.focus ? styles.menuItem : styles.menuItemFocus}
-        onClick={() => onMenuItemClick(item.name)}
+        onClick={() => onMenuItemClick(item.name, item.path)}
       >
         {item.icon}
         <p>{item.name}</p>
@@ -295,11 +293,5 @@ const MenuItem = (props: MenuItemProps) => {
       </Link>
     );
   }
-  return (
-    <Link href={item.path}>
-      <a>
-        <Item />
-      </a>
-    </Link>
-  );
+  return <Item />;
 };

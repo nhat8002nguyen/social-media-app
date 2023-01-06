@@ -1,5 +1,5 @@
 const appPages = {
-  home: "/home/",
+  home: "/",
   user: "/user/",
   profile: "/profile/",
   language: "/language/",
@@ -11,3 +11,28 @@ const appPages = {
 };
 
 export default appPages;
+
+export interface GetPathOfPostPageWithComment {
+  userId: number;
+  postId: number;
+  commentId: number;
+  threadId: number;
+}
+
+export const getPathOfPostPageWithComment = ({
+  userId,
+  postId,
+  commentId,
+  threadId,
+}: GetPathOfPostPageWithComment) => {
+  return (
+    appPages.user +
+    userId +
+    appPages.post +
+    postId +
+    "/comment_thread/" +
+    threadId +
+    "/comment/" +
+    commentId
+  );
+};

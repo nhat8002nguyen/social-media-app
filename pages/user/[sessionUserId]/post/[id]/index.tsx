@@ -10,16 +10,19 @@ import ConfirmModal from "@/components/mocules/confirmModal";
 import CustomizedSnackbars from "@/components/mocules/snackbars";
 import RightSide from "@/components/rightSide";
 import constants from "@/constants/index";
+import useForceSignIn from "@/hooks/useForceSignIn";
 import appPages from "@/shared/appPages";
+import { getHtmlCommentId } from "@/shared/utils/home";
 import { SinglePostRequestDto } from "apis/home/interfaces";
 import postListAPI from "apis/home/postListAPI";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
+import { fetchCommentsByPostID } from "redux/slices/home/comments/commentsSlice";
 import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import { setPostsList } from "redux/slices/home/posts/postListSlice";
 import { convertPostListDtoToPostListState } from "redux/slices/home/posts/postsConverter";
@@ -28,9 +31,12 @@ import styles from "./styles.module.css";
 
 export default function EvaluationPostPage({
   posts: initialPosts,
+  commentId,
+  commentThreadId,
 }: PostPageGetServerSideProps) {
   const dispatch = useAppDispatch();
-  const { data: session } = useSession();
+  useForceSignIn();
+
   const { session: authSession }: AuthState = useSelector(
     (state: RootState) => state.auth
   );
@@ -42,14 +48,26 @@ export default function EvaluationPostPage({
     useState<boolean>(false);
 
   useEffect(() => {
-    if ((session as any)?.error === "RefreshAccessTokenError") {
-      signIn(); // Force sign in to hopefully resolve error
-    }
-  }, [session]);
-
-  useEffect(() => {
     dispatch(setPostsList(initialPosts));
   }, [initialPosts]);
+
+  // Scroll to specific comment if its id is specified in the route path
+  useEffect(() => {
+    if (posts.length > 0 && commentId && commentThreadId) {
+      dispatch(fetchCommentsByPostID({ postId: posts[0].id })).then(() => {
+        const commentElement = document.getElementById(
+          // Not yet implement openning replies here, so just navigate to the parent comment.
+          getHtmlCommentId(
+            posts[0].id,
+            commentThreadId > 0 ? commentThreadId : commentId
+          )
+        );
+
+        commentElement &&
+          window.scrollTo(commentElement.offsetLeft, commentElement.offsetTop);
+      });
+    }
+  }, [posts, commentId, commentThreadId]);
 
   const handlePageClick = () => {
     if (authSession == null) {
@@ -119,11 +137,25 @@ export default function EvaluationPostPage({
 
 export interface PostPageGetServerSideProps {
   posts?: PostState[];
+  commentId?: number;
+  commentThreadId?: number;
 }
 
 export const getServerSideProps: GetServerSideProps<
   PostPageGetServerSideProps
 > = async (context: GetServerSidePropsContext) => {
+  const posts = await getPostsOfPostPageFromContext(context);
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};
+
+export const getPostsOfPostPageFromContext = async (
+  context: GetServerSidePropsContext
+) => {
   const id = context.params.id;
   const sessionUserId = context.params.sessionUserId;
 
@@ -139,11 +171,7 @@ export const getServerSideProps: GetServerSideProps<
     sessionUserId: parseParamToInt(sessionUserId),
   });
 
-  return {
-    props: {
-      posts,
-    },
-  };
+  return posts;
 };
 
 const parseParamToInt = (id: string | string[]) => {

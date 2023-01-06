@@ -9,6 +9,7 @@ import { HYDRATE, createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
 import { postListListenerMiddleware } from "redux/middlewares/evaluation_posts";
 import authSliceReducer from "redux/slices/auth/authSlice";
+import globalReducer from "redux/slices/global";
 import commentsReducer from "redux/slices/home/comments/commentsSlice";
 import recommendUserList from "redux/slices/home/followableUsers/recommendUserListSlice";
 import likeReducer from "redux/slices/home/likes/likeSlice";
@@ -24,6 +25,7 @@ import snackbarsReducer from "redux/slices/statusNotifications/snackbarsSlice";
 import trendingSlice from "redux/slices/trending/trendingSlice";
 
 const combinedReducer = combineReducers({
+  global: globalReducer,
   auth: authSliceReducer,
   postList: postListReducer,
   postForm: postFormReducer,

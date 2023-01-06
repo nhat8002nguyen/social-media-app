@@ -1,5 +1,10 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { PostListRequestDto, UsedProofReqDto } from "apis/home/interfaces";
+import {
+  PostListRequestDto,
+  PostsSharedByFollowingsReqDto,
+  PostsSharedByFollowingsResDto,
+  UsedProofReqDto,
+} from "apis/home/interfaces";
 import * as postListApi from "../../../../apis/home/postListAPI";
 import { RootState } from "../../../store/store";
 import { PostListState, PostState } from "./interfaces";
@@ -10,6 +15,12 @@ const initialState: PostListState = {
   posts: [],
   loading: "idle",
   deleteRequestStatus: "idle",
+  newsFeedPagingInfo: {
+    nextOwnerOffset: 1,
+    nextFollowingOffset: 1,
+  },
+  followingsSharedPostsNextOffset: 0,
+  previousIndex: 0,
 };
 
 export const postListSlice = createSlice({
@@ -23,6 +34,7 @@ export const postListSlice = createSlice({
       }
     },
     setPostsList(state, action: PayloadAction<PostState[]>) {
+      state.previousIndex = 0;
       state.posts = action.payload;
     },
     setPostLiked(
@@ -57,6 +69,8 @@ export const postListSlice = createSlice({
       state.loading = "loading";
     });
     builder.addCase(findNewsFeedPosts.fulfilled, (state, action) => {
+      state.previousIndex = 0;
+
       const currentUserId = action.meta.arg.userId;
       state.posts = postsConverter.updateHomePostsFromResponse(
         action.payload,
@@ -90,6 +104,7 @@ export const postListSlice = createSlice({
       const sharedPostsOfFollowings = action.payload;
       const sharedPostsThatNotExist: PostState[] = [];
 
+      //Start ignoring duplicate posts
       sharedPostsOfFollowings.forEach((sp) => {
         const existPost = state.posts.find((p) => p.id == sp.id);
         if (existPost) {
@@ -105,6 +120,9 @@ export const postListSlice = createSlice({
       });
 
       state.posts = [...state.posts, ...sharedPostsThatNotExist];
+
+      // increase 1 due to default limit = 1
+      state.followingsSharedPostsNextOffset++;
     });
     builder.addCase(
       displayVerifiedStatusOfPostsList.fulfilled,
@@ -112,6 +130,26 @@ export const postListSlice = createSlice({
         state.posts = action.payload;
       }
     );
+    builder.addCase(fetchMoreNewsFeed.fulfilled, (state, action) => {
+      state.previousIndex = state.posts.length;
+
+      const currentUserId = action.meta.arg.userId;
+      const newPosts = postsConverter.updateHomePostsFromResponse(
+        action.payload,
+        currentUserId
+      );
+      const currentPosts = [...state.posts];
+      // Ignore duplicate posts
+      newPosts.forEach((np) => {
+        if (!currentPosts.find((cp) => cp.id === np.id)) {
+          state.posts.push(np);
+        }
+      });
+
+      // Because default limit is 1, so increase by 1
+      state.newsFeedPagingInfo.nextOwnerOffset++;
+      state.newsFeedPagingInfo.nextFollowingOffset++;
+    });
   },
 });
 
@@ -128,6 +166,13 @@ export default postListSlice.reducer;
 
 export const findNewsFeedPosts = createAsyncThunk(
   "posts/newsFeedPosts",
+  async (request: PostListRequestDto, thunkAPI) => {
+    return await postListApi.fetchNewsFeedOfUser(request);
+  }
+);
+
+export const fetchMoreNewsFeed = createAsyncThunk(
+  "posts/moreNewsFeedPosts",
   async (request: PostListRequestDto, thunkAPI) => {
     return await postListApi.fetchNewsFeedOfUser(request);
   }
@@ -152,37 +197,51 @@ export const updatePostsInteractionsStatusOfSessionUser = createAsyncThunk(
 
 export const fetchSharedPostsOfFollowings = createAsyncThunk(
   "posts/followings/sharedPosts",
-  async (request: { user_id: number }, thunkAPI) => {
+  async (request: PostsSharedByFollowingsReqDto, thunkAPI) => {
     const data = await postListApi.fetchPostsSharedByFollowings(request);
 
-    const postStateList: PostState[] = [];
-
-    data.user[0].followers.forEach((f) =>
-      postStateList.push(
-        ...f.following_user.post_shares.map((p) => {
-          const postState = postsConverter.convertPostDtoToPostState(
-            p.shared_posts,
-            request.user_id
-          );
-
-          postState.sharedUsers.push({
-            id: f.following_user.id,
-            username: f.following_user.user_name,
-          });
-
-          return postState;
-        })
-      )
-    );
-
-    return postStateList;
+    return convertFollowingsSharedPostsToPostStateList(data, request.user_id);
   }
 );
 
+export const convertFollowingsSharedPostsToPostStateList = (
+  data: PostsSharedByFollowingsResDto,
+  sUserId: number
+): Array<PostState> => {
+  const postStateList: PostState[] = [];
+
+  data.user[0].followers.forEach((f) =>
+    postStateList.push(
+      ...f.following_user.post_shares.map((p) => {
+        const postState = postsConverter.convertPostDtoToPostState(
+          p.shared_posts,
+          sUserId
+        );
+
+        postState.sharedUsers.push({
+          id: f.following_user.id,
+          username: f.following_user.user_name,
+        });
+
+        return postState;
+      })
+    )
+  );
+
+  return postStateList;
+};
+
 export const displayVerifiedStatusOfPostsList = createAsyncThunk(
   "posts/verified-status",
-  async (states: PostState[], thunkAPI): Promise<PostState[]> => {
-    const input = states
+  async (
+    request: { states: PostState[]; start?: number },
+    thunkAPI
+  ): Promise<PostState[]> => {
+    let newStates = request.start
+      ? request.states.slice(request.start)
+      : request.states;
+
+    const input = newStates
       .filter((p) => p.hotel?.id != null)
       .map(
         (post) =>
@@ -194,7 +253,8 @@ export const displayVerifiedStatusOfPostsList = createAsyncThunk(
 
     const reses = await postListApi.getVerifiedStatus(input);
 
-    let result = [...states];
+    let result = [...request.states];
+
     reses.forEach((res) => {
       if (res.service_used_proof.length == 0) {
         return;

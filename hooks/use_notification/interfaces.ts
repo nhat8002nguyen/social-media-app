@@ -57,3 +57,27 @@ export interface FeedSubscriptionResDto {
     }>;
   }>;
 }
+
+export interface CommentsSubReqDto {
+  user_id: number;
+  post_comment_limit?: number;
+}
+
+export interface CommentsSubResDto {
+  evaluation_post: Array<{
+    id: number;
+    title: string;
+    hotel: number | null;
+    post_comments: Array<{
+      id: number;
+      text: string;
+      post_id: number;
+      thread_id: number;
+      user: {
+        user_name: string;
+        id: number;
+      };
+      created_at: string;
+    }>;
+  }>;
+}

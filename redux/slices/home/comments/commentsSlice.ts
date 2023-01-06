@@ -1,13 +1,13 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   CommentDetailResponseDto,
   CommentInsertRequestDto,
   CommentsFetchRequestDto,
+  ReplyCommentsFetchRequestDto,
   getCommentByPostID,
   getReplyCommentsOfThread,
   insertComment,
   insertReplyComment,
-  ReplyCommentsFetchRequestDto,
 } from "../../../../apis/home/commentsAPI";
 
 export interface CommentsState {
@@ -31,10 +31,10 @@ export interface CommentDetailState {
     email: string;
     shortBio: string;
   };
-  editedAt: Date;
-  createdAt: Date;
-  haveReplies?: boolean;
-  replies?: CommentDetailState[];
+  editedAt: string;
+  createdAt: string;
+  haveReplies: boolean;
+  replies: CommentDetailState[];
 }
 
 export interface CommentSessionOpenProps {
@@ -55,9 +55,6 @@ const commentsSlice = createSlice({
   name: "commentsState",
   initialState: initialState,
   reducers: {
-    openCommentSession(state, action: PayloadAction<CommentSessionOpenProps>) {
-      state.commentSessionOpen.postId = action.payload.postId;
-    },
     closeCommentSession(state, action: PayloadAction<void>) {
       state.commentSessionOpen.postId = null;
     },
@@ -76,6 +73,7 @@ const commentsSlice = createSlice({
       state.fetchingStatus = "success";
       state.repliesFetchStatus = "idle";
       state.comments = convertCommentsDtoToCommentsState(action.payload);
+      state.commentSessionOpen.postId = action.meta.arg.postId;
     });
     builder.addCase(fetchCommentsByPostID.rejected, (state, action) => {
       state.fetchingStatus = "fail";
@@ -91,28 +89,23 @@ const commentsSlice = createSlice({
       state.insertStatus = "fail";
     });
     builder.addCase(
-      fetchReplyCommentsOfCurrentComments.pending,
-      (state, action) => {}
-    );
-    builder.addCase(
       fetchReplyCommentsOfCurrentComments.fulfilled,
       (state, action) => {
         action.payload.forEach((incomingReplies) => {
           if (incomingReplies?.length > 0) {
             const threadId = incomingReplies[0].thread_id;
-            const targetComment = state.comments.find(
-              (com) => com.id == threadId
+            state.comments = state.comments.map((com) =>
+              com.id === threadId
+                ? ({
+                    ...com,
+                    replies: convertCommentsDtoToCommentsState(incomingReplies),
+                  } as CommentDetailState)
+                : com
             );
-            targetComment.replies =
-              convertCommentsDtoToCommentsState(incomingReplies);
           }
         });
         state.repliesFetchStatus = "success";
       }
-    );
-    builder.addCase(
-      fetchReplyCommentsOfCurrentComments.rejected,
-      (state, action) => {}
     );
     builder.addCase(addReplyComment.pending, (state, action) => {
       state.replyInsertStatus = "pending";
@@ -174,18 +167,21 @@ const convertCommentsDtoToCommentsState = (
         email: dto.user.email,
         shortBio: dto.user.short_bio,
       },
-      editedAt: new Date(dto.edited_at),
-      createdAt: new Date(dto.created_at),
-    };
+      editedAt: dto.edited_at,
+      createdAt: dto.created_at,
+      haveReplies: false,
+      replies: [],
+    } as CommentDetailState;
   });
 
-  states.sort((a, b) => a.createdAt.valueOf() - b.createdAt.valueOf());
+  states.sort(
+    (a, b) => new Date(a.createdAt).valueOf() - new Date(b.createdAt).valueOf()
+  );
 
   return states;
 };
 
 export const {
-  openCommentSession,
   closeCommentSession,
   openReplyInputOpenWithCommentId,
   closeReplyInputOpen,

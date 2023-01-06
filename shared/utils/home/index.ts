@@ -84,3 +84,7 @@ export const showNum = (num: number) => {
       );
     }
   };
+
+export const getHtmlCommentId = (postId: number, commentId: number, threadId?: number) => {
+  return "comment" + "-" + commentId + "-" + "of-thread" + "-" + (threadId ?? -1) + "-" + "of-post" + "-" + postId;
+}

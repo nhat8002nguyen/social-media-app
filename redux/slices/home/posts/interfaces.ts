@@ -2,6 +2,12 @@ export interface PostListState {
   posts: Array<PostState>;
   loading: "idle" | "loading" | "succeeded" | "failed";
   deleteRequestStatus: "idle" | "pending" | "succeeded" | "failed";
+  newsFeedPagingInfo: {
+    nextFollowingOffset: number;
+    nextOwnerOffset: number;
+  };
+  followingsSharedPostsNextOffset: number;
+  previousIndex: number;
 }
 
 export interface PostState {

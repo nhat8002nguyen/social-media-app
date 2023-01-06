@@ -50,4 +50,5 @@ export interface PostRatingArea {
 
 export interface CommentProps {
   reply: CommentDetailState;
+  postId?: number;
 }
