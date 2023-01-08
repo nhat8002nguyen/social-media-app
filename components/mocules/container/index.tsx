@@ -54,7 +54,7 @@ export default function Container({ children, page }: ContainerProps) {
       />
       <footer className={styles.footer}>
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://service-social-media.herokuapp.com/"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -63,8 +63,8 @@ export default function Container({ children, page }: ContainerProps) {
             <Image
               src="https://res.cloudinary.com/dggrsi7ck/image/upload/v1671247771/app-logo_emyf9f.png"
               alt="Vercel Logo"
-              width={72}
-              height={72}
+              width={50}
+              height={50}
             />
           </span>
         </a>

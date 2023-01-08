@@ -8,7 +8,7 @@ import {
   findNewsFeedPosts,
   setPostsList,
 } from "redux/slices/home/posts/postListSlice";
-import { RootState, useAppDispatch } from "redux/store/store";
+import { AppDispatch, RootState, useAppDispatch } from "redux/store/store";
 
 export interface UseNewsFeed {
   initialPosts?: PostState[];
@@ -34,17 +34,20 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
       if (userId == null) {
         return;
       }
-      fetchNewsFeedPosts(userId);
+      fetchNewsFeedPosts(dispatch, userId);
     }
   }, [authSession, refreshCount]);
 
-  const fetchNewsFeedPosts = async (userId: number) => {
-    const request: PostListRequestDto = {
-      userId: userId,
-    };
-    await dispatch(findNewsFeedPosts(request));
-    await dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
-  };
-
   return { refreshNewsFeed };
 }
+
+export const fetchNewsFeedPosts = async (
+  dispatch: AppDispatch,
+  userId: number
+) => {
+  const request: PostListRequestDto = {
+    userId: userId,
+  };
+  await dispatch(findNewsFeedPosts(request));
+  await dispatch(fetchSharedPostsOfFollowings({ user_id: userId }));
+};

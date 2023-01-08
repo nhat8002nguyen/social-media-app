@@ -8,6 +8,7 @@ const appPages = {
   trending: "/trending/",
   people: "/people/",
   post: "/post/",
+  service: "/service/",
 };
 
 export default appPages;
@@ -35,4 +36,22 @@ export const getPathOfPostPageWithComment = ({
     "/comment/" +
     commentId
   );
+};
+
+export const getPathOfProfilePageWithId = (
+  sUserId: number,
+  profileId: number
+) => {
+  return appPages.user + sUserId + appPages.profile + profileId;
+};
+
+export const getPathOfPostPageWithId = (sUserId: number, postId: number) => {
+  return appPages.user + sUserId + appPages.post + postId;
+};
+
+export const getPathOfServicePageWithId = (
+  sUserId: number,
+  serviceId: number
+) => {
+  return appPages.user + sUserId + appPages.service + serviceId;
 };

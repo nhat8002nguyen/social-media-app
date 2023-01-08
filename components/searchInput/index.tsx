@@ -1,5 +1,9 @@
 import { useOutsideClick } from "@/hooks/useOutsideClick";
-import appPages from "@/shared/appPages";
+import {
+  getPathOfPostPageWithId,
+  getPathOfProfilePageWithId,
+  getPathOfServicePageWithId,
+} from "@/shared/appPages";
 import { appColors } from "@/shared/theme";
 import { SearchOutlined } from "@mui/icons-material";
 import { useRouter } from "next/router";
@@ -24,7 +28,7 @@ import styles from "./styles.module.css";
 
 export interface SearchTopicProps {
   id: number;
-  name: "People" | "Posts" | "Hotels";
+  name: "People" | "Posts" | "Services";
   searchStatus: HotelSearchList["searchStatus"];
   items: {
     id: number;
@@ -99,7 +103,7 @@ export default function SearchInput() {
     },
     {
       id: 2,
-      name: "Hotels",
+      name: "Services",
       searchStatus: hotelSearchStatus,
       items:
         hotels?.length > 0
@@ -124,7 +128,8 @@ export default function SearchInput() {
       case "Posts":
         await navigateToPostPage(item.id);
         break;
-      case "Hotels":
+      case "Services":
+        await navigateToServicePage(item.id);
         break;
       default:
         break;
@@ -134,12 +139,17 @@ export default function SearchInput() {
 
   const navigateToProfilePage = async (id: number) => {
     const sessionUserId = session?.user.DBID ?? 0;
-    await router.push(appPages.user + sessionUserId + appPages.profile + id);
+    await router.push(getPathOfProfilePageWithId(sessionUserId, id));
   };
 
   const navigateToPostPage = async (id: number) => {
     const sessionUserId = session?.user.DBID ?? 0;
-    await router.push(appPages.user + sessionUserId + appPages.post + id);
+    await router.push(getPathOfPostPageWithId(sessionUserId, id));
+  };
+
+  const navigateToServicePage = async (id: number) => {
+    const sessionUserId = session?.user.DBID ?? 0;
+    await router.push(getPathOfServicePageWithId(sessionUserId, id));
   };
 
   return (

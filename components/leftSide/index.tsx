@@ -41,18 +41,13 @@ const createMenuItems = (currentPage) => [
     focus: currentPage == appPages.profile,
     path: appPages.profile,
   } as MenuItemProps["item"],
-  // {
-  //   id: 3,
-  //   icon: <TranslateRounded />,
-  //   name: "LANGUAGE",
-  //   focus: currentPage == appPages.language,
-  // },
-  // {
-  //   id: 4,
-  //   icon: <WebRounded />,
-  //   name: "HOTELS",
-  //   focus: currentPage == appPages.pages,
-  // },
+  {
+    id: 2,
+    icon: <AccountCircleRounded />,
+    name: "SERVICE",
+    focus: currentPage == appPages.service,
+    path: appPages.service,
+  } as MenuItemProps["item"],
   {
     id: 5,
     icon: <WhatshotRounded />,
@@ -73,7 +68,7 @@ interface MenuItemProps {
   item: {
     id: number;
     icon: JSX.Element;
-    name: "HOME" | "PROFILE" | "TRENDING" | "LOGOUT";
+    name: "HOME" | "PROFILE" | "TRENDING" | "LOGOUT" | "SERVICE";
     focus: boolean;
     path: string;
   };
