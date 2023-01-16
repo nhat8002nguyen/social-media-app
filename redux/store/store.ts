@@ -7,7 +7,10 @@ import {
 } from "@reduxjs/toolkit";
 import { HYDRATE, createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
-import { postListListenerMiddleware } from "redux/middlewares/evaluation_posts";
+import {
+  homeFeedListenerMiddleware,
+  postListListenerMiddleware,
+} from "redux/middlewares/evaluation_posts";
 import authSliceReducer from "redux/slices/auth/authSlice";
 import globalReducer from "redux/slices/global";
 import commentsReducer from "redux/slices/home/comments/commentsSlice";
@@ -61,7 +64,8 @@ export const makeStore = () =>
     devTools: process.env.NODE_ENV != "production",
     middleware(getDefaultMiddleware) {
       return getDefaultMiddleware().prepend(
-        postListListenerMiddleware.middleware
+        postListListenerMiddleware.middleware,
+        homeFeedListenerMiddleware.middleware
       );
     },
   });

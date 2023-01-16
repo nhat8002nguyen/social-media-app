@@ -8,6 +8,7 @@ export interface PostListState {
   };
   followingsSharedPostsNextOffset: number;
   previousIndex: number;
+  currentHomePosts: Array<PostState>;
 }
 
 export interface PostState {

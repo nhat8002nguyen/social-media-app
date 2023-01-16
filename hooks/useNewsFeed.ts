@@ -2,7 +2,7 @@ import { PostListRequestDto } from "apis/home/interfaces";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AuthState } from "redux/slices/auth/authSlice";
-import { PostState } from "redux/slices/home/posts/interfaces";
+import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import {
   fetchSharedPostsOfFollowings,
   findNewsFeedPosts,
@@ -21,6 +21,9 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
   const { session: authSession, sessionStatus }: AuthState = useSelector(
     (state: RootState) => state.auth
   );
+  const { currentHomePosts }: PostListState = useSelector(
+    (state: RootState) => state.postList
+  );
 
   useEffect(() => {
     if (initialPosts?.length > 0 && sessionStatus == "unauthenticated") {
@@ -34,7 +37,11 @@ export default function useNewsFeed({ initialPosts }: UseNewsFeed) {
       if (userId == null) {
         return;
       }
-      fetchNewsFeedPosts(dispatch, userId);
+      if (currentHomePosts.length > 0) {
+        dispatch(setPostsList(currentHomePosts));
+      } else {
+        fetchNewsFeedPosts(dispatch, userId);
+      }
     }
   }, [authSession, refreshCount]);
 

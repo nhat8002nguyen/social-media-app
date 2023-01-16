@@ -88,9 +88,14 @@ const PersonItem = (props: PersonCardState) => {
               h6
               size={13}
               color="black"
-              css={{ marginTop: "$5", marginBottom: "$0", cursor: "pointer" }}
+              css={{
+                marginTop: "$5",
+                marginBottom: "$0",
+                cursor: "pointer",
+                textAlign: "center",
+              }}
             >
-              {name.split(/\s/).slice(0, 2).join(" ").slice(0, 16)}
+              {name.split(/\s/).slice(0, 3).join(" ").slice(0, 30)}
             </Text>
           }
           setLoading={setLoading}

@@ -21,6 +21,7 @@ const initialState: PostListState = {
   },
   followingsSharedPostsNextOffset: 0,
   previousIndex: 0,
+  currentHomePosts: [],
 };
 
 export const postListSlice = createSlice({
@@ -62,6 +63,9 @@ export const postListSlice = createSlice({
           ? post.sharedCount++
           : post.sharedCount > 0 && post.sharedCount--;
       }
+    },
+    saveCurrentHomePosts(state, action: PayloadAction<void>) {
+      state.currentHomePosts = state.posts;
     },
   },
   extraReducers: (builder) => {
@@ -158,6 +162,7 @@ export const {
   setPostsList,
   setPostLiked,
   setPostShared,
+  saveCurrentHomePosts,
 } = postListSlice.actions;
 
 export const selectPostListState = (state: RootState) => state.postList;
