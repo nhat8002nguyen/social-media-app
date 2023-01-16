@@ -10,6 +10,7 @@ Live Demo: https://service-social-media.herokuapp.com/
 - Material UI, NextUI
 - Cloudinary for Images storage
 
-## Contribution
+## Open source code
 
-Email nv.nhat8002@gmail.com for information about contribution.
+- Feel free to use this source code and customize it on your own. Happy if you fork it, thanks.
+  For any questions, let me know through my email address nv.nhat8002@gmail.com.
