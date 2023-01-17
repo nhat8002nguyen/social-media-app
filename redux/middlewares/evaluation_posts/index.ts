@@ -23,7 +23,7 @@ postListListenerMiddleware.startListening({
   effect: async (action, listenerApi) => {
     listenerApi.cancelActiveListeners();
 
-    await listenerApi.delay(1000);
+    await listenerApi.delay(500);
 
     const postListState = (listenerApi.getState() as RootState)
       .postList as PostListState;
@@ -70,6 +70,16 @@ homeFeedListenerMiddleware.startListening({
 
     // wait until other middlewares end before saving home feed.
     await listenerAPI.delay(3000);
+
+    const postListState = (listenerAPI.getState() as RootState)
+      .postList as PostListState;
+
+    const posts = postListState.posts as PostState[];
+    const prevPosts = postListState.currentHomePosts;
+
+    if (isPrevPostsIncludesNewPosts(prevPosts, posts)) {
+      return;
+    }
 
     listenerAPI.dispatch(saveCurrentHomePosts());
   },
