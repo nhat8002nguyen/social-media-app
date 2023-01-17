@@ -1,18 +1,18 @@
 import { AppPageLoading } from "@/components/atoms/AppLoading";
 import NavigationBar, {
-  homeActiveTabs,
   NavigationBarProps,
+  homeActiveTabs,
   profilePostTabs,
 } from "@/components/home/navigation_bar";
 import EvaluationPost from "@/components/home/post";
 import Container from "@/components/mocules/container";
 import ProfileSummaryCard from "@/components/profile/profile_summary_card/ProfileSummaryCard";
 import {
+  ProfilePageGetServerSideProps,
   fetchUserLikedPosts,
   fetchUserPosts,
   fetchUserSharedPosts,
   fetchUserSummary,
-  ProfilePageGetServerSideProps,
 } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
@@ -111,7 +111,7 @@ export const getServerSideProps: GetServerSideProps<
   try {
     const userId = context.params.id;
 
-    const summaryReq = fetchUserSummary(userId);
+    const summaryReq = fetchUserSummary({ profileId: userId });
     const postsReq = fetchUserPosts(userId);
     const likedPostsReq = fetchUserLikedPosts({
       userId: parseInt(typeof userId == "string" ? userId : userId[0]),
