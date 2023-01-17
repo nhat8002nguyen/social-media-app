@@ -107,3 +107,7 @@ export interface ProfileSummaryUpdateResponseDto {
     }[];
   };
 }
+
+export interface ProfileSummaryFindReqDto {
+  profileId: string | string[] | number;
+}

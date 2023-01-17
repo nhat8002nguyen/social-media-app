@@ -88,3 +88,11 @@ export const showNum = (num: number) => {
 export const getHtmlCommentId = (postId: number, commentId: number, threadId?: number) => {
   return "comment" + "-" + commentId + "-" + "of-thread" + "-" + (threadId ?? -1) + "-" + "of-post" + "-" + postId;
 }
+
+export function parseId(id: string | string[] | number) {
+      return typeof id == "string"
+        ? parseInt(id)
+        : typeof id != "number"
+        ? parseInt(id[0])
+        : id;
+}

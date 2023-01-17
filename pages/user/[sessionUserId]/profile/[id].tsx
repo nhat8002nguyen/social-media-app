@@ -1,7 +1,7 @@
 import { AppPageLoading } from "@/components/atoms/AppLoading";
 import NavigationBar, {
-  homeActiveTabs,
   NavigationBarProps,
+  homeActiveTabs,
   profilePostTabs,
 } from "@/components/home/navigation_bar";
 import EvaluationPost from "@/components/home/post";
@@ -14,6 +14,7 @@ import profileServices, {
   ProfilePageGetServerSideProps,
 } from "@/services/profileServices";
 import appPages from "@/shared/appPages";
+import { parseId } from "@/shared/utils/home";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -21,7 +22,10 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { PostListState, PostState } from "redux/slices/home/posts/interfaces";
 import { setPostsList } from "redux/slices/home/posts/postListSlice";
-import { setProfileSummary } from "redux/slices/profile/summary/summarySlice";
+import {
+  getProfileSummary,
+  setProfileSummary,
+} from "redux/slices/profile/summary/summarySlice";
 import { RootState, useAppDispatch } from "redux/store/store";
 import styles from "./styles.module.css";
 
@@ -30,6 +34,8 @@ export default function PersonProfile({
   posts: postsOfUser,
   likedPosts: postsLikedByUser,
   sharedPosts,
+  sessionUserId,
+  profileId,
 }: ProfilePageGetServerSideProps) {
   const dispatch = useAppDispatch();
 
@@ -40,7 +46,11 @@ export default function PersonProfile({
   );
 
   useEffect(() => {
-    dispatch(setProfileSummary(initialSummary));
+    if (initialSummary != null) {
+      dispatch(setProfileSummary(initialSummary));
+    } else {
+      dispatch(getProfileSummary({ profileId }));
+    }
   }, [initialSummary]);
 
   useEffect(() => {
@@ -118,28 +128,21 @@ export default function PersonProfile({
 export const getServerSideProps: GetServerSideProps<
   ProfilePageGetServerSideProps
 > = async (context: GetServerSidePropsContext) => {
+  const sessionUserId = context.params.sessionUserId;
+  const userId = context.params.id;
   try {
-    const sessionUserId = context.params.sessionUserId;
-    const userId = context.params.id;
-
-    const summaryReq = profileServices.fetchUserSummary(userId);
+    const summaryReq = profileServices.fetchUserSummary({ profileId: userId });
     const postsReq = profileServices.fetchUserPosts(
       userId,
-      parseInt(
-        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
-      )
+      parseId(sessionUserId)
     );
     const likedPostsReq = profileServices.fetchUserLikedPosts({
       userId: parseInt(typeof userId == "string" ? userId : userId[0]),
-      sessionUserId: parseInt(
-        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
-      ),
+      sessionUserId: parseId(sessionUserId),
     });
     const sharedPostReq = profileServices.fetchUserSharedPosts({
       userId: parseInt(typeof userId == "string" ? userId : userId[0]),
-      sessionUserId: parseInt(
-        typeof sessionUserId == "string" ? sessionUserId : sessionUserId[0]
-      ),
+      sessionUserId: parseId(sessionUserId),
     });
 
     const [summary, posts, likedPosts, sharedPosts] = await Promise.all([
@@ -159,6 +162,15 @@ export const getServerSideProps: GetServerSideProps<
     };
   } catch (err) {
     console.error(err);
-    throw Error("Can not fetch profile info of user " + context.params.id);
+    return {
+      props: {
+        summary: null,
+        posts: [],
+        likedPosts: [],
+        sharedPosts: [],
+        sessionUserId: parseId(sessionUserId),
+        profileId: parseId(userId),
+      },
+    };
   }
 };

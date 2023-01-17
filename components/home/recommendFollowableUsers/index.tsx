@@ -84,19 +84,36 @@ const PersonItem = (props: PersonCardState) => {
           sessionId={session?.user.DBID}
           profileId={userId}
           child={
-            <Text
-              h6
-              size={13}
-              color="black"
-              css={{
-                marginTop: "$5",
-                marginBottom: "$0",
-                cursor: "pointer",
-                textAlign: "center",
-              }}
-            >
-              {name.split(/\s/).slice(0, 3).join(" ").slice(0, 30)}
-            </Text>
+            <div>
+              <Text
+                h6
+                size={13}
+                color="black"
+                css={{
+                  marginTop: "$5",
+                  marginBottom: "$0",
+                  cursor: "pointer",
+                  textAlign: "center",
+                }}
+              >
+                {name.split(/\s/).slice(0, 2).join(" ").slice(0, 14)}
+              </Text>
+              <Text
+                h6
+                size={13}
+                color="black"
+                css={{
+                  marginBottom: "$0",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  height:
+                    !name.split(/\s/).slice(2, 3).join(" ").slice(0, 16) &&
+                    "1rem",
+                }}
+              >
+                {name.split(/\s/).slice(2, 3).join(" ").slice(0, 16)}
+              </Text>
+            </div>
           }
           setLoading={setLoading}
         />

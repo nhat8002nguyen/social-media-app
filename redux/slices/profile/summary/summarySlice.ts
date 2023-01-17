@@ -1,5 +1,7 @@
+import profileServices from "@/services/profileServices";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  ProfileSummaryFindReqDto,
   ProfileSummaryUpdateRequestDto,
   UserSummaryFetchResponseDto,
 } from "apis/profile/interfaces";
@@ -36,6 +38,9 @@ const summarySlice = createSlice({
           about: updatedInfo.about,
         };
       }
+    });
+    builder.addCase(getProfileSummary.fulfilled, (state, action) => {
+      state.summary = action.payload;
     });
   },
 });
@@ -88,6 +93,14 @@ export const editProfileSummary = createAsyncThunk(
   "users/profile/editProfileSummary",
   async (request: ProfileSummaryUpdateRequestDto, thunkAPI) => {
     return await updateProfileSummary(request);
+  }
+);
+
+export const getProfileSummary = createAsyncThunk(
+  "users/profile/getProfileSummary",
+  async function (request: ProfileSummaryFindReqDto, thunkAPI) {
+    const summary = await profileServices.fetchUserSummary(request);
+    return summary;
   }
 );
 

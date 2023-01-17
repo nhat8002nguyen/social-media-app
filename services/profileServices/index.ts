@@ -1,3 +1,5 @@
+import { parseId } from "@/shared/utils/home";
+import { ProfileSummaryFindReqDto } from "apis/profile/interfaces";
 import profilePageAPI from "apis/profile/profilePageAPI";
 import { PostState } from "redux/slices/home/posts/interfaces";
 import postsConverter from "redux/slices/home/posts/postsConverter";
@@ -7,17 +9,19 @@ import {
 } from "redux/slices/profile/summary/summarySlice";
 
 export interface ProfilePageGetServerSideProps {
-  summary: SummaryState["summary"];
+  summary: SummaryState["summary"] | null;
   posts: PostState[];
   likedPosts: PostState[];
   sharedPosts: PostState[];
+  sessionUserId?: number;
+  profileId?: number;
 }
 
 export const fetchUserSummary = async (
-  userId: string | string[]
+  request: ProfileSummaryFindReqDto
 ): Promise<ProfilePageGetServerSideProps["summary"]> => {
   const data = await profilePageAPI.getUserSummary({
-    user_id: typeof userId == "string" ? parseInt(userId) : parseInt(userId[0]),
+    user_id: parseId(request.profileId),
     follower_show_limit: 5,
     following_show_limit: 5,
   });
