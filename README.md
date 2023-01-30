@@ -2,6 +2,8 @@
 
 Live Demo: https://service-social-media.herokuapp.com/
 
+Demo Record Video: https://www.youtube.com/watch?v=AsXeUVslSy4
+
 ### Tech stack
 
 - Hasura GraphQL Engines
@@ -10,7 +12,5 @@ Live Demo: https://service-social-media.herokuapp.com/
 - Material UI, NextUI
 - Cloudinary for Images storage
 
-## Open source code
-
-- Feel free to use this source code and customize it on your own. Happy if you fork it, thanks.
+## Contact me if you want run it locally
   For any questions, let me know through my email address nv.nhat8002@gmail.com.
