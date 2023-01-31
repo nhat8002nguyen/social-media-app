@@ -92,9 +92,6 @@ export default function LeftSide(props: LeftSideProps) {
   const [menuItems, setMenuItems] = useState(() =>
     createMenuItems(currentPage)
   );
-  const [signInButtonText, setSignInButtonText] = useState(
-    "Sign In With Google"
-  );
   const [confirmModalVisible, setConfirmModalVisible] =
     useState<boolean>(false);
   const [loginRequireInterval, setLoginRequireInterval] =
@@ -130,9 +127,8 @@ export default function LeftSide(props: LeftSideProps) {
       clearInterval(loginRequireInterval);
       saveSessionToState(session);
       syncGoogleAccountToDB();
-      setSignInButtonText(session.user.name);
     }
-  }, [sessionStatus, syncGoogleAccountDB, setSignInButtonText]);
+  }, [sessionStatus, syncGoogleAccountDB]);
 
   const syncGoogleAccountToDB = () => {
     const user: UserRequestDto = {
@@ -231,7 +227,7 @@ export default function LeftSide(props: LeftSideProps) {
         </div>
         <GlobalButton
           icon={<GoogleIcon fontSize="small" />}
-          text={signInButtonText}
+          text={authSession?.user.name ?? "Sign In With Google"}
           onPress={() => onGoogleSignInButtonPress()}
           loading={sessionStatus == "loading"}
         />

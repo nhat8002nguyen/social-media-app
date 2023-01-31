@@ -5,6 +5,7 @@ export const hasuraAxios = axios.create({
   headers: {
     common: {
       "x-hasura-admin-secret": process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET,
+      "Retry-After": 4,
     },
   },
   timeout: 10000,
@@ -15,7 +16,6 @@ export const cloudinaryAxios = axios.create({
   headers: {
     common: {
       "Content-Type": "multipart/form-data",
-      "Retry-After": 4,
     },
   },
   timeout: 10000,

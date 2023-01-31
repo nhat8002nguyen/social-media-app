@@ -72,39 +72,29 @@ export interface IDDto {
 export const saveEvaluationPost = async (
   post: PostFormDetailState
 ): Promise<EvaluationPostDto> => {
-  // Accept that if transaction is unfortunately fail,
-  // the images will be rundundant in the cloud
-  const imagesSavingPromises = saveImagesToCloudinary(post.images);
-  const proofImagesSavingPromises = saveImagesToCloudinary(post.proofImages);
-
-  const [imagesSavingResponses, proofImagesSavingResponses] = await Promise.all(
-    [imagesSavingPromises, proofImagesSavingPromises]
-  );
-
-  const purePostPromise = saveEvaluationPostWithoutImages(post);
-  const pureUsedProofPromise = saveServiceUsedProofWithoutImages(post);
-
-  const [purePostRes, pureUsedProofRes] = await Promise.all([
-    purePostPromise,
-    pureUsedProofPromise,
-  ]);
-
-  if (purePostRes.status == 200) {
-    const proofImagesSavingPromise = await saveProofImageRefsToDBIFHave(
+  if (post.proofImages.length > 0 && post.hotel != null) {
+    const savedProofImages = await saveImagesToCloudinary(post.proofImages);
+    const pureUsedProofRes = await saveServiceUsedProofWithoutImages(post);
+    await saveProofImageRefsToDBIFHave(
       post,
       pureUsedProofRes,
-      proofImagesSavingResponses
+      savedProofImages
     );
-    const postImagesSavingPromise = await savePostImageRefsToDBIfHave(
+  }
+
+  // Accept that if transaction is unfortunately fail,
+  // the images will be rundundant in the cloud
+  const imagesSavingRes = await saveImagesToCloudinary(post.images);
+
+  const purePostRes = await saveEvaluationPostWithoutImages(post);
+
+  if (purePostRes.status == 200) {
+    const postImagesSavingRes = await savePostImageRefsToDBIfHave(
       post,
       purePostRes,
-      imagesSavingResponses
+      imagesSavingRes
     );
-    const [result] = await Promise.all([
-      postImagesSavingPromise,
-      proofImagesSavingPromise,
-    ]);
-    return result;
+    return postImagesSavingRes;
   }
 };
 

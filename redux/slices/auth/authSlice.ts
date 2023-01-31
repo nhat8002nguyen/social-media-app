@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
-  addGoogleAccountToDBIfNotExist,
   UserRequestDto,
+  addGoogleAccountToDBIfNotExist,
 } from "../../../apis/auth/authAPI";
 import { RootState } from "../../store/store";
 
@@ -49,6 +49,7 @@ export const authSlice = createSlice({
       state.syncDBStatus = "succeeded";
       if (action.payload?.user?.length > 0) {
         state.session.user.DBID = action.payload?.user[0]?.id;
+        state.session.user.name = action.payload?.user[0]?.user_name.toString();
       } else if (action.payload?.insert_user_one != null) {
         state.session.user.DBID = action.payload?.insert_user_one.id;
       }

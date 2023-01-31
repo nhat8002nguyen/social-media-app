@@ -15,6 +15,7 @@ import {
   Text,
   Textarea,
 } from "@nextui-org/react";
+import { unwrapResult } from "@reduxjs/toolkit";
 import {
   ChangeEvent,
   Key,
@@ -35,7 +36,7 @@ import {
 import { getHotelSearchList } from "redux/slices/search";
 import { HotelSearchList } from "redux/slices/search/interfaces";
 import { notifyRequestStatus } from "redux/slices/statusNotifications/snackbarsSlice";
-import { RootState, useAppDispatch } from "redux/store/store";
+import { AppDispatch, RootState, useAppDispatch } from "redux/store/store";
 import { ImageViewModal } from "../imageView";
 import {
   AccommodationInputProps,
@@ -104,41 +105,53 @@ export const PostModal = ({
     }));
   };
 
-  const onPostClick = async () => {
-    try {
-      const isValid = validatePostValues(postValues, setPostValues, dispatch);
+  const onPostClick = () => {
+    const isValid = validatePostValues(postValues, setPostValues, dispatch);
 
-      if (isValid == false) {
-        return;
-      }
-      if (purpose == "add") {
-        await dispatch(addNewEvaluationPost(postValues));
-        dispatch(
-          notifyRequestStatus({
-            message: "Create a new post successfully !",
-            severity: "success",
-          })
-        );
-      } else if (purpose == "edit") {
-        await dispatch(updateEvaluationPost(postValues));
-        dispatch(
-          notifyRequestStatus({
-            message: "Edit a post successfully !",
-            severity: "success",
-          })
-        );
-      }
-    } catch (rejectedValue) {
-      console.error(rejectedValue);
-      dispatch(
-        notifyRequestStatus({
-          message: "Failed to create or update new post, please try again !",
-          severity: "error",
+    if (isValid == false) {
+      return;
+    }
+    if (purpose == "add") {
+      dispatch(addNewEvaluationPost(postValues))
+        .then(unwrapResult)
+        .then((originalPromiseResult) => {
+          dispatch(
+            notifyRequestStatus({
+              message: "Create a new post successfully !",
+              severity: "success",
+            })
+          );
         })
-      );
+        .catch((rejectedValue) => {
+          notifyError(dispatch, rejectedValue);
+        });
+    } else if (purpose == "edit") {
+      dispatch(updateEvaluationPost(postValues))
+        .then(unwrapResult)
+        .then((originalPromiseResult) => {
+          dispatch(
+            notifyRequestStatus({
+              message: "Update post successfully !",
+              severity: "success",
+            })
+          );
+        })
+        .catch((rejectedValue) => {
+          notifyError(dispatch, rejectedValue);
+        });
     }
     setVisible(false);
   };
+
+  function notifyError(dispatch: AppDispatch, rejectedValue) {
+    console.error(rejectedValue);
+    dispatch(
+      notifyRequestStatus({
+        message: "Failed to create or update new post, please try again !",
+        severity: "error",
+      })
+    );
+  }
 
   const onCloseClick = () => {
     setVisible(false);
