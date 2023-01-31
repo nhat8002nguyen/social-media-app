@@ -12,5 +12,5 @@ Demo Record Video: https://www.youtube.com/watch?v=AsXeUVslSy4
 - Material UI, NextUI
 - Cloudinary for Images storage
 
-## Contact me if you want run it locally
-  For any questions, let me know through my email address nv.nhat8002@gmail.com.
+## Contact me if you wanna run it locally
+  let me know through my email address nv.nhat8002@gmail.com.
